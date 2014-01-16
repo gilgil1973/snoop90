@@ -1,0 +1,77 @@
+// ----------------------------------------------------------------------------
+//
+// Snoop Component Suite version 8.0
+//
+// http://www.gilgil.net
+//
+// Copyright (c) Gilbert Lee All rights reserved
+//
+// ----------------------------------------------------------------------------
+
+#ifndef __SNOOP_WIN_DIVERT_H__
+#define __SNOOP_WIN_DIVERT_H__
+
+#include <QLibrary>
+#include <SnoopCapture>
+#include <SnoopIp>
+#include <SnoopTcp>
+#include <SnoopUdp>
+#include <windivert/windivert.h>
+
+// ----------------------------------------------------------------------------
+// SnoopWinDivert
+// ----------------------------------------------------------------------------
+class SnoopWinDivert : public SnoopCapture
+{
+public:
+  SnoopWinDivert(void* owner = NULL);
+  virtual ~SnoopWinDivert();
+
+protected:
+  virtual bool doOpen();
+  virtual bool doClose();
+
+public:
+  virtual int read(SnoopPacket* packet);
+  virtual int write(SnoopPacket* packet);
+  virtual int write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr = NULL);
+
+public:
+  virtual SnoopCaptureType captureType();
+  virtual int              dataLink()    { return DLT_EN10MB; } // gilgil temp 2013.11.29
+  virtual int              relay(SnoopPacket* packet);
+
+public:
+  QString      filter;
+  UINT16       priority;
+  DIVERT_LAYER layer;
+  UINT64       flags;
+  UINT64       queueLen;
+  UINT64       queueTime;
+  bool         autoCorrectChecksum;
+
+public:
+  HANDLE       handle;
+
+protected:
+  static const int MAXBUF = 0xFFFF;
+  u_char         pktData[MAXBUF];
+  PKT_HDR        pktHdr;
+
+public:
+  virtual void load(VXml xml);
+  virtual void save(VXml xml);
+
+#ifdef QT_GUI_LIB
+public: // for VShowOption
+  virtual void addOptionWidget(QLayout* layout);
+  virtual void saveOption(QDialog* dialog);
+#endif // QT_GUI_LIB
+};
+
+// ----------------------------------------------------------------------------
+// WinDivertError
+// ----------------------------------------------------------------------------
+VDECLARE_ERROR_CLASS(WinDivertError)
+
+#endif // __SNOOP_WIN_DIVERT_H__

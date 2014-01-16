@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutDlg</class>
+ <widget class="QDialog" name="AboutDlg">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>230</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>About SnoopSpy</string>
+  </property>
+  <widget class="QLabel" name="lblLicense">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>65</y>
+     <width>311</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Copyright (c) Gilbert Lee All rights reserved</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblProduct">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>30</y>
+     <width>311</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>SnoopSpy version 3.0</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnOK">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>190</y>
+     <width>77</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>OK</string>
+   </property>
+   <property name="default">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblVDreamVersion">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>100</y>
+     <width>311</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>lblVDreamVersion</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblLogo">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>40</y>
+     <width>32</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="snoopspy.qrc">:/snoopspy.ico</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblSnoopVersion">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>118</y>
+     <width>311</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>lblSnoopVersion</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblWinPcap">
+   <property name="geometry">
+    <rect>
+     <x>14</x>
+     <y>182</y>
+     <width>216</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>http://www.winpcap.org</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblSnoopSpy">
+   <property name="geometry">
+    <rect>
+     <x>14</x>
+     <y>162</y>
+     <width>216</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>http://www.snoopspy.com</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblWinDivert">
+   <property name="geometry">
+    <rect>
+     <x>14</x>
+     <y>200</y>
+     <width>216</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>http://reqrypt.org/windivert.html</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="snoopspy.qrc"/>
+ </resources>
+ <connections/>
+</ui>
