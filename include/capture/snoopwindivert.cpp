@@ -58,11 +58,18 @@ private: // singleton
     WinDivertSend     = NULL;
     ok             = false;
 
+    SetLastError(ERROR_SUCCESS);
     lib = new QLibrary("WinDivert.dll");
     if (!lib->load())
     {
-      LOG_FATAL("lib->load() return false");
-      return; // gilgil temp 2013.11.29
+      DWORD lastError = GetLastError();
+      QString errorMsg = "";
+      switch (lastError)
+      {
+        case ERROR_INVALID_PARAMETER: errorMsg = "ERROR_INVALID_PARAMETER";
+      }
+      LOG_FATAL("lib->load() return false error=%s(%u)", qPrintable(errorMsg), lastError);
+      return;
     }
 
     if ((WinDivertOpen     = (WinDivertOpenFunc)    lib->resolve("WinDivertOpen"))     == NULL) LOG_FATAL("can not find WinDivertOpen");
