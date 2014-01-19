@@ -26,14 +26,12 @@ void SnoopBlock::block(SnoopPacket* packet)
 void SnoopBlock::load(VXml xml)
 {
   SnoopProcess::load(xml);
-
   relay = xml.getBool("relay", relay);
 }
 
 void SnoopBlock::save(VXml xml)
 {
   SnoopProcess::save(xml);
-
   xml.setBool("relay", relay);
 }
 

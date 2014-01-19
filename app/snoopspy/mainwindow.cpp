@@ -48,7 +48,7 @@ void MainWindow::initializeControl()
   QList<int> sizes; sizes << 100 << 200;
   mainSplitter->setSizes(sizes);
 
-  sizes.clear(); sizes << 100 << 100;
+  sizes.clear(); sizes << 150 << 100;
   ui->leftSplitter->setSizes(sizes);
 
   connect(scene, SIGNAL(changed(QList<QRectF>)), this, SLOT(changed(QList<QRectF>))); // gilgil temp 2012.07.31

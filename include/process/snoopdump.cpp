@@ -83,14 +83,14 @@ void SnoopDump::dump(SnoopPacket* packet)
 
 void SnoopDump::load(VXml xml)
 {
-  VObject::load(xml);
+  SnoopProcess::load(xml);
   filePath = xml.getStr("filePath", filePath);
   linkType = xml.getInt("linkType", linkType);
 }
 
 void SnoopDump::save(VXml xml)
 {
-  VObject::save(xml);
+  SnoopProcess::save(xml);
   xml.setStr("filePath", filePath);
   xml.setInt("linkType", linkType);
 }
