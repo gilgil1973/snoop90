@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-// Snoop Component Suite version 8.0
+// Snoop Component Suite version 9.0
 //
 // http://www.gilgil.net
 //
