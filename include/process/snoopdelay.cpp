@@ -1,4 +1,5 @@
 #include <SnoopDelay>
+#include <VDebugNew>
 
 REGISTER_METACLASS(SnoopDelay, SnoopProcess)
 
@@ -67,7 +68,6 @@ SnoopDelay::SnoopDelay(void* owner) : SnoopProcess(owner)
 
 SnoopDelay::~SnoopDelay()
 {
-  thread = new SnoopDelayThread(this);
   close();
 }
 
