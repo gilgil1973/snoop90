@@ -40,7 +40,7 @@ Source: "D:\project\net\snoop90\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ig
 Source: "D:\project\net\snoop90\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\project\net\windivert\1.1.2-rc\mingw\x86\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\project\net\windivert\1.1.2-rc\mingw\x86\WinDivert32.sys"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\project\net\windivert\1.1.2-rc\mingw\x86\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\project\net\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
