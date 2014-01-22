@@ -84,6 +84,7 @@ void SnoopDump::dump(SnoopPacket* packet)
 void SnoopDump::load(VXml xml)
 {
   SnoopProcess::load(xml);
+
   filePath = xml.getStr("filePath", filePath);
   linkType = xml.getInt("linkType", linkType);
 }
@@ -91,6 +92,7 @@ void SnoopDump::load(VXml xml)
 void SnoopDump::save(VXml xml)
 {
   SnoopProcess::save(xml);
+
   xml.setStr("filePath", filePath);
   xml.setInt("linkType", linkType);
 }
@@ -99,6 +101,7 @@ void SnoopDump::save(VXml xml)
 void SnoopDump::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
+
   VOptionable::addLineEdit(layout, "leFilePath", "File Path", filePath);
   VOptionable::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
 }
@@ -106,6 +109,7 @@ void SnoopDump::addOptionWidget(QLayout* layout)
 void SnoopDump::saveOptionDlg(QDialog* dialog)
 {
   SnoopProcess::saveOptionDlg(dialog);
+
   filePath = dialog->findChild<QLineEdit*>("leFilePath")->text();
   linkType = dialog->findChild<QLineEdit*>("leLinkType")->text().toInt();
 }

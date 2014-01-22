@@ -26,12 +26,14 @@ void SnoopBlock::block(SnoopPacket* packet)
 void SnoopBlock::load(VXml xml)
 {
   SnoopProcess::load(xml);
+
   drop = xml.getBool("drop", drop);
 }
 
 void SnoopBlock::save(VXml xml)
 {
   SnoopProcess::save(xml);
+
   xml.setBool("drop", drop);
 }
 
@@ -39,12 +41,14 @@ void SnoopBlock::save(VXml xml)
 void SnoopBlock::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
+
   VOptionable::addCheckBox(layout, "chkDrop", "Drop", drop);
 }
 
 void SnoopBlock::saveOptionDlg(QDialog* dialog)
 {
   SnoopProcess::saveOptionDlg(dialog);
+
   drop = dialog->findChild<QCheckBox*>("chkDrop")->checkState() == Qt::Checked;
 }
 #endif // QT_GUI_LIB

@@ -90,12 +90,14 @@ void SnoopCapture::run()
 void SnoopCapture::load(VXml xml)
 {
   VObject::load(xml);
+
   autoRead = xml.getBool("autoRead", autoRead);
 }
 
 void SnoopCapture::save(VXml xml)
 {
   VObject::save(xml);
+
   xml.setBool("autoRead", autoRead);
 }
 

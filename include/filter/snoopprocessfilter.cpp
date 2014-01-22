@@ -282,12 +282,14 @@ void SnoopProcessFilter::check(SnoopPacket* packet)
 void SnoopProcessFilter::load(VXml xml)
 {
   SnoopFilter::load(xml);
+
   policyMap.load(xml.gotoChild("policies"));
 }
 
 void SnoopProcessFilter::save(VXml xml)
 {
   SnoopFilter::save(xml);
+
   policyMap.save(xml.gotoChild("policies"));
 }
 

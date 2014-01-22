@@ -214,6 +214,12 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   packet->pktData = this->pktData;
   packet->pktHdr  = &this->pktHdr;
   packet->ethHdr  = ethHdr;
+  // ----- gilgil temp 2014.01.23 -----
+  if (SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
+  {
+    packet->ipHdr->ip_tos = 0x44;
+  }
+  // ----------------------------------
 
   if (autoCorrectChecksum)
   {
@@ -303,6 +309,7 @@ void SnoopWinDivert::save(VXml xml)
 void SnoopWinDivert::addOptionWidget(QLayout* layout)
 {
   SnoopCapture::addOptionWidget(layout);
+
   VOptionable::addLineEdit(layout, "leFilter",               "Filter",                filter);
   VOptionable::addLineEdit(layout, "lePriority",             "Priority",              QString::number(priority));
   VOptionable::addLineEdit(layout, "leLayer",                "Layer",                 QString::number(layer));
@@ -317,6 +324,7 @@ void SnoopWinDivert::addOptionWidget(QLayout* layout)
 void SnoopWinDivert::saveOptionDlg(QDialog* dialog)
 {
   SnoopCapture::saveOptionDlg(dialog);
+
   filter    = dialog->findChild<QLineEdit*>("leFilter")->text();
   priority  = dialog->findChild<QLineEdit*>("lePriority")->text().toUShort();
   layer     = (DIVERT_LAYER) dialog->findChild<QLineEdit*>("leLayer")->text().toInt();

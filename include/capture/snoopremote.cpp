@@ -110,6 +110,7 @@ bool SnoopRemote::doClose()
 void SnoopRemote::load(VXml xml)
 {
   SnoopPcap::load(xml);
+
   host = xml.getStr("host", host);
   userName = xml.getStr("userName", userName);
   password = xml.getStr("password", password);
@@ -119,6 +120,7 @@ void SnoopRemote::load(VXml xml)
 void SnoopRemote::save(VXml xml)
 {
   SnoopPcap::save(xml);
+
   xml.setStr("host", host);
   xml.setStr("userName", userName);
   xml.setStr("password", password);
@@ -129,6 +131,7 @@ void SnoopRemote::save(VXml xml)
 void SnoopRemote::addOptionWidget(QLayout *layout)
 {
   SnoopPcap::addOptionWidget(layout);
+
   VOptionable::addLineEdit(layout, "leHost",         "Host",          host);
   VOptionable::addLineEdit(layout, "leUserName",     "User Name",     userName);
   VOptionable::addLineEdit(layout, "lePassword",     "Password",      password);
@@ -138,6 +141,7 @@ void SnoopRemote::addOptionWidget(QLayout *layout)
 void SnoopRemote::saveOptionDlg(QDialog *dialog)
 {
   SnoopPcap::saveOptionDlg(dialog);
+
   host         = dialog->findChild<QLineEdit*>("leHost")->text();
   userName     = dialog->findChild<QLineEdit*>("leUserName")->text();
   password     = dialog->findChild<QLineEdit*>("lePassword")->text();

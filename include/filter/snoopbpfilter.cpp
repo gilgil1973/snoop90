@@ -85,6 +85,7 @@ void SnoopBpFilter::check(SnoopPacket* packet)
 void SnoopBpFilter::load(VXml xml)
 {
   SnoopFilter::load(xml);
+
   filter = xml.getStr("filter", filter);
   linkType = xml.getInt("linkType", linkType);
 }
@@ -92,6 +93,7 @@ void SnoopBpFilter::load(VXml xml)
 void SnoopBpFilter::save(VXml xml)
 {
   SnoopFilter::save(xml);
+
   xml.setStr("filter", filter);
   xml.setInt("linkType", linkType);
 }
@@ -100,6 +102,7 @@ void SnoopBpFilter::save(VXml xml)
 void SnoopBpFilter::addOptionWidget(QLayout *layout)
 {
   SnoopFilter::addOptionWidget(layout);
+
   VOptionable::addLineEdit(layout, "leFilter",   "Filter",    filter);
   VOptionable::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
 }
@@ -107,6 +110,7 @@ void SnoopBpFilter::addOptionWidget(QLayout *layout)
 void SnoopBpFilter::saveOptionDlg(QDialog *dialog)
 {
   SnoopFilter::saveOptionDlg(dialog);
+
   filter   = dialog->findChild<QLineEdit*>("leFilter")->text();
   linkType = dialog->findChild<QLineEdit*>("leLinkType")->text().toInt();
 }

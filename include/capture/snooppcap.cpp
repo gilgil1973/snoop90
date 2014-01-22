@@ -194,6 +194,7 @@ bool SnoopPcap::pcapProcessFilter(pcap_if_t* dev)
 void SnoopPcap::load(VXml xml)
 {
   SnoopCapture::load(xml);
+
   filter      = xml.getStr("filter", filter);
   snapLen     = xml.getInt("snapLen", snapLen);
   flags       = xml.getInt("flags", flags);
@@ -203,6 +204,7 @@ void SnoopPcap::load(VXml xml)
 void SnoopPcap::save(VXml xml)
 {
   SnoopCapture::save(xml);
+
   xml.setStr("filter", filter);
   xml.setInt("snapLen", snapLen);
   xml.setInt("flags", flags);
@@ -213,6 +215,7 @@ void SnoopPcap::save(VXml xml)
 void SnoopPcap::addOptionWidget(QLayout* layout)
 {
   SnoopCapture::addOptionWidget(layout);
+
   VOptionable::addLineEdit(layout, "leFilter",      "Filter",       filter);
   VOptionable::addLineEdit(layout, "leSnapLen",     "Snap Len",     QString::number(snapLen));
   VOptionable::addLineEdit(layout, "leFlags",       "Flags",        QString::number(flags));
@@ -222,6 +225,7 @@ void SnoopPcap::addOptionWidget(QLayout* layout)
 void SnoopPcap::saveOptionDlg(QDialog* dialog)
 {
   SnoopCapture::saveOptionDlg(dialog);
+
   filter      = dialog->findChild<QLineEdit*>("leFilter")->text();
   snapLen     = dialog->findChild<QLineEdit*>("leSnapLen")->text().toInt();
   flags       = dialog->findChild<QLineEdit*>("leFlags")->text().toInt();

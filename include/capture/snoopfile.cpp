@@ -77,6 +77,7 @@ int SnoopFile::read(SnoopPacket* packet)
 void SnoopFile::load(VXml xml)
 {
   SnoopPcap::load(xml);
+
   fileName = xml.getStr("fileName", fileName);
   speed    = xml.getDouble("speed", speed);
 }
@@ -84,6 +85,7 @@ void SnoopFile::load(VXml xml)
 void SnoopFile::save(VXml xml)
 {
   SnoopPcap::save(xml);
+
   xml.setStr("fileName", fileName);
   xml.setDouble("speed", speed);
 }
@@ -92,6 +94,7 @@ void SnoopFile::save(VXml xml)
 void SnoopFile::addOptionWidget(QLayout *layout)
 {
   SnoopPcap::addOptionWidget(layout);
+
   VOptionable::addLineEdit(layout, "leFileName", "File Name", fileName);
   VOptionable::addLineEdit(layout, "leSpeed",    "Speed",     QString::number(speed));
 }
@@ -99,6 +102,7 @@ void SnoopFile::addOptionWidget(QLayout *layout)
 void SnoopFile::saveOptionDlg(QDialog *dialog)
 {
   SnoopPcap::saveOptionDlg(dialog);
+
   fileName = dialog->findChild<QLineEdit*>("leFileName")->text();
   speed    = dialog->findChild<QLineEdit*>("leFileName")->text().toDouble();
 }

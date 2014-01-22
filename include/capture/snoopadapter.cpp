@@ -76,12 +76,14 @@ bool SnoopAdapter::doClose()
 void SnoopAdapter::load(VXml xml)
 {
   SnoopPcap::load(xml);
+
   adapterIndex = xml.getInt("adapterIndex", adapterIndex);
 }
 
 void SnoopAdapter::save(VXml xml)
 {
   SnoopPcap::save(xml);
+
   xml.setInt("adapterIndex", adapterIndex);
 }
 
@@ -89,6 +91,7 @@ void SnoopAdapter::save(VXml xml)
 void SnoopAdapter::addOptionWidget(QLayout *layout)
 {
   SnoopPcap::addOptionWidget(layout);
+
   QStringList strList;
   SnoopInterfaces& intfs = SnoopInterfaces::instance();
   int _count = intfs.count();
@@ -105,6 +108,7 @@ void SnoopAdapter::addOptionWidget(QLayout *layout)
 void SnoopAdapter::saveOptionDlg(QDialog *dialog)
 {
   SnoopPcap::saveOptionDlg(dialog);
+
   adapterIndex = dialog->findChild<QComboBox*>("cbxAdapterIndex")->currentIndex();
 }
 #endif // QT_GUI_LIB
