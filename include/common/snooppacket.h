@@ -70,6 +70,7 @@ public:
 
 public:
   void clear();
+  int  write(QByteArray& ba);
 };
 // #pragma pack (pop) // gilgil temp 2013.02.21
 

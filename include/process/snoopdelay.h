@@ -23,8 +23,9 @@
 class SnoopDelayItem
 {
 public:
-  VTick       tick;
-  SnoopPacket packet;
+  VTick             tick;
+  QByteArray        ba;
+  WINDIVERT_ADDRESS divertAddr;
 };
 
 // ----------------------------------------------------------------------------

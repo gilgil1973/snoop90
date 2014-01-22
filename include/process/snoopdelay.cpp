@@ -25,7 +25,7 @@ int SnoopDelayItemMgr::flush(VTick now)
     if (it == items.end()) break;
     SnoopDelayItem& item = *it;
     if (now < item.tick) break;
-    capture->write(&item.packet);
+    capture->write((u_char*)item.ba.data(), item.ba.size(), &item.divertAddr);
     items.removeAt(0);
     res++;
   }
@@ -95,7 +95,8 @@ void SnoopDelay::delay(SnoopPacket* packet)
 
   SnoopDelayItem item;
   item.tick = tick() + this->timeout;
-  item.packet = *packet;
+  packet->write(item.ba);
+  item.divertAddr = packet->divertAddr;
 
   VLock lock(thread->itemMgr);
   thread->itemMgr.items.push_back(item);
