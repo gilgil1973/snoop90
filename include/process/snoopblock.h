@@ -28,7 +28,7 @@ public slots:
   void block(SnoopPacket* packet);
 
 public:
-  bool          relay;
+  bool          drop;
 
 public:
   virtual void load(VXml xml);
