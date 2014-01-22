@@ -92,13 +92,13 @@ void SnoopFile::save(VXml xml)
 void SnoopFile::addOptionWidget(QLayout *layout)
 {
   SnoopPcap::addOptionWidget(layout);
-  VShowOption::addLineEdit(layout, "leFileName", "File Name", fileName);
-  VShowOption::addLineEdit(layout, "leSpeed",    "Speed",     QString::number(speed));
+  VOptionable::addLineEdit(layout, "leFileName", "File Name", fileName);
+  VOptionable::addLineEdit(layout, "leSpeed",    "Speed",     QString::number(speed));
 }
 
-void SnoopFile::saveOption(QDialog *dialog)
+void SnoopFile::saveOptionDlg(QDialog *dialog)
 {
-  SnoopPcap::saveOption(dialog);
+  SnoopPcap::saveOptionDlg(dialog);
   fileName = dialog->findChild<QLineEdit*>("leFileName")->text();
   speed    = dialog->findChild<QLineEdit*>("leFileName")->text().toDouble();
 }

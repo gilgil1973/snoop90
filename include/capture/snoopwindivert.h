@@ -63,9 +63,9 @@ public:
   virtual void save(VXml xml);
 
 #ifdef QT_GUI_LIB
-public: // for VShowOption
+public: // for VOptionable
   virtual void addOptionWidget(QLayout* layout);
-  virtual void saveOption(QDialog* dialog);
+  virtual void saveOptionDlg(QDialog* dialog);
 #endif // QT_GUI_LIB
 };
 

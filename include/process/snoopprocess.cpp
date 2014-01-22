@@ -37,7 +37,7 @@ void SnoopProcess::addOptionWidget(QLayout *layout)
   Q_UNUSED(layout)
 }
 
-void SnoopProcess::saveOption(QDialog *dialog)
+void SnoopProcess::saveOptionDlg(QDialog *dialog)
 {
   Q_UNUSED(dialog)
 }

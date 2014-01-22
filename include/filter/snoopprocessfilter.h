@@ -102,13 +102,13 @@ public:
   virtual void save(VXml xml);
 
 #ifdef QT_GUI_LIB
-private: // VShowOption
+private: // VOptionable
   SnoopProcessFilterModel* myModel;
-public: // for VShowOption
+public: // for VOptionable
   virtual bool event(QEvent *);
-  virtual bool showOption(QDialog* dialog);
   virtual void addOptionWidget(QLayout* layout);
-  virtual void saveOption(QDialog* dialog);
+  virtual bool showOptionDlg(QDialog* dialog);
+  virtual void saveOptionDlg(QDialog* dialog);
 #endif // QT_GUI_LIB
 };
 

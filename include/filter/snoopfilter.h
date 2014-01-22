@@ -17,16 +17,16 @@
 // ----------------------------------------------------------------------------
 // SnoopFilter
 // ----------------------------------------------------------------------------
-class SnoopFilter : public VObject, public VShowOption
+class SnoopFilter : public VObject, public VOptionable
 {
 public:
   SnoopFilter(void* owner = NULL);
   virtual ~SnoopFilter();
 
 #ifdef QT_GUI_LIB
-public: // for VShowOption
+public: // for VOptionable
   virtual void addOptionWidget(QLayout* layout);
-  virtual void saveOption(QDialog* dialog);
+  virtual void saveOptionDlg(QDialog* dialog);
 #endif // QT_GUI_LIB
 };
 

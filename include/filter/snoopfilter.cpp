@@ -17,7 +17,7 @@ void SnoopFilter::addOptionWidget(QLayout *layout)
   Q_UNUSED(layout)
 }
 
-void SnoopFilter::saveOption(QDialog *dialog)
+void SnoopFilter::saveOptionDlg(QDialog *dialog)
 {
   Q_UNUSED(dialog)
 }

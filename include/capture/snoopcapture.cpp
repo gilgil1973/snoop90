@@ -102,10 +102,10 @@ void SnoopCapture::save(VXml xml)
 #ifdef QT_GUI_LIB
 void SnoopCapture::addOptionWidget(QLayout* layout)
 {
-  VShowOption::addCheckBox(layout, "chkAutoRead", "Auto Read", autoRead);
+  VOptionable::addCheckBox(layout, "chkAutoRead", "Auto Read", autoRead);
 }
 
-void SnoopCapture::saveOption(QDialog* dialog)
+void SnoopCapture::saveOptionDlg(QDialog* dialog)
 {
   autoRead = dialog->findChild<QCheckBox*>("chkAutoRead")->checkState() == Qt::Checked;
 }

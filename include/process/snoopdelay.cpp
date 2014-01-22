@@ -131,14 +131,14 @@ void SnoopDelay::addOptionWidget(QLayout* layout)
   {
     stringList.push_back(obj->name);
   }
-  QComboBox* cbxCapture = VShowOption::addComboBox(layout, "cbxCapture", "Capture", stringList, -1);
+  QComboBox* cbxCapture = VOptionable::addComboBox(layout, "cbxCapture", "Capture", stringList, -1);
   cbxCapture->setCurrentText(capture == NULL ? "" : capture->name);
-  VShowOption::addLineEdit(layout, "leTimeout", "Timeout", QString::number(timeout));
+  VOptionable::addLineEdit(layout, "leTimeout", "Timeout", QString::number(timeout));
 }
 
-void SnoopDelay::saveOption(QDialog* dialog)
+void SnoopDelay::saveOptionDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOption(dialog);
+  SnoopProcess::saveOptionDlg(dialog);
 
   capture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxCapture")->currentText()));
   timeout = (VTimeout)dialog->findChild<QLineEdit*>("leTimeout")->text().toLong();

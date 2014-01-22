@@ -244,19 +244,19 @@ void SnoopTcpBlock::addOptionWidget(QLayout* layout)
   {
     stringList.push_back(obj->name);
   }
-  QComboBox* cbxCapture = VShowOption::addComboBox(layout, "cbxCapture", "Capture", stringList, -1);
+  QComboBox* cbxCapture = VOptionable::addComboBox(layout, "cbxCapture", "Capture", stringList, -1);
   cbxCapture->setCurrentText(capture == NULL ? "" : capture->name);
-  VShowOption::addCheckBox(layout, "chkForwardRst",    "Forward Rst",     forwardRst);
-  VShowOption::addCheckBox(layout, "chkBackwardRst",   "Backward Rst",    backwardRst);
-  VShowOption::addCheckBox(layout, "chkForwardFin",    "Forward Fin",     forwardFin);
-  VShowOption::addLineEdit(layout, "leForwardFinMsg",  "Forward Fin Msg", forwardFinMsg);
-  VShowOption::addCheckBox(layout, "chkBackwardFin",   "Backward Fin",    backwardFin);
-  VShowOption::addLineEdit(layout, "leBackwardFinMsg", "Forward Fin Msg", backwardFinMsg);
+  VOptionable::addCheckBox(layout, "chkForwardRst",    "Forward Rst",     forwardRst);
+  VOptionable::addCheckBox(layout, "chkBackwardRst",   "Backward Rst",    backwardRst);
+  VOptionable::addCheckBox(layout, "chkForwardFin",    "Forward Fin",     forwardFin);
+  VOptionable::addLineEdit(layout, "leForwardFinMsg",  "Forward Fin Msg", forwardFinMsg);
+  VOptionable::addCheckBox(layout, "chkBackwardFin",   "Backward Fin",    backwardFin);
+  VOptionable::addLineEdit(layout, "leBackwardFinMsg", "Forward Fin Msg", backwardFinMsg);
 }
 
-void SnoopTcpBlock::saveOption(QDialog* dialog)
+void SnoopTcpBlock::saveOptionDlg(QDialog* dialog)
 {
-  SnoopBlock::saveOption(dialog);
+  SnoopBlock::saveOptionDlg(dialog);
 
   capture        = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxCapture")->currentText()));
   forwardRst     = dialog->findChild<QCheckBox*>("chkForwardRst")->checkState() == Qt::Checked;

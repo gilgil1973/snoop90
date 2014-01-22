@@ -39,12 +39,12 @@ void SnoopBlock::save(VXml xml)
 void SnoopBlock::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
-  VShowOption::addCheckBox(layout, "chkRelay", "Relay", relay);
+  VOptionable::addCheckBox(layout, "chkRelay", "Relay", relay);
 }
 
-void SnoopBlock::saveOption(QDialog* dialog)
+void SnoopBlock::saveOptionDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOption(dialog);
+  SnoopProcess::saveOptionDlg(dialog);
   relay = dialog->findChild<QCheckBox*>("chkRelay")->checkState() == Qt::Checked;
 }
 #endif // QT_GUI_LIB

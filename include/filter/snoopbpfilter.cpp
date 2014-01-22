@@ -100,13 +100,13 @@ void SnoopBpFilter::save(VXml xml)
 void SnoopBpFilter::addOptionWidget(QLayout *layout)
 {
   SnoopFilter::addOptionWidget(layout);
-  VShowOption::addLineEdit(layout, "leFilter",   "Filter",    filter);
-  VShowOption::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
+  VOptionable::addLineEdit(layout, "leFilter",   "Filter",    filter);
+  VOptionable::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
 }
 
-void SnoopBpFilter::saveOption(QDialog *dialog)
+void SnoopBpFilter::saveOptionDlg(QDialog *dialog)
 {
-  SnoopFilter::saveOption(dialog);
+  SnoopFilter::saveOptionDlg(dialog);
   filter   = dialog->findChild<QLineEdit*>("leFilter")->text();
   linkType = dialog->findChild<QLineEdit*>("leLinkType")->text().toInt();
 }

@@ -99,13 +99,13 @@ void SnoopDump::save(VXml xml)
 void SnoopDump::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
-  VShowOption::addLineEdit(layout, "leFilePath", "File Path", filePath);
-  VShowOption::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
+  VOptionable::addLineEdit(layout, "leFilePath", "File Path", filePath);
+  VOptionable::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
 }
 
-void SnoopDump::saveOption(QDialog* dialog)
+void SnoopDump::saveOptionDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOption(dialog);
+  SnoopProcess::saveOptionDlg(dialog);
   filePath = dialog->findChild<QLineEdit*>("leFilePath")->text();
   linkType = dialog->findChild<QLineEdit*>("leLinkType")->text().toInt();
 }

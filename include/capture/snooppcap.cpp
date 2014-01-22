@@ -213,15 +213,15 @@ void SnoopPcap::save(VXml xml)
 void SnoopPcap::addOptionWidget(QLayout* layout)
 {
   SnoopCapture::addOptionWidget(layout);
-  VShowOption::addLineEdit(layout, "leFilter",      "Filter",       filter);
-  VShowOption::addLineEdit(layout, "leSnapLen",     "Snap Len",     QString::number(snapLen));
-  VShowOption::addLineEdit(layout, "leFlags",       "Flags",        QString::number(flags));
-  VShowOption::addLineEdit(layout, "leReadTimeout", "Read Timeout", QString::number(readTimeout));
+  VOptionable::addLineEdit(layout, "leFilter",      "Filter",       filter);
+  VOptionable::addLineEdit(layout, "leSnapLen",     "Snap Len",     QString::number(snapLen));
+  VOptionable::addLineEdit(layout, "leFlags",       "Flags",        QString::number(flags));
+  VOptionable::addLineEdit(layout, "leReadTimeout", "Read Timeout", QString::number(readTimeout));
 }
 
-void SnoopPcap::saveOption(QDialog* dialog)
+void SnoopPcap::saveOptionDlg(QDialog* dialog)
 {
-  SnoopCapture::saveOption(dialog);
+  SnoopCapture::saveOptionDlg(dialog);
   filter      = dialog->findChild<QLineEdit*>("leFilter")->text();
   snapLen     = dialog->findChild<QLineEdit*>("leSnapLen")->text().toInt();
   flags       = dialog->findChild<QLineEdit*>("leFlags")->text().toInt();

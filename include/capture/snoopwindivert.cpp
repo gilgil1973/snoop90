@@ -303,20 +303,20 @@ void SnoopWinDivert::save(VXml xml)
 void SnoopWinDivert::addOptionWidget(QLayout* layout)
 {
   SnoopCapture::addOptionWidget(layout);
-  VShowOption::addLineEdit(layout, "leFilter",               "Filter",                filter);
-  VShowOption::addLineEdit(layout, "lePriority",             "Priority",              QString::number(priority));
-  VShowOption::addLineEdit(layout, "leLayer",                "Layer",                 QString::number(layer));
-  VShowOption::addCheckBox(layout, "chkFlagSniff",           "Flag Sniff(OutOfPath)", flags & WINDIVERT_FLAG_SNIFF);
-  VShowOption::addCheckBox(layout, "chkFlagDrop",            "Flag Drop",             flags & WINDIVERT_FLAG_DROP);
-  VShowOption::addCheckBox(layout, "chkFlagNoChecksum",      "Flag No Checksum",      flags & WINDIVERT_FLAG_NO_CHECKSUM);
-  VShowOption::addLineEdit(layout, "leQueueLen",             "Queue Len",             QString::number(queueLen));
-  VShowOption::addLineEdit(layout, "leQueueTime",            "Queue Time",            QString::number(queueTime));
-  VShowOption::addCheckBox(layout, "chkAutoCorrectChecksum", "Auto Correct Checksum", autoCorrectChecksum);
+  VOptionable::addLineEdit(layout, "leFilter",               "Filter",                filter);
+  VOptionable::addLineEdit(layout, "lePriority",             "Priority",              QString::number(priority));
+  VOptionable::addLineEdit(layout, "leLayer",                "Layer",                 QString::number(layer));
+  VOptionable::addCheckBox(layout, "chkFlagSniff",           "Flag Sniff(OutOfPath)", flags & WINDIVERT_FLAG_SNIFF);
+  VOptionable::addCheckBox(layout, "chkFlagDrop",            "Flag Drop",             flags & WINDIVERT_FLAG_DROP);
+  VOptionable::addCheckBox(layout, "chkFlagNoChecksum",      "Flag No Checksum",      flags & WINDIVERT_FLAG_NO_CHECKSUM);
+  VOptionable::addLineEdit(layout, "leQueueLen",             "Queue Len",             QString::number(queueLen));
+  VOptionable::addLineEdit(layout, "leQueueTime",            "Queue Time",            QString::number(queueTime));
+  VOptionable::addCheckBox(layout, "chkAutoCorrectChecksum", "Auto Correct Checksum", autoCorrectChecksum);
 }
 
-void SnoopWinDivert::saveOption(QDialog* dialog)
+void SnoopWinDivert::saveOptionDlg(QDialog* dialog)
 {
-  SnoopCapture::saveOption(dialog);
+  SnoopCapture::saveOptionDlg(dialog);
   filter    = dialog->findChild<QLineEdit*>("leFilter")->text();
   priority  = dialog->findChild<QLineEdit*>("lePriority")->text().toUShort();
   layer     = (DIVERT_LAYER) dialog->findChild<QLineEdit*>("leLayer")->text().toInt();

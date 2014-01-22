@@ -99,12 +99,12 @@ void SnoopAdapter::addOptionWidget(QLayout *layout)
     if (value == "") value = intf.name;
     strList.push_back(value);
   }
-  VShowOption::addComboBox(layout, "cbxAdapterIndex", "Adapter", strList, adapterIndex);
+  VOptionable::addComboBox(layout, "cbxAdapterIndex", "Adapter", strList, adapterIndex);
 }
 
-void SnoopAdapter::saveOption(QDialog *dialog)
+void SnoopAdapter::saveOptionDlg(QDialog *dialog)
 {
-  SnoopPcap::saveOption(dialog);
+  SnoopPcap::saveOptionDlg(dialog);
   adapterIndex = dialog->findChild<QComboBox*>("cbxAdapterIndex")->currentIndex();
 }
 #endif // QT_GUI_LIB

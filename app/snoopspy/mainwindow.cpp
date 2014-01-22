@@ -110,7 +110,7 @@ void MainWindow::setControl()
     if (node != NULL)
     {
       VObject* object = node->object;
-      VShowOption* showOption = dynamic_cast<VShowOption*>(object);
+      VOptionable* showOption = dynamic_cast<VOptionable*>(object);
       if (showOption != NULL)
       {
         showOptionEnabled = true;
@@ -433,17 +433,16 @@ void MainWindow::on_actionShowOption_triggered()
   if (node == NULL) return;
 
   VObject* object = node->object;
-  VShowOption* showOption = dynamic_cast<VShowOption*>(object);
-  if (showOption == NULL) return;
+  VOptionable* optionable = dynamic_cast<VOptionable*>(object);
+  if (optionable == NULL) return;
 
-  QDialog* dialog = new QDialog(this);
-  QGridLayout* layout = new QGridLayout(dialog);
+  QDialog* dialog = optionable->createOptionDlg();
   dialog->setWindowTitle(object->name + " Option");
-  showOption->addOptionWidget(layout);
-  bool res = showOption->showOption(dialog);
+  optionable->addOptionWidget(dialog->layout());
+  bool res = optionable->showOptionDlg(dialog);
   if (res)
   {
-    showOption->saveOption(dialog);
+    optionable->saveOptionDlg(dialog);
     selectionChanged();
   }
 }
