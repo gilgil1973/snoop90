@@ -8,7 +8,7 @@ REGISTER_METACLASS(SnoopTcpBlock, SnoopProcess)
 // ----------------------------------------------------------------------------
 // SnoopTcpBlock
 // ----------------------------------------------------------------------------
-SnoopTcpBlock::SnoopTcpBlock(void* owner) : SnoopBlock(owner)
+SnoopTcpBlock::SnoopTcpBlock(void* owner) : SnoopProcess(owner)
 {
   capture        = NULL;
   forwardRst     = true;
@@ -41,12 +41,12 @@ bool SnoopTcpBlock::doOpen()
     SET_ERROR(SnoopError, "both backwardRst and backwardFin can not be true", VERR_NOT_SUPPORTED);
     return false;
   }
-  return SnoopBlock::doOpen();
+  return SnoopProcess::doOpen();
 }
 
 bool SnoopTcpBlock::doClose()
 {
-  return SnoopBlock::doClose();
+  return SnoopProcess::doClose();
 }
 
 int SnoopTcpBlock::sendForwardBlock(SnoopCapture* capture, SnoopPacket* packet, UINT8 flag, QByteArray msg)
@@ -206,7 +206,7 @@ void SnoopTcpBlock::tcpBlock(SnoopPacket* packet)
 
 void SnoopTcpBlock::load(VXml xml)
 {
-  SnoopBlock::load(xml);
+  SnoopProcess::load(xml);
 
   VGraph* graph  = (VGraph*)owner;
   QString captureName = xml.getStr("capture", "");
@@ -221,7 +221,7 @@ void SnoopTcpBlock::load(VXml xml)
 
 void SnoopTcpBlock::save(VXml xml)
 {
-  SnoopBlock::save(xml);
+  SnoopProcess::save(xml);
 
   QString captureName = capture == NULL ? "" : capture->name;
   xml.setStr("capture",        captureName);
@@ -236,7 +236,7 @@ void SnoopTcpBlock::save(VXml xml)
 #ifdef QT_GUI_LIB
 void SnoopTcpBlock::addOptionWidget(QLayout* layout)
 {
-  SnoopBlock::addOptionWidget(layout);
+  SnoopProcess::addOptionWidget(layout);
 
   QList<VObject*> captureList = ((VGraph*)owner)->objectList.findChildren("SnoopCapture");
   QStringList stringList;
@@ -256,7 +256,7 @@ void SnoopTcpBlock::addOptionWidget(QLayout* layout)
 
 void SnoopTcpBlock::saveOptionDlg(QDialog* dialog)
 {
-  SnoopBlock::saveOptionDlg(dialog);
+  SnoopProcess::saveOptionDlg(dialog);
 
   capture        = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxCapture")->currentText()));
   forwardRst     = dialog->findChild<QCheckBox*>("chkForwardRst")->checkState() == Qt::Checked;

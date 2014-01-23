@@ -18,7 +18,7 @@
 // ----------------------------------------------------------------------------
 // SnoopTcpBlock
 // ----------------------------------------------------------------------------
-class SnoopTcpBlock : public SnoopBlock
+class SnoopTcpBlock : public SnoopProcess
 {
   Q_OBJECT
 
