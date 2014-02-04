@@ -222,7 +222,7 @@ void MainWindow::save(VXml xml)
   xml.setInt("width",  rect.width());
   xml.setInt("height", rect.height());
 
-  VXml childXML = xml.gotoChild("sizes");
+  VXml childXml = xml.gotoChild("sizes");
 
   QString mainSplitterValues;
   for (int i = 0; i < mainSplitter->count(); i++)
@@ -231,7 +231,7 @@ void MainWindow::save(VXml xml)
     if (i < mainSplitter->count() - 1)
       mainSplitterValues += ",";
   }
-  childXML.setStr("main_splitter", mainSplitterValues);
+  childXml.setStr("main_splitter", mainSplitterValues);
 
   QString leftSplitterValues;
   for (int i = 0; i < ui->leftSplitter->count(); i++)
@@ -240,7 +240,7 @@ void MainWindow::save(VXml xml)
     if (i < mainSplitter->count() - 1)
       leftSplitterValues += ",";
   }
-  childXML.setStr("left_splitter", leftSplitterValues);
+  childXml.setStr("left_splitter", leftSplitterValues);
 
   QString treeViewValues;
   for (int i =0; i < 2 - 1; i++) // 2 == column count of treeView
@@ -249,7 +249,7 @@ void MainWindow::save(VXml xml)
     if (i < 2)
       treeViewValues += ",";
   }
-  childXML.setStr("treeView", treeViewValues);
+  childXml.setStr("treeView", treeViewValues);
 
   scene->save(xml.gotoChild("scene"));
 }

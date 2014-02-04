@@ -232,10 +232,10 @@ bool SnoopInterfaces::operator != (SnoopInterfaces& rhs)
 
 void SnoopInterfaces::load(VXml xml)
 {
-  xml_foreach(childXML, xml.childs())
+  xml_foreach(childXml, xml.childs())
   {
     SnoopInterface _interface;
-    _interface.load(childXML);
+    _interface.load(childXml);
     push_back(_interface);
   }
 }
@@ -246,8 +246,8 @@ void SnoopInterfaces::save(VXml xml)
   for (SnoopInterfaces::iterator it = begin(); it != end(); it++)
   {
     SnoopInterface& _interface = *it;
-    VXml childXML = xml.addChild("interface");
-    _interface.save(childXML);
+    VXml childXml = xml.addChild("interface");
+    _interface.save(childXml);
   }
 }
 

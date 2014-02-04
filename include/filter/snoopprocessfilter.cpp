@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------------
 void SnoopProcessPolicyMap::load(VXml xml)
 {
-  this->clear();
+  clear();
   {
-    xml_foreach (childXML, xml.childs())
+    xml_foreach (childXml, xml.childs())
     {
-      QString processName  = childXML.getStr("processName", SnoopNetStat::UNKNOWN_PROCESS_NAME);
-      bool    ack          = childXML.getBool("ack", false);
+      QString processName  = childXml.getStr("processName", SnoopNetStat::UNKNOWN_PROCESS_NAME);
+      bool    ack          = childXml.getBool("ack", false);
       (*this)[processName] = ack;
     }
   }
@@ -27,9 +27,9 @@ void SnoopProcessPolicyMap::save(VXml xml)
   {
     QString& processName = (QString&)it.key();
     bool&    ack         = (bool&)it.value();
-    VXml childXML = xml.addChild("policy");
-    childXML.setStr("processName", processName);
-    childXML.setBool("ack", ack);
+    VXml childXml = xml.addChild("policy");
+    childXml.setStr("processName", processName);
+    childXml.setBool("ack", ack);
   }
 }
 

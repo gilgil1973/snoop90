@@ -214,8 +214,8 @@ bool Scene::loadFromFile(QString fileName, QString& errStr)
     int _count = xml.childs().count();
     for (int i = 0 ; i < _count; i++)
     {
-      VXml     childXML = xml.childs().at(i);
-      QString  name = childXML.getStr("name");
+      VXml     childXml = xml.childs().at(i);
+      QString  name = childXml.getStr("name");
       if (name == "")
       {
         errStr = "name is null";
@@ -234,8 +234,8 @@ bool Scene::loadFromFile(QString fileName, QString& errStr)
       Node*    node = this->createNode(object->className(), object->name, false);
       node->object = object;
       QPointF  f;
-      f.setX(childXML.getDouble("x", f.x()));
-      f.setY(childXML.getDouble("y", f.y()));
+      f.setX(childXml.getDouble("x", f.x()));
+      f.setY(childXml.getDouble("y", f.y()));
       node->setPos(f);
     }
   }
@@ -281,10 +281,10 @@ bool Scene::saveToFile(QString fileName, QString& errStr)
     Node*    node   = findNodeByName(object->name);
     if (node == NULL) continue;
 
-    VXml     childXML = xml.addChild("object");
-    childXML.setStr("name", object->name);
-    childXML.setDouble("x", node->pos().x());
-    childXML.setDouble("y", node->pos().y());
+    VXml     childXml = xml.addChild("object");
+    childXml.setStr("name", object->name);
+    childXml.setDouble("x", node->pos().x());
+    childXml.setDouble("y", node->pos().y());
   }
   doc.saveToFile(fileName);
 

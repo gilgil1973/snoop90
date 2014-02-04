@@ -57,10 +57,10 @@ int SnoopRtmEntryList::find(Ip dst, Ip mask)
 void SnoopRtmEntryList::load(VXml xml)
 {
   clear();
-  xml_foreach (childXML, xml.childs())
+  xml_foreach (childXml, xml.childs())
   {
     SnoopRtmEntry entity;
-    entity.load(childXML);
+    entity.load(childXml);
     push_back(entity);
   }
 }
@@ -70,8 +70,8 @@ void SnoopRtmEntryList::save(VXml xml)
   xml.clearChild();
   foreach (SnoopRtmEntry entry, *this)
   {
-    VXml childXML = xml.addChild("entry");
-    entry.save(childXML);
+    VXml childXml = xml.addChild("entry");
+    entry.save(childXml);
   }
 }
 
