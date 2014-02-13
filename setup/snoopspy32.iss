@@ -21,12 +21,12 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputBaseFilename=snoopspy3_setup_64
+OutputBaseFilename=snoopspy3_setup_32
 SetupIconFile=..\snoop.ico
 Compression=lzma
 SolidCompression=yes
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+;ArchitecturesAllowed=x64
+;ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -40,8 +40,8 @@ Source: "..\bin\snoopspy.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert32.sys"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
