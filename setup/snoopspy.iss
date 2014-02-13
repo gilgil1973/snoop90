@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 OutputBaseFilename=snoopspy3_setup
-SetupIconFile=D:\project\net\snoop90\snoop.ico
+SetupIconFile=..\snoop.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -34,13 +34,13 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "D:\project\net\snoop90\bin\snoopspy.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\project\net\snoop90\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\project\net\snoop90\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\project\net\snoop90\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\project\net\windivert\1.1.2-rc\mingw\x86\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\project\net\windivert\1.1.2-rc\mingw\x86\WinDivert32.sys"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\project\net\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\snoopspy.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert32.sys"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
