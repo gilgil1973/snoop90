@@ -3,8 +3,8 @@
 
 #define MyAppName "SnoopSpy"
 #define MyAppVersion "3.0"
-#define MyAppPublisher "NetworkLab Corporation"
-#define MyAppURL "http://www.example.com/"
+#define MyAppPublisher "gilgil"
+#define MyAppURL "http://www.snoopspy.com/"
 #define MyAppExeName "snoopspy.exe"
 
 [Setup]
