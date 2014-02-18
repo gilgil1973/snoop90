@@ -28,7 +28,7 @@ public:
 // ----------------------------------------------------------------------------
 // SnoopProcessTupleValue
 // ----------------------------------------------------------------------------
-class SnoopProcessTupleMap : public QMap<Snoop5TupleKey, SnoopProcessTupleValue>, public VLockable
+class SnoopProcessTupleMap : public QMap<SnoopTupleKey, SnoopProcessTupleValue>, public VLockable
 {
 };
 
@@ -80,8 +80,8 @@ protected:
 
 protected:
   SnoopProcessTupleMap tupleMap;
-  bool getProcessInfo(/*in*/ Snoop5TupleKey& tuple, /*out*/ quint32& pid, /*out*/ QString& processName);
-  bool getACK(/*in*/ Snoop5TupleKey& tuple, /*out*/ bool& ack);
+  bool getProcessInfo(/*in*/ SnoopTupleKey& tuple, /*out*/ quint32& pid, /*out*/ QString& processName);
+  bool getACK(/*in*/ SnoopTupleKey& tuple, /*out*/ bool& ack);
 
 public:
   SnoopProcessPolicyMap policyMap;
@@ -95,7 +95,7 @@ signals:
 
 signals:
   void onNewProcess(QString& processName);
-  void onNewPID(Snoop5TupleKey& tuple, QString& processName);
+  void onNewPID(SnoopTupleKey& tuple, QString& processName);
 
 public:
   virtual void load(VXml xml);
