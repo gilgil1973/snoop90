@@ -81,7 +81,33 @@ void SnoopCapture::run()
     if (captureType() == SnoopCaptureType::InPath)
     {
       if (!packet.drop)
+      {
+        //
+        // Checksum
+        //
+        if (packet->tcpChanged)
+        {
+          LOG_ASSERT(packet->ipHdr != NULL);
+          LOG_ASSERT(packet->tcpHdr != NULL);
+          packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
+        }
+        if (packet->udpChanged)
+        {
+          LOG_ASSERT(packet->ipHdr != NULL);
+          LOG_ASSERT(packet->udpHdr != NULL);
+          packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
+        }
+        if (packet->ipChanged)
+        {
+          LOG_ASSERT(packet->ipHdr != NULL);
+          packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
+        }
+
+        //
+        // relay
+        //
         relay(&packet);
+      }
     }
   }
   emit closed();

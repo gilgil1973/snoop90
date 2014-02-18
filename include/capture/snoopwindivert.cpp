@@ -269,13 +269,6 @@ SnoopCaptureType SnoopWinDivert::captureType()
 
 int SnoopWinDivert::relay(SnoopPacket* packet)
 {
-  //
-  // Checksum
-  //
-  if (packet->tcpChanged) packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
-  if (packet->udpChanged) packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
-  if (packet->ipChanged)  packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
-
   return write(packet);
 }
 
