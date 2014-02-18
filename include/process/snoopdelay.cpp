@@ -91,7 +91,7 @@ bool SnoopDelay::doClose()
 
 void SnoopDelay::delay(SnoopPacket* packet)
 {
-  packet->block = true;
+  packet->drop = true;
 
   SnoopDelayItem item;
   item.tick = tick() + this->timeout;

@@ -80,7 +80,7 @@ void SnoopCapture::run()
     emit captured(&packet);
     if (captureType() == SnoopCaptureType::InPath)
     {
-      if (!packet.block)
+      if (!packet.drop)
         relay(&packet);
     }
   }

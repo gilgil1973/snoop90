@@ -58,7 +58,7 @@ public:
   ///
   /// control
   ///
-  bool      block;
+  bool      drop;
   bool      ipChanged;
   bool      tcpChanged;
   bool      udpChanged;

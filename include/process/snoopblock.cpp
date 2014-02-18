@@ -20,7 +20,7 @@ SnoopBlock::~SnoopBlock()
 
 void SnoopBlock::block(SnoopPacket* packet)
 {
-  packet->block = this->drop;
+  packet->drop = this->drop;
 }
 
 void SnoopBlock::load(VXml xml)
