@@ -106,6 +106,7 @@ SnoopWinDivert::SnoopWinDivert(void* owner) : SnoopCapture(owner)
   flags               = 0; //WINDIVERT_FLAG_SNIFF; // gilgil temp 2013.12.06
   queueLen            = 8192;
   queueTime           = 1024;
+  tos                 = 0;
   autoCorrectChecksum = true;
 
   handle    = 0;
@@ -214,22 +215,20 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   packet->pktData = this->pktData;
   packet->pktHdr  = &this->pktHdr;
   packet->ethHdr  = ethHdr;
-  // ----- gilgil temp 2014.01.23 -----
-  if (SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
+  if (tos != 0 && SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
   {
-    packet->ipHdr->ip_tos = 0x44;
+    packet->ipHdr->ip_tos = tos;
   }
-  // ----------------------------------
 
   if (autoCorrectChecksum)
   {
     if (SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
     {
+      packet->ipChanged = true;
       if (SnoopIp::isTcp(packet->ipHdr, &packet->tcpHdr))
-        packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
+        packet->tcpChanged = true;
       else if (SnoopIp::isUdp(packet->ipHdr, &packet->udpHdr))
-        packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
-      packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
+        packet->udpChanged = true;
     }
   }
 
@@ -282,6 +281,7 @@ void SnoopWinDivert::load(VXml xml)
   flags               = (UINT64)xml.getInt("flags", (int)flags);
   queueLen            = (UINT64)xml.getInt("queueLen", (int)queueLen);
   queueTime           = (UINT64)xml.getInt("queueTime", (int)queueTime);
+  tos                 = (UINT8) xml.getInt("tos", (int)tos);
   autoCorrectChecksum = xml.getBool("autoCorrectChecksum", autoCorrectChecksum);
 }
 
@@ -295,6 +295,7 @@ void SnoopWinDivert::save(VXml xml)
   xml.setInt("flags", (int)flags);
   xml.setInt("queueLen", (int)queueLen);
   xml.setInt("queueTime", (int)queueTime);
+  xml.setInt("tos", (int)tos);
   xml.setBool("autoCorrectChecksum", autoCorrectChecksum);
 }
 
