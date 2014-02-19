@@ -150,8 +150,8 @@ bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleKey& tuple, /*out*/ qui
   }
   LOG_DEBUG("%s %s:%d > %s:%d pid=%5u name=%s",
     tuple.proto == IPPROTO_TCP ? "TCP" : "UDP",
-    qPrintable(tuple.flow.src_ip.str()), tuple.flow.src_port,
-    qPrintable(tuple.flow.dst_ip.str()), tuple.flow.dst_port,
+    qPrintable(tuple.flow.srcIp.str()), tuple.flow.srcPort,
+    qPrintable(tuple.flow.dstIp.str()), tuple.flow.dstPort,
     pid, qPrintable(processName)
   );
   return true; // gilgil temp 2012.06.11
@@ -170,10 +170,10 @@ bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleKey& tuple, /*out*/ bool& ack)
 
   SnoopTupleKey reverseTuple;
   reverseTuple.proto         = tuple.proto;
-  reverseTuple.flow.src_ip   = tuple.flow.dst_ip;
-  reverseTuple.flow.src_port = tuple.flow.dst_port;
-  reverseTuple.flow.dst_ip   = tuple.flow.src_ip;
-  reverseTuple.flow.dst_port = tuple.flow.src_port;
+  reverseTuple.flow.srcIp   = tuple.flow.dstIp;
+  reverseTuple.flow.srcPort = tuple.flow.dstPort;
+  reverseTuple.flow.dstIp   = tuple.flow.srcIp;
+  reverseTuple.flow.dstPort = tuple.flow.srcPort;
 
   it = tupleMap.find(reverseTuple);
   if (it != tupleMap.end())
@@ -189,8 +189,8 @@ bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleKey& tuple, /*out*/ bool& ack)
   {
     LOG_ERROR("getProcessInfo %u (%s:%d > %s:%d) return false",
       tuple.proto,
-      qPrintable(tuple.flow.src_ip.str()), tuple.flow.src_port,
-      qPrintable(tuple.flow.dst_ip.str()), tuple.flow.dst_port);
+      qPrintable(tuple.flow.srcIp.str()), tuple.flow.srcPort,
+      qPrintable(tuple.flow.dstIp.str()), tuple.flow.dstPort);
     return false;
   }
 
@@ -239,19 +239,19 @@ void SnoopProcessFilter::check(SnoopPacket* packet)
   // ----------------------------------
   if (SnoopTcp::parseAll(packet))
   {
-    tuple.proto         = IPPROTO_TCP;
-    tuple.flow.src_ip   = ntohl(packet->ipHdr->ip_src);
-    tuple.flow.src_port = ntohs(packet->tcpHdr->th_sport);
-    tuple.flow.dst_ip   = ntohl(packet->ipHdr->ip_dst);
-    tuple.flow.dst_port = ntohs(packet->tcpHdr->th_dport);
+    tuple.proto        = IPPROTO_TCP;
+    tuple.flow.srcIp   = ntohl(packet->ipHdr->ip_src);
+    tuple.flow.srcPort = ntohs(packet->tcpHdr->th_sport);
+    tuple.flow.dstIp   = ntohl(packet->ipHdr->ip_dst);
+    tuple.flow.dstPort = ntohs(packet->tcpHdr->th_dport);
   } else
   if (SnoopUdp::parseAll(packet))
   {
-    tuple.proto         = IPPROTO_UDP;
-    tuple.flow.src_ip   = ntohl(packet->ipHdr->ip_src);
-    tuple.flow.src_port = ntohs(packet->udpHdr->uh_sport);
-    tuple.flow.dst_ip   = ntohl(packet->ipHdr->ip_dst);
-    tuple.flow.dst_port = ntohs(packet->udpHdr->uh_dport);
+    tuple.proto        = IPPROTO_UDP;
+    tuple.flow.srcIp   = ntohl(packet->ipHdr->ip_src);
+    tuple.flow.srcPort = ntohs(packet->udpHdr->uh_sport);
+    tuple.flow.dstIp   = ntohl(packet->ipHdr->ip_dst);
+    tuple.flow.dstPort = ntohs(packet->udpHdr->uh_dport);
     // ----- gilgil temp 2012.09.11 -----
     /*
     if (tuple.flow.dst_ip.isBroadcast() || tuple.flow.dst_ip.isMulticast())
