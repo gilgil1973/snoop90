@@ -96,7 +96,7 @@ quint32 SnoopNetStatWin::getPID(SnoopTupleKey &infoKey)
   quint32 pid = UNKNOWN_PROCESS_ID;
 
   bool outbound = false;
-  if (myIPList.contains(infoKey.flow.src_ip)) outbound = true;
+  if (myIPList.contains(infoKey.flow.srcIp)) outbound = true;
 
   if (infoKey.proto == IPPROTO_TCP)
   {
@@ -131,7 +131,7 @@ quint32 SnoopNetStatWin::getPID(SnoopTupleKey &infoKey)
         WORD  LP = ntohs(table->dwLocalPort);
         DWORD RA = ntohl(table->dwRemoteAddr);
         WORD  RP = ntohs(table->dwRemotePort);
-        if (LA == infoKey.flow.src_ip && LP == infoKey.flow.src_port && RA == infoKey.flow.dst_ip && RP == infoKey.flow.dst_port)
+        if (LA == infoKey.flow.srcIp && LP == infoKey.flow.srcPort && RA == infoKey.flow.dstIp && RP == infoKey.flow.dstPort)
         {
           pid = table->dwOwningPid;
           break;
@@ -147,7 +147,7 @@ quint32 SnoopNetStatWin::getPID(SnoopTupleKey &infoKey)
         WORD  LP = ntohs(table->dwLocalPort);
         DWORD RA = ntohl(table->dwRemoteAddr);
         WORD  RP = ntohs(table->dwRemotePort);
-        if (LA == infoKey.flow.dst_ip && LP == infoKey.flow.dst_port && RA == infoKey.flow.src_ip && RP == infoKey.flow.src_port)
+        if (LA == infoKey.flow.dstIp && LP == infoKey.flow.dstPort && RA == infoKey.flow.srcIp && RP == infoKey.flow.srcPort)
         {
           pid = table->dwOwningPid;
           break;
@@ -187,7 +187,7 @@ quint32 SnoopNetStatWin::getPID(SnoopTupleKey &infoKey)
         PMIB_UDPROW_OWNER_PID table = &(pUdp->table[i]);
         // DWORD LA = ntohl(table->dwLocalAddr); // gilgil temp 2013.01.07
         WORD  LP = ntohs(table->dwLocalPort);
-        if (LP == infoKey.flow.src_port)
+        if (LP == infoKey.flow.srcPort)
         {
           pid = table->dwOwningPid;
           break;
@@ -202,7 +202,7 @@ quint32 SnoopNetStatWin::getPID(SnoopTupleKey &infoKey)
         PMIB_UDPROW_OWNER_PID table = &(pUdp->table[i]);
         // DWORD LA = ntohl(table->dwLocalAddr); // gilgil temp 2013.01.07
         WORD  LP = ntohs(table->dwLocalPort);
-        if (LP == infoKey.flow.dst_port)
+        if (LP == infoKey.flow.dstPort)
         {
           pid = table->dwOwningPid;
           break;

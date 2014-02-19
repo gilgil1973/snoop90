@@ -15,9 +15,9 @@ bool SnoopMacKey::operator < (const SnoopMacKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopMacFlowKey::operator < (const SnoopMacFlowKey& rhs) const
 {
-  if (this->src_mac < rhs.src_mac) return true;
-  if (this->src_mac > rhs.src_mac) return false;
-  if (this->dst_mac < rhs.dst_mac) return true;
+  if (this->srcMac < rhs.srcMac) return true;
+  if (this->srcMac > rhs.srcMac) return false;
+  if (this->dstMac < rhs.dstMac) return true;
   return false;
 }
 
@@ -26,9 +26,9 @@ bool SnoopMacFlowKey::operator < (const SnoopMacFlowKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopMacSessionKey::operator < (const SnoopMacSessionKey& rhs) const
 {
-  if (this->mac_1 < rhs.mac_1) return true;
-  if (this->mac_1 > rhs.mac_1) return false;
-  if (this->mac_2 < rhs.mac_2) return true;
+  if (this->mac1 < rhs.mac1) return true;
+  if (this->mac1 > rhs.mac1) return false;
+  if (this->mac2 < rhs.mac2) return true;
   return false;
 }
 
@@ -45,9 +45,9 @@ bool SnoopIpKey::operator < (const SnoopIpKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopIpFlowKey::operator < (const SnoopIpFlowKey& rhs) const
 {
-  if (this->src_ip < rhs.src_ip) return true;
-  if (this->src_ip > rhs.src_ip) return false;
-  if (this->dst_ip < rhs.dst_ip) return true;
+  if (this->srcIp < rhs.srcIp) return true;
+  if (this->srcIp > rhs.srcIp) return false;
+  if (this->dstIp < rhs.dstIp) return true;
   return false;
 }
 
@@ -56,9 +56,9 @@ bool SnoopIpFlowKey::operator < (const SnoopIpFlowKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopIpSessionKey::operator < (const SnoopIpSessionKey& rhs) const
 {
-  if (this->ip_1 < rhs.ip_1) return true;
-  if (this->ip_1 > rhs.ip_1) return false;
-  if (this->ip_2 < rhs.ip_2) return true;
+  if (this->ip1 < rhs.ip1) return true;
+  if (this->ip1 > rhs.ip1) return false;
+  if (this->ip2 < rhs.ip2) return true;
   return false;
 }
 
@@ -75,9 +75,9 @@ bool SnoopPortKey::operator < (const SnoopPortKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopPortFlowKey::operator < (const SnoopPortFlowKey& rhs) const
 {
-  if (this->src_port < rhs.src_port) return true;
-  if (this->src_port > rhs.src_port) return false;
-  if (this->dst_port < rhs.dst_port) return true;
+  if (this->srcPort < rhs.srcPort) return true;
+  if (this->srcPort > rhs.srcPort) return false;
+  if (this->dstPort < rhs.dstPort) return true;
   return false;
 }
 
@@ -86,9 +86,9 @@ bool SnoopPortFlowKey::operator < (const SnoopPortFlowKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopPortSessionKey::operator < (const SnoopPortSessionKey& rhs) const
 {
-  if (this->port_1 < rhs.port_1) return true;
-  if (this->port_1 > rhs.port_1) return false;
-  if (this->port_2 < rhs.port_2) return true;
+  if (this->port1 < rhs.port1) return true;
+  if (this->port1 > rhs.port1) return false;
+  if (this->port2 < rhs.port2) return true;
   return false;
 }
 
@@ -108,13 +108,13 @@ bool SnoopTransportKey::operator < (const SnoopTransportKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopTransportFlowKey::operator < (const SnoopTransportFlowKey& rhs) const
 {
-  if (this->src_ip   < rhs.src_ip)   return true;
-  if (this->src_ip   > rhs.src_ip)   return false;
-  if (this->src_port < rhs.src_port) return true;
-  if (this->src_port > rhs.src_port) return false;
-  if (this->dst_ip   < rhs.dst_ip)   return true;
-  if (this->dst_ip   > rhs.dst_ip)   return false;
-  if (this->dst_port < rhs.dst_port) return true;
+  if (this->srcIp   < rhs.srcIp)   return true;
+  if (this->srcIp   > rhs.srcIp)   return false;
+  if (this->srcPort < rhs.srcPort) return true;
+  if (this->srcPort > rhs.srcPort) return false;
+  if (this->dstIp   < rhs.dstIp)   return true;
+  if (this->dstIp   > rhs.dstIp)   return false;
+  if (this->dstPort < rhs.dstPort) return true;
   return false;
 }
 
@@ -123,13 +123,13 @@ bool SnoopTransportFlowKey::operator < (const SnoopTransportFlowKey& rhs) const
 // ----------------------------------------------------------------------------
 bool SnoopTransportSessionKey::operator < (const SnoopTransportSessionKey& rhs) const
 {
-  if (this->ip_1   < rhs.ip_1)   return true;
-  if (this->ip_1   > rhs.ip_1)   return false;
-  if (this->port_1 < rhs.port_1) return true;
-  if (this->port_1 > rhs.port_1) return false;
-  if (this->ip_2   < rhs.ip_2)   return true;
-  if (this->ip_2   > rhs.ip_2)   return false;
-  if (this->port_2 < rhs.port_2) return true;
+  if (this->ip1   < rhs.ip1)   return true;
+  if (this->ip1   > rhs.ip1)   return false;
+  if (this->port1 < rhs.port1) return true;
+  if (this->port1 > rhs.port1) return false;
+  if (this->ip2   < rhs.ip2)   return true;
+  if (this->ip2   > rhs.ip2)   return false;
+  if (this->port2 < rhs.port2) return true;
   return false;
 }
 

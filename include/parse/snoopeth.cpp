@@ -34,7 +34,7 @@ bool SnoopEth::isArp(ETH_HDR* ethHdr, ARP_HDR** arpHdr)
 
 bool SnoopEth::parseAll(SnoopPacket* packet)
 {
-  packet->ethHdr   = (ETH_HDR*)packet->pktData;
-  packet->linkType = DLT_EN10MB;
+  if (packet->linkType != DLT_EN10MB) return false;
+  packet->ethHdr = (ETH_HDR*)packet->pktData;
   return true;
 }

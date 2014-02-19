@@ -17,7 +17,6 @@
 // ----------------------------------------------------------------------------
 // SnoopPacket
 // ----------------------------------------------------------------------------
-// #pragma pack(push, 1) // gilgil temp 2013.02.21
 class SnoopPacket
 {
 public:
@@ -68,10 +67,15 @@ public:
   ///
   WINDIVERT_ADDRESS divertAddr;
 
+  ///
+  /// keymgr
+  ///
+  int       user;
+  void*     mem;
+
 public:
   void clear();
   int  write(QByteArray& ba);
 };
-// #pragma pack (pop) // gilgil temp 2013.02.21
 
 #endif // __SNOOP_PACKET_H__

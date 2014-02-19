@@ -3,6 +3,7 @@
 #include <SnoopBlock>
 #include <SnoopDataChange>
 #include <SnoopDelay>
+#include <SnoopKeyMgr>
 #include <SnoopDump>
 #include <SnoopTcpBlock>
 #include <SnoopWriteAdapter>
@@ -17,6 +18,7 @@ void SnoopProcessFactory::explicitLink()
   SnoopDataChange   dataChange;
   SnoopDelay        delay;
   SnoopDump         dump;
+  SnoopKeyMgr       keyMgr;
   SnoopTcpBlock     tcpBlock;
   SnoopWriteAdapter writeAdapter;
 }

@@ -30,8 +30,8 @@ public:
 class SnoopMacFlowKey
 {
 public:
-  Mac src_mac;
-  Mac dst_mac;
+  Mac srcMac;
+  Mac dstMac;
 
   bool operator < (const SnoopMacFlowKey& rhs) const;
 };
@@ -42,8 +42,8 @@ public:
 class SnoopMacSessionKey
 {
 public:
-  Mac mac_1;
-  Mac mac_2;
+  Mac mac1;
+  Mac mac2;
 
   bool operator < (const SnoopMacSessionKey& rhs) const;
 };
@@ -65,8 +65,8 @@ public:
 class SnoopIpFlowKey
 {
 public:
-  Ip src_ip;
-  Ip dst_ip;
+  Ip srcIp;
+  Ip dstIp;
 
   bool operator < (const SnoopIpFlowKey& rhs) const;
 };
@@ -77,8 +77,8 @@ public:
 class SnoopIpSessionKey
 {
 public:
-  Ip ip_1;
-  Ip ip_2;
+  Ip ip1;
+  Ip ip2;
 
   bool operator < (const SnoopIpSessionKey& rhs) const;
 };
@@ -100,8 +100,8 @@ public:
 class SnoopPortFlowKey
 {
 public:
-  int src_port;
-  int dst_port;
+  int srcPort;
+  int dstPort;
 
   bool operator < (const SnoopPortFlowKey& rhs) const;
 };
@@ -112,8 +112,8 @@ public:
 class SnoopPortSessionKey
 {
 public:
-  int port_1;
-  int port_2;
+  int port1;
+  int port2;
 
   bool operator < (const SnoopPortSessionKey& rhs) const;
 };
@@ -139,10 +139,10 @@ typedef SnoopTransportKey SnoopUdpKey;
 class SnoopTransportFlowKey
 {
 public:
-  Ip  src_ip;
-  int src_port;
-  Ip  dst_ip;
-  int dst_port;
+  Ip  srcIp;
+  int srcPort;
+  Ip  dstIp;
+  int dstPort;
 
   bool operator < (const SnoopTransportFlowKey& rhs) const;
 };
@@ -156,10 +156,10 @@ typedef SnoopTransportFlowKey SnoopUdpFlowKey;
 class SnoopTransportSessionKey
 {
 public:
-  Ip  ip_1;
-  int port_1;
-  Ip  ip_2;
-  int port_2;
+  Ip  ip1;
+  int port1;
+  Ip  ip2;
+  int port2;
 
   bool operator < (const SnoopTransportSessionKey& rhs) const;
 };
