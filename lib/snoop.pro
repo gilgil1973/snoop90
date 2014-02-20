@@ -47,6 +47,7 @@ SOURCES += \
     ../include/parse/snoopudpdata.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopkeymgr.cpp \
+    ../include/process/snoopkeymgrtest.cpp \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
     ../include/process/snoopblock.cpp \
@@ -96,6 +97,7 @@ HEADERS += \
     ../include/parse/snoopudpdata.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopkeymgr.h \
+    ../include/process/snoopkeymgrtest.h \
     ../include/process/snoopprocess.h \
     ../include/process/snoopprocessfactory.h \
     ../include/process/snoopblock.h \

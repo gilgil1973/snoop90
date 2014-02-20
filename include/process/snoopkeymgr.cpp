@@ -37,6 +37,28 @@ void SnoopKeyMgr::clearMaps()
   udpFlow_map.clear();
 }
 
+void SnoopKeyMgr::registerAccessible(ISnoopKeyMgr_Mac_Accessible* accessible, QList<SnoopKeyMgrAccessibleItem*>& items, int user, size_t memSize)
+{
+  size_t currentOffset = 0;
+  int _count = items.count();
+  for (int i = 0; i < _count; i++)
+  {
+    SnoopKeyMgrAccessibleItem* item = items.at(i);
+    if (item->accessible == accessible) return;
+    if (item->user       == user) return;
+    currentOffset += item->memSize;
+  }
+
+  SnoopKeyMgrAccessibleItem* item = new SnoopKeyMgrAccessibleItem;
+  item->accessible = accessible;
+  item->user       = user;
+  item->offset     = currentOffset;
+  item->memSize    = memSize;
+  items.push_back(item);
+
+  total_mac_userSize += memSize;
+}
+
 void SnoopKeyMgr::processMac(SnoopPacket* packet, Mac* mac)
 {
   SnoopMacKey key; key.mac = *mac;
@@ -46,24 +68,28 @@ void SnoopKeyMgr::processMac(SnoopPacket* packet, Mac* mac)
   if (it != mac_map.end())
   {
     totalMem = it.value();
-  }
-  if (it == mac_map.end())
+  } else
   {
     totalMem = new char[total_mac_userSize];
     it = mac_map.insert(key, totalMem);
-    foreach (SnoopKeyMgr_Mac_Accessible* accessible, mac_accessibles)
+
+    foreach (SnoopKeyMgrAccessibleItem* item, mac_items)
     {
-      int user  = accessible->user;
-      void* mem = (void*)((char*)totalMem + accessible->offset);
-      accessible->onNew_Mac(&key, user, mem);
+      ISnoopKeyMgr_Mac_Accessible* mac_accessible = dynamic_cast<ISnoopKeyMgr_Mac_Accessible*>(item->accessible);
+      LOG_ASSERT(mac_accessible != NULL);
+      int user  = item->user;
+      void* mem = (void*)((char*)totalMem + item->offset);
+      mac_accessible->onNew_Mac(&key, user, mem);
     }
   }
   LOG_ASSERT(totalMem != NULL);
 
-  foreach(SnoopKeyMgr_Mac_Accessible* mac_accessible, mac_accessibles)
+  foreach (SnoopKeyMgrAccessibleItem* item, mac_items)
   {
-    packet->user  = mac_accessible->user;
-    packet->mem = ((char*)totalMem + mac_accessible->offset);
+    ISnoopKeyMgr_Mac_Accessible* mac_accessible = dynamic_cast<ISnoopKeyMgr_Mac_Accessible*>(item->accessible);
+    LOG_ASSERT(mac_accessible != NULL);
+    packet->user = item->user;
+    packet->mem = (void*)((char*)totalMem + item->offset);
     emit processed(packet);
   }
 }

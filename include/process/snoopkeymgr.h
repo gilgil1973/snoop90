@@ -19,12 +19,23 @@
 #include <SnoopTcp>
 #include <SnoopUdp>
 
+
+// ----------------------------------------------------------------------------
+// ISnoopKeyMgr_Accessible
+// ----------------------------------------------------------------------------
+class ISnoopKeyMgr_Accessible
+{
+private:
+  virtual void foo() {}
+};
+
 // ----------------------------------------------------------------------------
 // SnoopKeyMgrAccessibleAux
 // ----------------------------------------------------------------------------
-class SnoopKeyMgrAccessibleAux
+class SnoopKeyMgrAccessibleItem
 {
 public:
+  ISnoopKeyMgr_Accessible*  accessible;
   int    user;
   size_t offset;
   size_t memSize;
@@ -33,37 +44,34 @@ public:
 // ----------------------------------------------------------------------------
 // ISnoopKeyMgr_Mac_Accessible
 // ----------------------------------------------------------------------------
-class ISnoopKeyMgr_Mac_Accessible
+class ISnoopKeyMgr_Mac_Accessible : public ISnoopKeyMgr_Accessible
 {
 public:
   virtual void onNew_Mac(SnoopMacKey* key, int user, void* mem) = 0;
   virtual void onDel_Mac(SnoopMacKey* key, int user, void* mem) = 0;
 };
-class SnoopKeyMgr_Mac_Accessible : public ISnoopKeyMgr_Mac_Accessible, public SnoopKeyMgrAccessibleAux {};
 typedef QMap<SnoopMacKey /*key*/, void* /*totalMem*/> SnoopKeyMgr_Mac_Map;
 
 // ----------------------------------------------------------------------------
 // ISnoopKeyMgr_TcpFlow_Accessible
 // ----------------------------------------------------------------------------
-class ISnoopKeyMgr_TcpFlow_Accessible
+class ISnoopKeyMgr_TcpFlow_Accessible : public ISnoopKeyMgr_Accessible
 {
 public:
   virtual void onNew_TcpFlow(SnoopTcpFlowKey* key, int user, void* mem) = 0;
   virtual void onDel_TcpFlow(SnoopTcpFlowKey* key, int user, void* mem) = 0;
 };
-class SnoopKeyMgr_TcpFlow_Accessible : public ISnoopKeyMgr_TcpFlow_Accessible, public SnoopKeyMgrAccessibleAux {};
 typedef QMap<SnoopTcpFlowKey /*key*/, void* /*totalMem*/> SnoopKeyMgr_TcpFlow_Map;
 
 // ----------------------------------------------------------------------------
 // ISnoopKeyMgr_UdpFlow_Accessible
 // ----------------------------------------------------------------------------
-class ISnoopKeyMgr_UdpFlow_Accessible
+class ISnoopKeyMgr_UdpFlow_Accessible : public ISnoopKeyMgr_Accessible
 {
 public:
   virtual void onNew_UdpFlow(SnoopUdpFlowKey* key, int user, void* mem) = 0;
   virtual void onDel_UdpFlow(SnoopUdpFlowKey* key, int user, void* mem) = 0;
 };
-class SnoopKeyMgr_UdpFlow_Accessible : public ISnoopKeyMgr_UdpFlow_Accessible, public SnoopKeyMgrAccessibleAux {};
 typedef QMap<SnoopUdpFlowKey /*key*/, void* /*totalMem*/> SnoopKeyMgr_UdpFlow_Map;
 
 // ----------------------------------------------------------------------------
@@ -87,13 +95,10 @@ protected:
   SnoopKeyMgr_UdpFlow_Map tcpFlow_map;
   SnoopKeyMgr_UdpFlow_Map udpFlow_map;
 
-protected:
-  QList<SnoopKeyMgr_Mac_Accessible*>     mac_accessibles;
-  QList<SnoopKeyMgr_TcpFlow_Accessible*> tcpFlow_accessibles;
-  QList<SnoopKeyMgr_UdpFlow_Accessible*> udpFlow_accessibles;
-
-protected:
-  void processMac(SnoopPacket* packet, Mac* mac);
+public:
+  QList<SnoopKeyMgrAccessibleItem*> mac_items;
+  QList<SnoopKeyMgrAccessibleItem*> tcpFlow_items;
+  QList<SnoopKeyMgrAccessibleItem*> udpFlow_items;
 
 protected:
   size_t total_mac_userSize;
@@ -101,9 +106,10 @@ protected:
   size_t total_udpFlow_userSize;
 
 public:
-  void register_mac_accessible    (ISnoopKeyMgr_Mac_Accessible*     mac_accessible,     int user, size_t memSize);
-  void register_tcpFlow_accessible(ISnoopKeyMgr_TcpFlow_Accessible* tcpFlow_accessible, int user, size_t memSize);
-  void register_udpFlow_accessible(ISnoopKeyMgr_UdpFlow_Accessible* udpFlow_accessible, int user, size_t memSize);
+  void registerAccessible(ISnoopKeyMgr_Mac_Accessible* accessible, QList<SnoopKeyMgrAccessibleItem*>& items, int user, size_t memSize);
+
+protected:
+  void processMac(SnoopPacket* packet, Mac* mac);
 
 public slots:
   void process(SnoopPacket* packet);

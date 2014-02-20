@@ -80,12 +80,14 @@ bool SnoopDelay::doOpen()
   }
   thread = new SnoopDelayThread(this);
   thread->open();
+
   return SnoopProcess::doOpen();
 }
 
 bool SnoopDelay::doClose()
 {
   SAFE_DELETE(thread);
+
   return SnoopProcess::doClose();
 }
 
@@ -126,12 +128,9 @@ void SnoopDelay::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
 
-  QList<VObject*> captureList = ((VGraph*)owner)->objectList.findChildren("SnoopCapture");
+  QList<VObject*> captureList = ((VGraph*)owner)->objectList.findObjectsByCategoryName("SnoopCapture");
   QStringList stringList;
-  foreach (VObject* obj, captureList)
-  {
-    stringList.push_back(obj->name);
-  }
+  foreach (VObject* obj, captureList) stringList.push_back(obj->name);
   QComboBox* cbxCapture = VOptionable::addComboBox(layout, "cbxCapture", "Capture", stringList, -1);
   cbxCapture->setCurrentText(capture == NULL ? "" : capture->name);
   VOptionable::addLineEdit(layout, "leTimeout", "Timeout", QString::number(timeout));
