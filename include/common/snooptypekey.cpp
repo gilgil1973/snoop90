@@ -134,7 +134,7 @@ bool SnoopTransportSessionKey::operator < (const SnoopTransportSessionKey& rhs) 
 }
 
 // ----------------------------------------------------------------------------
-// SnoopTupleKey
+// SnoopTupleFlowKey
 // ----------------------------------------------------------------------------
 bool SnoopTupleFlowKey::operator < (const SnoopTupleFlowKey& rhs) const
 {

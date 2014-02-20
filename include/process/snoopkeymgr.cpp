@@ -61,7 +61,7 @@ bool SnoopKeyMgr::doClose()
 
 void SnoopKeyMgr::clearMaps()
 {
-  mac_map.clear();
+  macFlow_map.clear();
   tcpFlow_map.clear();
   udpFlow_map.clear();
 }
@@ -88,35 +88,34 @@ void SnoopKeyMgr::registerAccessible(ISnoopKeyMgrAccessible* accessible, SnoopKe
   items.totalMemSize += memSize;
 }
 
-void SnoopKeyMgr::processMac(SnoopPacket* packet, Mac* mac)
+void SnoopKeyMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
 {
-  SnoopMacKey key; key.mac = *mac;
-  SnoopKeyMgr_Mac_Map::iterator it = mac_map.find(key);
+  SnoopKeyMgrMap_MacFlow::iterator it = macFlow_map.find(key);
 
   void* totalMem;
-  if (it != mac_map.end())
+  if (it != macFlow_map.end())
   {
     totalMem = it.value();
   } else
   {
-    totalMem = new char[mac_items.totalMemSize];
-    it = mac_map.insert(key, totalMem);
+    totalMem = new char[macFlow_items.totalMemSize];
+    it = macFlow_map.insert(key, totalMem);
 
-    foreach (SnoopKeyMgrAccessibleItem* item, mac_items)
+    foreach (SnoopKeyMgrAccessibleItem* item, macFlow_items)
     {
-      ISnoopKeyMgrAccessible_Mac* mac_accessible = dynamic_cast<ISnoopKeyMgrAccessible_Mac*>(item->accessible);
-      LOG_ASSERT(mac_accessible != NULL);
+      ISnoopKeyMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopKeyMgrAccessible_MacFlow*>(item->accessible);
+      LOG_ASSERT(accessible != NULL);
       int user  = item->user;
       void* mem = (void*)((char*)totalMem + item->offset);
-      mac_accessible->onNew_Mac(&key, user, mem);
+      accessible->onNew_MacFlow(&key, user, mem);
     }
   }
   LOG_ASSERT(totalMem != NULL);
 
-  foreach (SnoopKeyMgrAccessibleItem* item, mac_items)
+  foreach (SnoopKeyMgrAccessibleItem* item, macFlow_items)
   {
-    ISnoopKeyMgrAccessible_Mac* mac_accessible = dynamic_cast<ISnoopKeyMgrAccessible_Mac*>(item->accessible);
-    LOG_ASSERT(mac_accessible != NULL);
+    ISnoopKeyMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopKeyMgrAccessible_MacFlow*>(item->accessible);
+    LOG_ASSERT(accessible != NULL);
     packet->user = item->user;
     packet->mem  = (void*)((char*)totalMem + item->offset);
     emit processed(packet);
@@ -125,17 +124,17 @@ void SnoopKeyMgr::processMac(SnoopPacket* packet, Mac* mac)
 
 void SnoopKeyMgr::process(SnoopPacket* packet)
 {
-  LOG_DEBUG(""); // gilgil temp 2014.02.19
   if (!SnoopEth::parseAll(packet)) return;
 
-  //
-  // Mac
-  //
-  Mac mac;
-  mac = packet->ethHdr->ether_dhost;
-  processMac(packet, &mac);
-  mac = packet->ethHdr->ether_shost;
-  processMac(packet, &mac);
+  {
+    //
+    // MacFlow
+    //
+    SnoopMacFlowKey key;
+    key.srcMac = packet->ethHdr->ether_shost;
+    key.dstMac = packet->ethHdr->ether_dhost;
+    processMacFlow(packet, key);
+  }
 }
 
 void SnoopKeyMgr::load(VXml xml)

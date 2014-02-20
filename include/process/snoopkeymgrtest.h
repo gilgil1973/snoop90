@@ -18,7 +18,7 @@
 // ----------------------------------------------------------------------------
 // SnoopKeyMgrTest
 // ----------------------------------------------------------------------------
-class SnoopKeyMgrTest : public SnoopProcess, public ISnoopKeyMgrAccessible_Mac
+class SnoopKeyMgrTest : public SnoopProcess, public ISnoopKeyMgrAccessible_MacFlow
 {
   Q_OBJECT
 
@@ -36,8 +36,8 @@ protected:
   virtual bool doClose();
 
 public: // ISnoopKeyMgr_Mac_Accessible
-  virtual void onNew_Mac(SnoopMacKey* key, int user, void* mem);
-  virtual void onDel_Mac(SnoopMacKey* key, int user, void* mem);
+  virtual void onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem);
+  virtual void onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem);
 
 public slots:
   void test(SnoopPacket* packet);

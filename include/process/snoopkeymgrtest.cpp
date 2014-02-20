@@ -24,7 +24,7 @@ bool SnoopKeyMgrTest::doOpen()
     SET_ERROR(SnoopError, "keyMgr is null", VERR_OBJECT_IS_NULL);
     return false;
   }
-  keyMgr->registerAccessible(this, keyMgr->mac_items, user, memSize);
+  keyMgr->registerAccessible(this, keyMgr->macFlow_items, user, memSize);
 
   return SnoopProcess::doOpen();
 }
@@ -34,19 +34,19 @@ bool SnoopKeyMgrTest::doClose()
   return SnoopProcess::doClose();
 }
 
-void SnoopKeyMgrTest::onNew_Mac(SnoopMacKey* key, int user, void* mem)
+void SnoopKeyMgrTest::onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
 {
-  LOG_DEBUG("user=%d mem=%p", user, mem);
+  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), user, mem);
 }
 
-void SnoopKeyMgrTest::onDel_Mac(SnoopMacKey* key, int user, void* mem)
+void SnoopKeyMgrTest::onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
 {
-  LOG_DEBUG("user=%d mem=%p", user, mem);
+  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), user, mem);
 }
 
 void SnoopKeyMgrTest::test(SnoopPacket* packet)
 {
-  LOG_DEBUG("");
+  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(packet->ethHdr->ether_shost.str()), qPrintable(packet->ethHdr->ether_dhost.str()), packet->user, packet->mem);
 }
 
 void SnoopKeyMgrTest::load(VXml xml)
@@ -56,7 +56,7 @@ void SnoopKeyMgrTest::load(VXml xml)
   QString keyMgrName = xml.getStr("keyMgr", "");
   if (keyMgrName != "") keyMgr = (SnoopKeyMgr*)(((VGraph*)owner)->objectList.findByName(keyMgrName));
   user = xml.getInt("user", user);
-  memSize = (int)xml.getInt("memSize", (size_t)memSize);
+  memSize = (int)xml.getInt("memSize", (int)memSize);
 }
 
 void SnoopKeyMgrTest::save(VXml xml)
@@ -66,7 +66,7 @@ void SnoopKeyMgrTest::save(VXml xml)
   QString keyMgrName = keyMgr == NULL ? "" : keyMgr->name;
   xml.setStr("keyMgr", keyMgrName);
   xml.setInt("user", user);
-  xml.setInt("memSize", (size_t)memSize);
+  xml.setInt("memSize", (int)memSize);
 }
 
 #ifdef QT_GUI_LIB

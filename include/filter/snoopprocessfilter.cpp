@@ -132,7 +132,7 @@ bool SnoopProcessFilter::doClose()
   return true;
 }
 
-bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleKey& tuple, /*out*/ quint32& pid, /*out*/ QString& processName)
+bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleFlowKey& tuple, /*out*/ quint32& pid, /*out*/ QString& processName)
 {
   pid = SnoopNetStat::instance().getPID(tuple);
   if (pid == SnoopNetStat::UNKNOWN_PROCESS_ID)
@@ -157,7 +157,7 @@ bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleKey& tuple, /*out*/ qui
   return true; // gilgil temp 2012.06.11
 }
 
-bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleKey& tuple, /*out*/ bool& ack)
+bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleFlowKey& tuple, /*out*/ bool& ack)
 {
   VLock lock(tupleMap);
   SnoopProcessTupleMap::iterator it = tupleMap.find(tuple);
@@ -168,7 +168,7 @@ bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleKey& tuple, /*out*/ bool& ack)
     return true;
   }
 
-  SnoopTupleKey reverseTuple;
+  SnoopTupleFlowKey reverseTuple;
   reverseTuple.proto         = tuple.proto;
   reverseTuple.flow.srcIp   = tuple.flow.dstIp;
   reverseTuple.flow.srcPort = tuple.flow.dstPort;
@@ -222,7 +222,7 @@ bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleKey& tuple, /*out*/ bool& ack)
 
 void SnoopProcessFilter::check(SnoopPacket* packet)
 {
-  SnoopTupleKey tuple;
+  SnoopTupleFlowKey tuple;
   if (!SnoopIp::parseAll(packet))
   {
     emit nak(packet);

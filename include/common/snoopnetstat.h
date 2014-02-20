@@ -27,7 +27,7 @@ public:
   static const QString UNKNOWN_PROCESS_NAME; // = "";
 
 public:
-  virtual quint32 getPID(SnoopTupleKey& infoKey) = 0;
+  virtual quint32 getPID(SnoopTupleFlowKey& infoKey) = 0;
   virtual QString getProcessName(quint32 pid) = 0;
 
 public:
@@ -238,7 +238,7 @@ protected:
   QList<Ip> myIPList;
 
 public:
-  virtual quint32 getPID(SnoopTupleKey& infoKey);
+  virtual quint32 getPID(SnoopTupleFlowKey& infoKey);
   virtual QString getProcessName(quint32 pid);
 };
 #endif // WIN32
@@ -250,7 +250,7 @@ public:
 class SnoopNetStatLinux : public SnoopNetStat
 {
 public:
-  virtual quint32 getPID(SnoopTupleKey& infoKey);
+  virtual quint32 getPID(SnoopTupleFlowKey& infoKey);
   virtual QString getProcessName(quint32 pid);
 };
 #endif // linux

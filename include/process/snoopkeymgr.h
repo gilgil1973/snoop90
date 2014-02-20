@@ -59,12 +59,12 @@ protected:
 
 protected:
   void clearMaps();
-  SnoopKeyMgr_Mac_Map     mac_map;
-  SnoopKeyMgr_UdpFlow_Map tcpFlow_map;
-  SnoopKeyMgr_UdpFlow_Map udpFlow_map;
+  SnoopKeyMgrMap_MacFlow macFlow_map;
+  SnoopKeyMgrMap_TcpFlow tcpFlow_map;
+  SnoopKeyMgrMap_UdpFlow udpFlow_map;
 
 public:
-  SnoopKeyMgrAccessibleItems mac_items;
+  SnoopKeyMgrAccessibleItems macFlow_items;
   SnoopKeyMgrAccessibleItems tcpFlow_items;
   SnoopKeyMgrAccessibleItems udpFlow_items;
 
@@ -72,7 +72,7 @@ public:
   void registerAccessible(ISnoopKeyMgrAccessible* accessible, SnoopKeyMgrAccessibleItems& items, int user, size_t memSize);
 
 protected:
-  void processMac(SnoopPacket* packet, Mac* mac);
+  void processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
 
 public slots:
   void process(SnoopPacket* packet);

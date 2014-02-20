@@ -91,7 +91,7 @@ SnoopNetStatWin::~SnoopNetStatWin()
   }
 }
 
-quint32 SnoopNetStatWin::getPID(SnoopTupleKey &infoKey)
+quint32 SnoopNetStatWin::getPID(SnoopTupleFlowKey &infoKey)
 {
   quint32 pid = UNKNOWN_PROCESS_ID;
 
@@ -260,7 +260,7 @@ QString SnoopNetStatWin::getProcessName(quint32 pid)
 // ----------------------------------------------------------------------------
 // SnoopNetStatLinux
 // ----------------------------------------------------------------------------
-quint32 SnoopNetStatLinux::getPID(SnoopTupleKey& infoKey)
+quint32 SnoopNetStatLinux::getPID(SnoopTupleFlowKey& infoKey)
 {
   LOG_ERROR("not implemented"); // gilgil temp 2013.02.08
   return UNKNOWN_PROCESS_ID;
