@@ -136,7 +136,7 @@ bool SnoopTransportSessionKey::operator < (const SnoopTransportSessionKey& rhs) 
 // ----------------------------------------------------------------------------
 // SnoopTupleKey
 // ----------------------------------------------------------------------------
-bool SnoopTupleKey::operator < (const SnoopTupleKey& rhs) const
+bool SnoopTupleFlowKey::operator < (const SnoopTupleFlowKey& rhs) const
 {
   if (this->proto < rhs.proto) return true;
   if (this->proto > rhs.proto) return false;

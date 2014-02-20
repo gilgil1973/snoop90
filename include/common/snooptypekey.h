@@ -168,15 +168,15 @@ typedef SnoopTransportSessionKey SnoopTcpSessionKey;
 typedef SnoopTransportSessionKey SnoopUdpSessionKey;
 
 // ----------------------------------------------------------------------------
-// SnoopTupleKey
+// SnoopTupleFlowKey
 // ----------------------------------------------------------------------------
-class SnoopTupleKey
+class SnoopTupleFlowKey
 {
 public:
   UINT8                 proto;
   SnoopTransportFlowKey flow;
 
-  bool operator < (const SnoopTupleKey& rhs) const;
+  bool operator < (const SnoopTupleFlowKey& rhs) const;
 };
 
 #endif // __SNOOP_TYPE_KEY_H__
