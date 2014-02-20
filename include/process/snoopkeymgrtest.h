@@ -18,7 +18,7 @@
 // ----------------------------------------------------------------------------
 // SnoopKeyMgrTest
 // ----------------------------------------------------------------------------
-class SnoopKeyMgrTest : public SnoopProcess, public ISnoopKeyMgr_Mac_Accessible
+class SnoopKeyMgrTest : public SnoopProcess, public ISnoopKeyMgrAccessible_Mac
 {
   Q_OBJECT
 
@@ -28,6 +28,8 @@ public:
 
 public:
   SnoopKeyMgr* keyMgr;
+  int          user;
+  size_t       memSize;
 
 protected:
   virtual bool doOpen();

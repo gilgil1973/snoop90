@@ -5,7 +5,7 @@
 #-------------------------------------------------
 CONFIG += SNOOP_LIB_BUILD
 #QT    -= gui
-#QT    += gui widgets
+QT    += gui widgets
 
 include (snoop.pri)
 
@@ -97,6 +97,7 @@ HEADERS += \
     ../include/parse/snoopudpdata.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopkeymgr.h \
+    ../include/process/snoopkeymgraccessible.h \
     ../include/process/snoopkeymgrtest.h \
     ../include/process/snoopprocess.h \
     ../include/process/snoopprocessfactory.h \

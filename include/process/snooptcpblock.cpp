@@ -208,9 +208,8 @@ void SnoopTcpBlock::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  VGraph* graph  = (VGraph*)owner;
   QString captureName = xml.getStr("capture", "");
-  if (captureName != "") capture = (SnoopCapture*)graph->objectList.findByName(captureName);
+  if (captureName != "") capture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(captureName));
   forwardRst     = xml.getBool("forwardRst",    forwardRst);
   backwardRst    = xml.getBool("backwardRst",   backwardRst);
   forwardFin     = xml.getBool("forwardFin",    forwardFin);
@@ -238,10 +237,8 @@ void SnoopTcpBlock::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
 
-  QList<VObject*> captureList = ((VGraph*)owner)->objectList.findObjectsByCategoryName("SnoopCapture");
-  QStringList stringList;
-  foreach (VObject* obj, captureList) stringList.push_back(obj->name);
-  QComboBox* cbxCapture = VOptionable::addComboBox(layout, "cbxCapture", "Capture", stringList, -1);
+  QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
+  QComboBox* cbxCapture = VOptionable::addComboBox(layout, "cbxCapture", "Capture", captureList, -1);
   cbxCapture->setCurrentText(capture == NULL ? "" : capture->name);
   VOptionable::addCheckBox(layout, "chkForwardRst",    "Forward Rst",     forwardRst);
   VOptionable::addCheckBox(layout, "chkBackwardRst",   "Backward Rst",    backwardRst);
