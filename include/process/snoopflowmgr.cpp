@@ -1,4 +1,4 @@
-#include <SnoopKeyMgr>
+#include <SnoopFlowMgr>
 #include <VDebugNew>
 
 #include <SnoopEth>
@@ -6,12 +6,12 @@
 #include <SnoopTcp>
 #include <SnoopUdp>
 
-REGISTER_METACLASS(SnoopKeyMgr, SnoopProcess)
+REGISTER_METACLASS(SnoopFlowMgr, SnoopProcess)
 
 // ----------------------------------------------------------------------------
-// SnoopKeyMgrAccessibleItem
+// SnoopFlowMgrAccessibleItem
 // ----------------------------------------------------------------------------
-SnoopKeyMgrAccessibleItem::SnoopKeyMgrAccessibleItem()
+SnoopFlowMgrAccessibleItem::SnoopFlowMgrAccessibleItem()
 {
   accessible = NULL;
   user       = 0;
@@ -20,14 +20,14 @@ SnoopKeyMgrAccessibleItem::SnoopKeyMgrAccessibleItem()
 };
 
 // ----------------------------------------------------------------------------
-// SnoopKeyMgrAccessibleItems
+// SnoopFlowMgrAccessibleItems
 // ----------------------------------------------------------------------------
-SnoopKeyMgrAccessibleItems::SnoopKeyMgrAccessibleItems()
+SnoopFlowMgrAccessibleItems::SnoopFlowMgrAccessibleItems()
 {
   totalMemSize = 0;
 }
 
-SnoopKeyMgrAccessibleItems::~SnoopKeyMgrAccessibleItems()
+SnoopFlowMgrAccessibleItems::~SnoopFlowMgrAccessibleItems()
 {
   // gilgil temp 2014.02.21
 }
@@ -35,50 +35,50 @@ SnoopKeyMgrAccessibleItems::~SnoopKeyMgrAccessibleItems()
 // ----------------------------------------------------------------------------
 // SnoopBlock
 // ----------------------------------------------------------------------------
-SnoopKeyMgr::SnoopKeyMgr(void* owner) : SnoopProcess(owner)
+SnoopFlowMgr::SnoopFlowMgr(void* owner) : SnoopProcess(owner)
 {
   // gilgil temp 2014.02.19
 }
 
-SnoopKeyMgr::~SnoopKeyMgr()
+SnoopFlowMgr::~SnoopFlowMgr()
 {
   close();
 }
 
-bool SnoopKeyMgr::doOpen()
+bool SnoopFlowMgr::doOpen()
 {
   clearMaps();
 
   return SnoopProcess::doOpen();
 }
 
-bool SnoopKeyMgr::doClose()
+bool SnoopFlowMgr::doClose()
 {
   clearMaps();
 
   return SnoopProcess::doClose();
 }
 
-void SnoopKeyMgr::clearMaps()
+void SnoopFlowMgr::clearMaps()
 {
   macFlow_map.clear();
   tcpFlow_map.clear();
   udpFlow_map.clear();
 }
 
-void SnoopKeyMgr::registerAccessible(ISnoopKeyMgrAccessible* accessible, SnoopKeyMgrAccessibleItems& items, int user, size_t memSize)
+void SnoopFlowMgr::registerAccessible(ISnoopFlowMgrAccessible* accessible, SnoopFlowMgrAccessibleItems& items, int user, size_t memSize)
 {
   size_t currentOffset = 0;
   int _count = items.count();
   for (int i = 0; i < _count; i++)
   {
-    SnoopKeyMgrAccessibleItem* item = items.at(i);
+    SnoopFlowMgrAccessibleItem* item = items.at(i);
     if (item->accessible == accessible) return;
     if (item->user       == user) return;
     currentOffset += item->memSize;
   }
 
-  SnoopKeyMgrAccessibleItem* item = new SnoopKeyMgrAccessibleItem;
+  SnoopFlowMgrAccessibleItem* item = new SnoopFlowMgrAccessibleItem;
   item->accessible = accessible;
   item->user       = user;
   item->offset     = currentOffset;
@@ -88,9 +88,9 @@ void SnoopKeyMgr::registerAccessible(ISnoopKeyMgrAccessible* accessible, SnoopKe
   items.totalMemSize += memSize;
 }
 
-void SnoopKeyMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
+void SnoopFlowMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
 {
-  SnoopKeyMgrMap_MacFlow::iterator it = macFlow_map.find(key);
+  SnoopFlowMgrMap_MacFlow::iterator it = macFlow_map.find(key);
 
   void* totalMem;
   if (it != macFlow_map.end())
@@ -101,9 +101,9 @@ void SnoopKeyMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
     totalMem = new char[macFlow_items.totalMemSize];
     it = macFlow_map.insert(key, totalMem);
 
-    foreach (SnoopKeyMgrAccessibleItem* item, macFlow_items)
+    foreach (SnoopFlowMgrAccessibleItem* item, macFlow_items)
     {
-      ISnoopKeyMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopKeyMgrAccessible_MacFlow*>(item->accessible);
+      ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item->accessible);
       LOG_ASSERT(accessible != NULL);
       int user  = item->user;
       void* mem = (void*)((char*)totalMem + item->offset);
@@ -112,9 +112,9 @@ void SnoopKeyMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
   }
   LOG_ASSERT(totalMem != NULL);
 
-  foreach (SnoopKeyMgrAccessibleItem* item, macFlow_items)
+  foreach (SnoopFlowMgrAccessibleItem* item, macFlow_items)
   {
-    ISnoopKeyMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopKeyMgrAccessible_MacFlow*>(item->accessible);
+    ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item->accessible);
     LOG_ASSERT(accessible != NULL);
     packet->user = item->user;
     packet->mem  = (void*)((char*)totalMem + item->offset);
@@ -122,7 +122,7 @@ void SnoopKeyMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
   }
 }
 
-void SnoopKeyMgr::process(SnoopPacket* packet)
+void SnoopFlowMgr::process(SnoopPacket* packet)
 {
   if (!SnoopEth::parseAll(packet)) return;
 
@@ -137,14 +137,14 @@ void SnoopKeyMgr::process(SnoopPacket* packet)
   }
 }
 
-void SnoopKeyMgr::load(VXml xml)
+void SnoopFlowMgr::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
   //drop = xml.getBool("drop", drop); // gilgil temp 2014.02.19
 }
 
-void SnoopKeyMgr::save(VXml xml)
+void SnoopFlowMgr::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
@@ -152,14 +152,14 @@ void SnoopKeyMgr::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopKeyMgr::addOptionWidget(QLayout* layout)
+void SnoopFlowMgr::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
 
   // VOptionable::addCheckBox(layout, "chkDrop", "Drop", drop); // gilgil temp 2014.02.19
 }
 
-void SnoopKeyMgr::saveOptionDlg(QDialog* dialog)
+void SnoopFlowMgr::saveOptionDlg(QDialog* dialog)
 {
   SnoopProcess::saveOptionDlg(dialog);
 

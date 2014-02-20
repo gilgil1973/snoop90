@@ -1,23 +1,23 @@
-#include <SnoopKeyMgrTest>
+#include <SnoopFlowMgrTest>
 
-REGISTER_METACLASS(SnoopKeyMgrTest, SnoopProcess)
+REGISTER_METACLASS(SnoopFlowMgrTest, SnoopProcess)
 
 // ----------------------------------------------------------------------------
-// SnoopKeyMgrTest
+// SnoopFlowMgrTest
 // ----------------------------------------------------------------------------
-SnoopKeyMgrTest::SnoopKeyMgrTest(void* owner) : SnoopProcess(owner)
+SnoopFlowMgrTest::SnoopFlowMgrTest(void* owner) : SnoopProcess(owner)
 {
   keyMgr  = NULL;
   user    = 0;
   memSize = 0;
 }
 
-SnoopKeyMgrTest::~SnoopKeyMgrTest()
+SnoopFlowMgrTest::~SnoopFlowMgrTest()
 {
   close();
 }
 
-bool SnoopKeyMgrTest::doOpen()
+bool SnoopFlowMgrTest::doOpen()
 {
   if (keyMgr == NULL)
   {
@@ -29,37 +29,37 @@ bool SnoopKeyMgrTest::doOpen()
   return SnoopProcess::doOpen();
 }
 
-bool SnoopKeyMgrTest::doClose()
+bool SnoopFlowMgrTest::doClose()
 {
   return SnoopProcess::doClose();
 }
 
-void SnoopKeyMgrTest::onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
+void SnoopFlowMgrTest::onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
 {
   LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), user, mem);
 }
 
-void SnoopKeyMgrTest::onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
+void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
 {
   LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), user, mem);
 }
 
-void SnoopKeyMgrTest::test(SnoopPacket* packet)
+void SnoopFlowMgrTest::test(SnoopPacket* packet)
 {
   LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(packet->ethHdr->ether_shost.str()), qPrintable(packet->ethHdr->ether_dhost.str()), packet->user, packet->mem);
 }
 
-void SnoopKeyMgrTest::load(VXml xml)
+void SnoopFlowMgrTest::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
   QString keyMgrName = xml.getStr("keyMgr", "");
-  if (keyMgrName != "") keyMgr = (SnoopKeyMgr*)(((VGraph*)owner)->objectList.findByName(keyMgrName));
+  if (keyMgrName != "") keyMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(keyMgrName));
   user = xml.getInt("user", user);
   memSize = (int)xml.getInt("memSize", (int)memSize);
 }
 
-void SnoopKeyMgrTest::save(VXml xml)
+void SnoopFlowMgrTest::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
@@ -70,22 +70,22 @@ void SnoopKeyMgrTest::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopKeyMgrTest::addOptionWidget(QLayout* layout)
+void SnoopFlowMgrTest::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
 
-  QStringList keyMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopKeyMgr");
+  QStringList keyMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
   QComboBox* cbxKeyMgr = VOptionable::addComboBox(layout, "cbxKeyMgr", "KeyMgr", keyMgrList, -1);
   cbxKeyMgr->setCurrentText(keyMgr == NULL ? "" : keyMgr->name);
   VOptionable::addLineEdit(layout, "leUser", "User", QString::number(user));
   VOptionable::addLineEdit(layout, "leMemSize", "Mem Size", QString::number(memSize));
 }
 
-void SnoopKeyMgrTest::saveOptionDlg(QDialog* dialog)
+void SnoopFlowMgrTest::saveOptionDlg(QDialog* dialog)
 {
   SnoopProcess::saveOptionDlg(dialog);
 
-  keyMgr = (SnoopKeyMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxKeyMgr")->currentText()));
+  keyMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxKeyMgr")->currentText()));
   user    = dialog->findChild<QLineEdit*>("leUser")->text().toInt();
   memSize = (size_t)dialog->findChild<QLineEdit*>("leMemSize")->text().toInt();
 }

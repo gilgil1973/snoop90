@@ -12,22 +12,22 @@
 #define __SNOOP_KEY_MGR_TEST_H__
 
 #include <SnoopProcess>
-#include <SnoopKeyMgr>
+#include <SnoopFlowMgr>
 #include <VGraph>
 
 // ----------------------------------------------------------------------------
-// SnoopKeyMgrTest
+// SnoopFlowMgrTest
 // ----------------------------------------------------------------------------
-class SnoopKeyMgrTest : public SnoopProcess, public ISnoopKeyMgrAccessible_MacFlow
+class SnoopFlowMgrTest : public SnoopProcess, public ISnoopFlowMgrAccessible_MacFlow
 {
   Q_OBJECT
 
 public:
-  SnoopKeyMgrTest(void* owner = NULL);
-  virtual ~SnoopKeyMgrTest();
+  SnoopFlowMgrTest(void* owner = NULL);
+  virtual ~SnoopFlowMgrTest();
 
 public:
-  SnoopKeyMgr* keyMgr;
+  SnoopFlowMgr* keyMgr;
   int          user;
   size_t       memSize;
 
@@ -35,7 +35,7 @@ protected:
   virtual bool doOpen();
   virtual bool doClose();
 
-public: // ISnoopKeyMgr_Mac_Accessible
+public: // ISnoopFlowMgr_Mac_Accessible
   virtual void onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem);
   virtual void onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem);
 

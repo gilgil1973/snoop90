@@ -14,45 +14,45 @@
 #include <SnoopTypeKey>
 
 // ----------------------------------------------------------------------------
-// ISnoopKeyMgrAccessible
+// ISnoopFlowMgrAccessible
 // ----------------------------------------------------------------------------
-class ISnoopKeyMgrAccessible
+class ISnoopFlowMgrAccessible
 {
 private:
   virtual void foo() {}
 };
 
 // ----------------------------------------------------------------------------
-// ISnoopKeyMgrAccessible_Mac
+// ISnoopFlowMgrAccessible_Mac
 // ----------------------------------------------------------------------------
-class ISnoopKeyMgrAccessible_MacFlow : public ISnoopKeyMgrAccessible
+class ISnoopFlowMgrAccessible_MacFlow : public ISnoopFlowMgrAccessible
 {
 public:
   virtual void onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem) = 0;
   virtual void onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem) = 0;
 };
-typedef QMap<SnoopMacFlowKey /*key*/, void* /*totalMem*/> SnoopKeyMgrMap_MacFlow;
+typedef QMap<SnoopMacFlowKey /*key*/, void* /*totalMem*/> SnoopFlowMgrMap_MacFlow;
 
 // ----------------------------------------------------------------------------
-// SnoopKeyMgrAccessibleItem_TcpFlow
+// SnoopFlowMgrAccessibleItem_TcpFlow
 // ----------------------------------------------------------------------------
-class SnoopKeyMgrAccessibleItem_TcpFlow : public ISnoopKeyMgrAccessible
+class SnoopFlowMgrAccessibleItem_TcpFlow : public ISnoopFlowMgrAccessible
 {
 public:
   virtual void onNew_TcpFlow(SnoopTcpFlowKey* key, int user, void* mem) = 0;
   virtual void onDel_TcpFlow(SnoopTcpFlowKey* key, int user, void* mem) = 0;
 };
-typedef QMap<SnoopTcpFlowKey /*key*/, void* /*totalMem*/> SnoopKeyMgrMap_TcpFlow;
+typedef QMap<SnoopTcpFlowKey /*key*/, void* /*totalMem*/> SnoopFlowMgrMap_TcpFlow;
 
 // ----------------------------------------------------------------------------
-// ISnoopKeyMgrAccessible_UdpFlow
+// ISnoopFlowMgrAccessible_UdpFlow
 // ----------------------------------------------------------------------------
-class ISnoopKeyMgrAccessible_UdpFlow : public ISnoopKeyMgrAccessible
+class ISnoopFlowMgrAccessible_UdpFlow : public ISnoopFlowMgrAccessible
 {
 public:
   virtual void onNew_UdpFlow(SnoopUdpFlowKey* key, int user, void* mem) = 0;
   virtual void onDel_UdpFlow(SnoopUdpFlowKey* key, int user, void* mem) = 0;
 };
-typedef QMap<SnoopUdpFlowKey /*key*/, void* /*totalMem*/> SnoopKeyMgrMap_UdpFlow;
+typedef QMap<SnoopUdpFlowKey /*key*/, void* /*totalMem*/> SnoopFlowMgrMap_UdpFlow;
 
 #endif // __SNOOP_KEY_MGR_ACCESSIBLE_H__
