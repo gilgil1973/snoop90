@@ -79,10 +79,11 @@ int SnoopPcap::read(SnoopPacket* packet)
     case 0 : // if the timeout occurs
       res = 0;
       break;
-    default:
+    default: // packet captured
       res = packet->pktHdr->caplen;
       break;
   }
+  packet->linkType = dataLink();
   return res;
 }
 

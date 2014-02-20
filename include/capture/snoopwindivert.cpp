@@ -204,34 +204,34 @@ int SnoopWinDivert::read(SnoopPacket* packet)
 
   // LOG_DEBUG("ifIdx=%u subIfIdx=%u Direction=%u readLen=%u", packet->divertAddr.IfIdx, packet->divertAddr.SubIfIdx, packet->divertAddr.Direction, readLen); // gilgil temp 2013.12.05
 
+  packet->pktData = this->pktData;
+  packet->pktHdr  = &this->pktHdr;
+
   ETH_HDR* ethHdr = (ETH_HDR*)pktData;
   ethHdr->ether_dhost = Mac::cleanMac();
   ethHdr->ether_shost = Mac::cleanMac();
   ethHdr->ether_type  = htons(ETHERTYPE_IP);
 
-  this->pktHdr.caplen = readLen;
-  this->pktHdr.len    = readLen;
-
-  packet->pktData = this->pktData;
-  packet->pktHdr  = &this->pktHdr;
-  packet->ethHdr  = ethHdr;
-  if (tos != 0 && SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
-  {
-    packet->ipHdr->ip_tos = tos;
-  }
+  IP_HDR* ipHdr;
+  if (tos != 0 && SnoopEth::isIp(packet->ethHdr, &ipHdr))
+    ipHdr->ip_tos = tos;
 
   if (autoCorrectChecksum)
   {
-    if (SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
+    if (SnoopEth::isIp(ethHdr, &ipHdr))
     {
       packet->ipChanged = true;
-      if (SnoopIp::isTcp(packet->ipHdr, &packet->tcpHdr))
+
+      TCP_HDR* tcpHdr;
+      UDP_HDR* udpHdr;
+      if (SnoopIp::isTcp(ipHdr, &tcpHdr))
         packet->tcpChanged = true;
-      else if (SnoopIp::isUdp(packet->ipHdr, &packet->udpHdr))
+      else if (SnoopIp::isUdp(ipHdr, &udpHdr))
         packet->udpChanged = true;
     }
   }
 
+  packet->linkType = dataLink();
   return (int)readLen;
 }
 

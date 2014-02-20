@@ -38,6 +38,9 @@ public:
   virtual int write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr = NULL);
 
 public:
+  void postRead(SnoopPacket* packet);
+
+public:
   virtual SnoopCaptureType captureType() { return SnoopCaptureType::None; }
   virtual int              dataLink()    { return DLT_NULL; }
   virtual int              relay(SnoopPacket* packet);
