@@ -65,14 +65,16 @@ protected:
   SnoopFlowMgrMap_UdpFlow udpFlow_map;
 
 protected:
+  void clearItems();
   void registerAccessible(ISnoopFlowMgrAccessible* accessible, SnoopFlowMgrAccessibleItems& items, int user, size_t memSize);
 
 public:
   SnoopFlowMgrAccessibleItems macFlow_items;
-  void registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessible, int user, size_t memSize);
-  void fireAllOnNew_MacFlow(SnoopMacFlowKey& key, void* totalMem);
-  void fireAllOnDel_MacFlow(SnoopMacFlowKey& key, void* totalMem);
-  void process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
+  void  registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessible, int user, size_t memSize);
+  void  fireAllOnNew_MacFlow(SnoopMacFlowKey& key, void* totalMem);
+  void  fireAllOnDel_MacFlow(SnoopMacFlowKey& key, void* totalMem);
+  void  process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
+  void* addNew_MacFlow(SnoopMacFlowKey& key);
 
   SnoopFlowMgrAccessibleItems tcpFlow_items;
   SnoopFlowMgrAccessibleItems udpFlow_items;

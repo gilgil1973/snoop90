@@ -52,6 +52,7 @@ SnoopFlowMgr::~SnoopFlowMgr()
 bool SnoopFlowMgr::doOpen()
 {
   clearMaps();
+  clearItems();
 
   return SnoopProcess::doOpen();
 }
@@ -59,6 +60,7 @@ bool SnoopFlowMgr::doOpen()
 bool SnoopFlowMgr::doClose()
 {
   clearMaps();
+  clearItems();
 
   return SnoopProcess::doClose();
 }
@@ -68,6 +70,13 @@ void SnoopFlowMgr::clearMaps()
   macFlow_map.clear();
   tcpFlow_map.clear();
   udpFlow_map.clear();
+}
+
+void SnoopFlowMgr::clearItems()
+{
+  macFlow_items.clear();
+  tcpFlow_items.clear();
+  udpFlow_items.clear();
 }
 
 void SnoopFlowMgr::registerAccessible(ISnoopFlowMgrAccessible* accessible, SnoopFlowMgrAccessibleItems& items, int user, size_t memSize)
@@ -127,15 +136,8 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
   SnoopFlowMgrMap_MacFlow::iterator it = macFlow_map.find(key);
 
   void* totalMem;
-  if (it != macFlow_map.end())
-  {
-    totalMem = it.value();
-  } else
-  {
-    totalMem = new char[macFlow_items.totalMemSize];
-    it = macFlow_map.insert(key, totalMem);
-    fireAllOnNew_MacFlow(key, totalMem);
-  }
+  if (it != macFlow_map.end()) totalMem = it.value();
+  else totalMem = addNew_MacFlow(key);
   LOG_ASSERT(totalMem != NULL);
 
   foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
@@ -146,6 +148,14 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
     packet->mem  = (void*)((char*)totalMem + item.offset);
     emit processed(packet);
   }
+}
+
+void* SnoopFlowMgr::addNew_MacFlow(SnoopMacFlowKey& key)
+{
+  void* totalMem = new char[macFlow_items.totalMemSize];
+  macFlow_map.insert(key, totalMem);
+  fireAllOnNew_MacFlow(key, totalMem);
+  return totalMem;
 }
 
 void SnoopFlowMgr::process(SnoopPacket* packet)
