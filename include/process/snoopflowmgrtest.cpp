@@ -34,14 +34,14 @@ bool SnoopFlowMgrTest::doClose()
   return SnoopProcess::doClose();
 }
 
-void SnoopFlowMgrTest::onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
+void SnoopFlowMgrTest::onNew_MacFlow(SnoopMacFlowKey& key, int user, void* mem)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), user, mem);
+  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()), user, mem);
 }
 
-void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem)
+void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey& key, int user, void* mem)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), user, mem);
+  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()), user, mem);
 }
 
 void SnoopFlowMgrTest::test(SnoopPacket* packet)

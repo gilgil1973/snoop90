@@ -70,8 +70,8 @@ protected:
 public:
   SnoopFlowMgrAccessibleItems macFlow_items;
   void registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessible, int user, size_t memSize);
-  void fireAllOnNew_MacFlow(SnoopMacFlowKey* key, void* totalMem);
-  void fireAllOnDel_MacFlow(SnoopMacFlowKey* key, void* totalMem);
+  void fireAllOnNew_MacFlow(SnoopMacFlowKey& key, void* totalMem);
+  void fireAllOnDel_MacFlow(SnoopMacFlowKey& key, void* totalMem);
   void process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
 
   SnoopFlowMgrAccessibleItems tcpFlow_items;

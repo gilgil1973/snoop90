@@ -28,8 +28,8 @@ private:
 class ISnoopFlowMgrAccessible_MacFlow : public ISnoopFlowMgrAccessible
 {
 public:
-  virtual void onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem) = 0;
-  virtual void onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem) = 0;
+  virtual void onNew_MacFlow(SnoopMacFlowKey& key, int user, void* mem) = 0;
+  virtual void onDel_MacFlow(SnoopMacFlowKey& key, int user, void* mem) = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -50,8 +50,8 @@ public:
 class SnoopFlowMgrAccessibleItem_TcpFlow : public ISnoopFlowMgrAccessible
 {
 public:
-  virtual void onNew_TcpFlow(SnoopTcpFlowKey* key, int user, void* mem) = 0;
-  virtual void onDel_TcpFlow(SnoopTcpFlowKey* key, int user, void* mem) = 0;
+  virtual void onNew_TcpFlow(SnoopTcpFlowKey& key, int user, void* mem) = 0;
+  virtual void onDel_TcpFlow(SnoopTcpFlowKey& key, int user, void* mem) = 0;
 };
 typedef QMap<SnoopTcpFlowKey /*key*/, void* /*totalMem*/> SnoopFlowMgrMap_TcpFlow;
 
@@ -61,8 +61,8 @@ typedef QMap<SnoopTcpFlowKey /*key*/, void* /*totalMem*/> SnoopFlowMgrMap_TcpFlo
 class ISnoopFlowMgrAccessible_UdpFlow : public ISnoopFlowMgrAccessible
 {
 public:
-  virtual void onNew_UdpFlow(SnoopUdpFlowKey* key, int user, void* mem) = 0;
-  virtual void onDel_UdpFlow(SnoopUdpFlowKey* key, int user, void* mem) = 0;
+  virtual void onNew_UdpFlow(SnoopUdpFlowKey& key, int user, void* mem) = 0;
+  virtual void onDel_UdpFlow(SnoopUdpFlowKey& key, int user, void* mem) = 0;
 };
 typedef QMap<SnoopUdpFlowKey /*key*/, void* /*totalMem*/> SnoopFlowMgrMap_UdpFlow;
 

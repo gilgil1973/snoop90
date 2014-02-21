@@ -98,7 +98,7 @@ void SnoopFlowMgr::registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessibl
   registerAccessible(accessible, macFlow_items, user, memSize);
 }
 
-void SnoopFlowMgr::fireAllOnNew_MacFlow(SnoopMacFlowKey* key, void* totalMem)
+void SnoopFlowMgr::fireAllOnNew_MacFlow(SnoopMacFlowKey& key, void* totalMem)
 {
   foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
   {
@@ -110,7 +110,7 @@ void SnoopFlowMgr::fireAllOnNew_MacFlow(SnoopMacFlowKey* key, void* totalMem)
   }
 }
 
-void SnoopFlowMgr::fireAllOnDel_MacFlow(SnoopMacFlowKey* key, void* totalMem)
+void SnoopFlowMgr::fireAllOnDel_MacFlow(SnoopMacFlowKey& key, void* totalMem)
 {
   foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
   {
@@ -134,7 +134,7 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
   {
     totalMem = new char[macFlow_items.totalMemSize];
     it = macFlow_map.insert(key, totalMem);
-    fireAllOnNew_MacFlow(&key, totalMem);
+    fireAllOnNew_MacFlow(key, totalMem);
   }
   LOG_ASSERT(totalMem != NULL);
 
