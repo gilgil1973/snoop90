@@ -27,6 +27,7 @@ public:
   static UINT16 recalculateChecksum(UINT16 oldChecksum, UINT16 oldValue, UINT16 newValue);
 
 public:
+  static bool parse(SnoopPacket* packet);
   static bool parseAll(SnoopPacket* packet);
 };
 

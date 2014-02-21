@@ -84,14 +84,17 @@ UINT16 SnoopTcp::checksum(IP_HDR* ipHdr, TCP_HDR* tcpHdr)
   return (UINT16)sum;
 }
 
+bool SnoopTcp::parse(SnoopPacket* packet)
+{
+  if (!SnoopIp::isTcp(packet->ipHdr, &packet->tcpHdr)) return false;
+  packet->proto = IPPROTO_TCP;
+  return true;
+}
+
 bool SnoopTcp::parseAll(SnoopPacket* packet)
 {
   if (!SnoopIp::parseAll(packet)) return false;
-  
-  if (!SnoopIp::isTcp(packet->ipHdr, &packet->tcpHdr)) return false;
-  packet->proto = IPPROTO_TCP;
-
-  return true;
+  return parse(packet);
 }
 
 int SnoopTcp::getOption(

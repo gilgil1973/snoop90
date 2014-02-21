@@ -19,6 +19,7 @@
 class SnoopTcpData
 {
 public:
+  static bool parse(SnoopPacket* packet);
   static bool parseAll(SnoopPacket* packet);
 };
 

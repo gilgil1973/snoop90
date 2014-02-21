@@ -88,12 +88,15 @@ UINT16 SnoopIp::recalculateChecksum(UINT16 oldChecksum, UINT16 oldValue, UINT16 
   return (UINT16)(sum + (sum >> 16));
 }
 
+bool SnoopIp::parse(SnoopPacket* packet)
+{
+  if (!SnoopEth::isIp(packet->ethHdr, &packet->ipHdr)) return false;
+  packet->netType = ETHERTYPE_IP;
+  return true;
+}
+
 bool SnoopIp::parseAll(SnoopPacket* packet)
 {
   if (!SnoopEth::parseAll(packet)) return false;
-
-  if (!SnoopEth::isIp(packet->ethHdr, &packet->ipHdr)) return false;
-  packet->netType = ETHERTYPE_IP;
-
-  return true;
+  return parse(packet);
 }

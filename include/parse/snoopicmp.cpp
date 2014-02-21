@@ -80,12 +80,15 @@ UINT16 SnoopIcmp::checksum(IP_HDR* ipHdr, ICMP_HDR* icmpHdr)
   */
 }
 
+bool SnoopIcmp::parse(SnoopPacket* packet)
+{
+  if (!SnoopIp::isIcmp(packet->ipHdr, &packet->icmpHdr)) return false;
+  packet->proto = IPPROTO_ICMP;
+  return true;
+}
+
 bool SnoopIcmp::parseAll(SnoopPacket* packet)
 {
   if (!SnoopIp::parseAll(packet)) return false;
-  
-  if (!SnoopIp::isIcmp(packet->ipHdr, &packet->icmpHdr)) return false;
-  packet->proto = IPPROTO_ICMP;
-
-  return true;
+  return parse(packet);
 }

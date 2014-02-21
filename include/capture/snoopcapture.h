@@ -39,6 +39,7 @@ public:
 
 public:
   void postRead(SnoopPacket* packet);
+  void parse(SnoopPacket* packet);
 
 public:
   virtual SnoopCaptureType captureType() { return SnoopCaptureType::None; }
@@ -50,6 +51,7 @@ public:
   //
 public:
   bool         autoRead;
+  bool         parsePacket;
 
 protected:
   virtual void run();

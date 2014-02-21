@@ -40,6 +40,7 @@ public:
   static UINT16 checksum(IP_HDR* ipHdr, TCP_HDR* tcpHdr);
 
 public:
+  static bool parse(SnoopPacket* packet);
   static bool parseAll(SnoopPacket* packet);
 
   //

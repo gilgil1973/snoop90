@@ -23,6 +23,7 @@ public:
   static UINT16 checksum(IP_HDR* ipHdr, UDP_HDR* udpHdr);
 
 public:
+  static bool parse(SnoopPacket* packet);
   static bool parseAll(SnoopPacket* packet);
 };
 

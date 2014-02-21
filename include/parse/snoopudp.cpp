@@ -68,12 +68,15 @@ UINT16 SnoopUdp::checksum(IP_HDR* ipHdr, UDP_HDR* udpHdr)
   return (UINT16)sum;
 }
 
+bool SnoopUdp::parse(SnoopPacket* packet)
+{
+  if (!SnoopIp::isUdp(packet->ipHdr, &packet->udpHdr)) return false;
+  packet->proto = IPPROTO_UDP;
+  return true;
+}
+
 bool SnoopUdp::parseAll(SnoopPacket* packet)
 {
   if (!SnoopIp::parseAll(packet)) return false;
-  
-  if (!SnoopIp::isUdp(packet->ipHdr, &packet->udpHdr)) return false;
-  packet->proto = IPPROTO_UDP;
-
-  return true;
+  return parse(packet);
 }

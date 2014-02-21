@@ -24,6 +24,7 @@ public:
   static bool isArp(ETH_HDR* ethHdr, ARP_HDR** arpHdr);
   
 public:
+  static bool parse(SnoopPacket* packet);
   static bool parseAll(SnoopPacket* packet);
 };
 

@@ -6,7 +6,8 @@
 // ----------------------------------------------------------------------------
 SnoopCapture::SnoopCapture(void* owner) : VObject(owner)
 {
-  autoRead  = true;
+  autoRead    = true;
+  parsePacket = true;
   packet.clear();
 }
 
@@ -49,7 +50,8 @@ int SnoopCapture::read(SnoopPacket* packet)
 #include <SnoopUdp> // for SnoopUdp::checksum
 void SnoopCapture::postRead(SnoopPacket* packet)
 {
-  if (captureType() == SnoopCaptureType::InPath)
+  if (captureType() != SnoopCaptureType::InPath) return;
+  if (packet->drop) return;
   {
     if (!packet->drop)
     {
@@ -80,6 +82,11 @@ void SnoopCapture::postRead(SnoopPacket* packet)
       relay(packet);
     }
   }
+}
+
+void SnoopCapture::parse(SnoopPacket* packet)
+{
+  if (SnoopEth::parseAll(packet)) return;
 }
 
 int SnoopCapture::write(SnoopPacket* packet)
@@ -125,13 +132,15 @@ void SnoopCapture::load(VXml xml)
 {
   VObject::load(xml);
 
-  autoRead = xml.getBool("autoRead", autoRead);
+  autoRead    = xml.getBool("autoRead", autoRead);
+  parsePacket = xml.getBool("autoRead", autoRead);
 }
 
 void SnoopCapture::save(VXml xml)
 {
   VObject::save(xml);
 
+  xml.setBool("autoRead", autoRead);
   xml.setBool("autoRead", autoRead);
 }
 
