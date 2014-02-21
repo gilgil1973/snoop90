@@ -13,7 +13,6 @@
 
 #include <SnoopProcess>
 #include <SnoopFlowMgr>
-#include <VGraph>
 
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrTest

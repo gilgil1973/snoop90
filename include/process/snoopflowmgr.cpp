@@ -76,7 +76,7 @@ void SnoopFlowMgr::registerAccessible(ISnoopFlowMgrAccessible* accessible, Snoop
   int _count = items.count();
   for (int i = 0; i < _count; i++)
   {
-    SnoopFlowMgrAccessibleItem& item = (SnoopFlowMgrAccessibleItem&)items.at(i);
+    const SnoopFlowMgrAccessibleItem& item = items.at(i);
     if (item.accessible == accessible) return;
     if (item.user       == user) return;
     currentOffset += item.memSize;

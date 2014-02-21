@@ -13,7 +13,6 @@
 
 #include <SnoopProcess>
 #include <SnoopCapture>
-#include <VGraph>
 #include <VThread>
 #include <VTick>
 

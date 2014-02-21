@@ -13,6 +13,7 @@
 
 #include <Snoop>
 #include <VObjectWidget>
+#include <VGraph>
 
 // ----------------------------------------------------------------------------
 // SnoopFilter

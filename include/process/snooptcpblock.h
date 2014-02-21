@@ -13,7 +13,6 @@
 
 #include <SnoopBlock>
 #include <SnoopCapture>
-#include <VGraph>
 
 // ----------------------------------------------------------------------------
 // SnoopTcpBlock
