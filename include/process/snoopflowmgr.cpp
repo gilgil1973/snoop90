@@ -19,6 +19,10 @@ SnoopFlowMgrAccessibleItem::SnoopFlowMgrAccessibleItem()
   memSize    = 0;
 };
 
+SnoopFlowMgrAccessibleItem::~SnoopFlowMgrAccessibleItem()
+{
+}
+
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrAccessibleItems
 // ----------------------------------------------------------------------------
@@ -72,23 +76,53 @@ void SnoopFlowMgr::registerAccessible(ISnoopFlowMgrAccessible* accessible, Snoop
   int _count = items.count();
   for (int i = 0; i < _count; i++)
   {
-    SnoopFlowMgrAccessibleItem* item = items.at(i);
-    if (item->accessible == accessible) return;
-    if (item->user       == user) return;
-    currentOffset += item->memSize;
+    SnoopFlowMgrAccessibleItem& item = (SnoopFlowMgrAccessibleItem&)items.at(i);
+    if (item.accessible == accessible) return;
+    if (item.user       == user) return;
+    currentOffset += item.memSize;
   }
 
-  SnoopFlowMgrAccessibleItem* item = new SnoopFlowMgrAccessibleItem;
-  item->accessible = accessible;
-  item->user       = user;
-  item->offset     = currentOffset;
-  item->memSize    = memSize;
+  SnoopFlowMgrAccessibleItem item;
+  item.accessible = accessible;
+  item.user       = user;
+  item.offset     = currentOffset;
+  item.memSize    = memSize;
   items.push_back(item);
 
   items.totalMemSize += memSize;
 }
 
-void SnoopFlowMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
+
+void SnoopFlowMgr::registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessible, int user, size_t memSize)
+{
+  registerAccessible(accessible, macFlow_items, user, memSize);
+}
+
+void SnoopFlowMgr::fireAllOnNew_MacFlow(SnoopMacFlowKey* key, void* totalMem)
+{
+  foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
+  {
+    ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item.accessible);
+    LOG_ASSERT(accessible != NULL);
+    int user  = item.user;
+    void* mem = (void*)((char*)totalMem + item.offset);
+    accessible->onNew_MacFlow(key, user, mem);
+  }
+}
+
+void SnoopFlowMgr::fireAllOnDel_MacFlow(SnoopMacFlowKey* key, void* totalMem)
+{
+  foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
+  {
+    ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item.accessible);
+    LOG_ASSERT(accessible != NULL);
+    int user  = item.user;
+    void* mem = (void*)((char*)totalMem + item.offset);
+    accessible->onDel_MacFlow(key, user, mem);
+  }
+}
+
+void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
 {
   SnoopFlowMgrMap_MacFlow::iterator it = macFlow_map.find(key);
 
@@ -100,24 +134,16 @@ void SnoopFlowMgr::processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
   {
     totalMem = new char[macFlow_items.totalMemSize];
     it = macFlow_map.insert(key, totalMem);
-
-    foreach (SnoopFlowMgrAccessibleItem* item, macFlow_items)
-    {
-      ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item->accessible);
-      LOG_ASSERT(accessible != NULL);
-      int user  = item->user;
-      void* mem = (void*)((char*)totalMem + item->offset);
-      accessible->onNew_MacFlow(&key, user, mem);
-    }
+    fireAllOnNew_MacFlow(&key, totalMem);
   }
   LOG_ASSERT(totalMem != NULL);
 
-  foreach (SnoopFlowMgrAccessibleItem* item, macFlow_items)
+  foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
   {
-    ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item->accessible);
+    ISnoopFlowMgrAccessible* accessible = item.accessible;
     LOG_ASSERT(accessible != NULL);
-    packet->user = item->user;
-    packet->mem  = (void*)((char*)totalMem + item->offset);
+    packet->user = item.user;
+    packet->mem  = (void*)((char*)totalMem + item.offset);
     emit processed(packet);
   }
 }
@@ -133,7 +159,7 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
     SnoopMacFlowKey key;
     key.srcMac = packet->ethHdr->ether_shost;
     key.dstMac = packet->ethHdr->ether_dhost;
-    processMacFlow(packet, key);
+    process_MacFlow(packet, key);
   }
 }
 

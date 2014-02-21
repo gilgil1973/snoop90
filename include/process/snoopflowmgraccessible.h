@@ -31,7 +31,18 @@ public:
   virtual void onNew_MacFlow(SnoopMacFlowKey* key, int user, void* mem) = 0;
   virtual void onDel_MacFlow(SnoopMacFlowKey* key, int user, void* mem) = 0;
 };
-typedef QMap<SnoopMacFlowKey /*key*/, void* /*totalMem*/> SnoopFlowMgrMap_MacFlow;
+
+// ----------------------------------------------------------------------------
+// SnoopFlowMgrMap_MacFlow
+// ----------------------------------------------------------------------------
+class SnoopFlowMgrMap_MacFlow : public QMap<SnoopMacFlowKey /*key*/, void* /*totalMem*/>
+{
+
+public:
+  SnoopFlowMgrMap_MacFlow()          { clear(); }
+  virtual ~SnoopFlowMgrMap_MacFlow() { clear(); }
+  void clear();
+};
 
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrAccessibleItem_TcpFlow

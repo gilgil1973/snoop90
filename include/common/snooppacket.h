@@ -68,7 +68,7 @@ public:
   WINDIVERT_ADDRESS divertAddr;
 
   ///
-  /// keymgr
+  /// flowmgr
   ///
   int       user;
   void*     mem;

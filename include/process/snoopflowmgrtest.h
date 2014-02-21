@@ -27,9 +27,9 @@ public:
   virtual ~SnoopFlowMgrTest();
 
 public:
-  SnoopFlowMgr* keyMgr;
-  int          user;
-  size_t       memSize;
+  SnoopFlowMgr* flowMgr;
+  int           user;
+  size_t        memSize;
 
 protected:
   virtual bool doOpen();

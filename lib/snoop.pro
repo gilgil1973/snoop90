@@ -47,6 +47,7 @@ SOURCES += \
     ../include/parse/snoopudpdata.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
+    ../include/process/snoopflowmgraccessible.cpp \
     ../include/process/snoopflowmgrtest.cpp \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \

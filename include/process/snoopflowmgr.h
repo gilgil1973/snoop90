@@ -8,8 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
-#ifndef __SNOOP_KEY_MGR_H__
-#define __SNOOP_KEY_MGR_H__
+#ifndef __SNOOP_FLOW_MGR_H__
+#define __SNOOP_FLOW_MGR_H__
 
 #include <SnoopProcess>
 #include <SnoopFlowMgrAccessible>
@@ -21,6 +21,7 @@ class SnoopFlowMgrAccessibleItem
 {
 public:
   SnoopFlowMgrAccessibleItem();
+  virtual ~SnoopFlowMgrAccessibleItem();
 
 public:
   ISnoopFlowMgrAccessible* accessible;
@@ -32,7 +33,7 @@ public:
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrAccessibleItems
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrAccessibleItems : public QList<SnoopFlowMgrAccessibleItem*>
+class SnoopFlowMgrAccessibleItems : public QList<SnoopFlowMgrAccessibleItem>
 {
 public:
   SnoopFlowMgrAccessibleItems();
@@ -63,16 +64,18 @@ protected:
   SnoopFlowMgrMap_TcpFlow tcpFlow_map;
   SnoopFlowMgrMap_UdpFlow udpFlow_map;
 
-public:
-  SnoopFlowMgrAccessibleItems macFlow_items;
-  SnoopFlowMgrAccessibleItems tcpFlow_items;
-  SnoopFlowMgrAccessibleItems udpFlow_items;
-
-public:
+protected:
   void registerAccessible(ISnoopFlowMgrAccessible* accessible, SnoopFlowMgrAccessibleItems& items, int user, size_t memSize);
 
-protected:
-  void processMacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
+public:
+  SnoopFlowMgrAccessibleItems macFlow_items;
+  void registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessible, int user, size_t memSize);
+  void fireAllOnNew_MacFlow(SnoopMacFlowKey* key, void* totalMem);
+  void fireAllOnDel_MacFlow(SnoopMacFlowKey* key, void* totalMem);
+  void process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
+
+  SnoopFlowMgrAccessibleItems tcpFlow_items;
+  SnoopFlowMgrAccessibleItems udpFlow_items;
 
 public slots:
   void process(SnoopPacket* packet);
@@ -91,4 +94,4 @@ public: // for VOptionable
 #endif // QT_GUI_LIB
 };
 
-#endif // __SNOOP_KEY_MGR_H__
+#endif // __SNOOP_FLOW_MGR_H__

@@ -7,9 +7,9 @@ REGISTER_METACLASS(SnoopFlowMgrTest, SnoopProcess)
 // ----------------------------------------------------------------------------
 SnoopFlowMgrTest::SnoopFlowMgrTest(void* owner) : SnoopProcess(owner)
 {
-  keyMgr  = NULL;
-  user    = 0;
-  memSize = 0;
+  flowMgr  = NULL;
+  user     = 0;
+  memSize  = 0;
 }
 
 SnoopFlowMgrTest::~SnoopFlowMgrTest()
@@ -19,12 +19,12 @@ SnoopFlowMgrTest::~SnoopFlowMgrTest()
 
 bool SnoopFlowMgrTest::doOpen()
 {
-  if (keyMgr == NULL)
+  if (flowMgr == NULL)
   {
-    SET_ERROR(SnoopError, "keyMgr is null", VERR_OBJECT_IS_NULL);
+    SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
     return false;
   }
-  keyMgr->registerAccessible(this, keyMgr->macFlow_items, user, memSize);
+  flowMgr->registerAccessible_MacFlow(this, user, memSize);
 
   return SnoopProcess::doOpen();
 }
@@ -53,8 +53,8 @@ void SnoopFlowMgrTest::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  QString keyMgrName = xml.getStr("keyMgr", "");
-  if (keyMgrName != "") keyMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(keyMgrName));
+  QString flowMgrName = xml.getStr("flowMgr", "");
+  if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
   user = xml.getInt("user", user);
   memSize = (int)xml.getInt("memSize", (int)memSize);
 }
@@ -63,8 +63,8 @@ void SnoopFlowMgrTest::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  QString keyMgrName = keyMgr == NULL ? "" : keyMgr->name;
-  xml.setStr("keyMgr", keyMgrName);
+  QString flowMgrName = flowMgr == NULL ? "" : flowMgr->name;
+  xml.setStr("flowMgr", flowMgrName);
   xml.setInt("user", user);
   xml.setInt("memSize", (int)memSize);
 }
@@ -74,9 +74,9 @@ void SnoopFlowMgrTest::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
 
-  QStringList keyMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
-  QComboBox* cbxKeyMgr = VOptionable::addComboBox(layout, "cbxKeyMgr", "KeyMgr", keyMgrList, -1);
-  cbxKeyMgr->setCurrentText(keyMgr == NULL ? "" : keyMgr->name);
+  QStringList flowMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
+  QComboBox* cbxFlowMgr = VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1);
+  cbxFlowMgr->setCurrentText(flowMgr == NULL ? "" : flowMgr->name);
   VOptionable::addLineEdit(layout, "leUser", "User", QString::number(user));
   VOptionable::addLineEdit(layout, "leMemSize", "Mem Size", QString::number(memSize));
 }
@@ -85,7 +85,7 @@ void SnoopFlowMgrTest::saveOptionDlg(QDialog* dialog)
 {
   SnoopProcess::saveOptionDlg(dialog);
 
-  keyMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxKeyMgr")->currentText()));
+  flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
   user    = dialog->findChild<QLineEdit*>("leUser")->text().toInt();
   memSize = (size_t)dialog->findChild<QLineEdit*>("leMemSize")->text().toInt();
 }
