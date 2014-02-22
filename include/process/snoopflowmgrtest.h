@@ -27,7 +27,6 @@ public:
 
 public:
   SnoopFlowMgr* flowMgr;
-  int           user;
   size_t        memSize;
 
 protected:

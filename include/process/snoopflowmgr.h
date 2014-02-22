@@ -25,7 +25,6 @@ public:
 
 public:
   void*  requester;
-  int    user;
   size_t offset;
   size_t memSize;
 };
@@ -72,13 +71,13 @@ public:
   void clearItems();
 
 protected:
-  size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, int user, size_t memSize);
+  size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize);
 
 public:
   //
   // MacFlow
   //
-  size_t requestMemory_MacFlow(void* requester, int user, size_t memSize);
+  size_t requestMemory_MacFlow(void* requester, size_t memSize);
   void   process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
   SnoopFlowMgrMap_MacFlow::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts);
   SnoopFlowMgrMap_MacFlow::iterator del_MacFlow(SnoopMacFlowKey& key);

@@ -9,7 +9,6 @@ REGISTER_METACLASS(SnoopFlowMgrTest, SnoopProcess)
 SnoopFlowMgrTest::SnoopFlowMgrTest(void* owner) : SnoopProcess(owner)
 {
   flowMgr       = NULL;
-  user          = 0;
   memSize       = 0;
   macFlowOffset = 0;
 }
@@ -26,7 +25,7 @@ bool SnoopFlowMgrTest::doOpen()
     SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
     return false;
   }
-  macFlowOffset = flowMgr->requestMemory_MacFlow(this, user, memSize);
+  macFlowOffset = flowMgr->requestMemory_MacFlow(this, memSize);
 
   return SnoopProcess::doOpen();
 }
@@ -58,7 +57,6 @@ void SnoopFlowMgrTest::load(VXml xml)
 
   QString flowMgrName = xml.getStr("flowMgr", "");
   if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
-  user = xml.getInt("user", user);
   memSize = (int)xml.getInt("memSize", (int)memSize);
 }
 
@@ -68,7 +66,6 @@ void SnoopFlowMgrTest::save(VXml xml)
 
   QString flowMgrName = flowMgr == NULL ? "" : flowMgr->name;
   xml.setStr("flowMgr", flowMgrName);
-  xml.setInt("user", user);
   xml.setInt("memSize", (int)memSize);
 }
 
@@ -79,7 +76,6 @@ void SnoopFlowMgrTest::addOptionWidget(QLayout* layout)
 
   QStringList flowMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
   VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1, flowMgr == NULL ? "" : flowMgr->name);
-  VOptionable::addLineEdit(layout, "leUser", "User", QString::number(user));
   VOptionable::addLineEdit(layout, "leMemSize", "Mem Size", QString::number(memSize));
 }
 
@@ -88,7 +84,6 @@ void SnoopFlowMgrTest::saveOptionDlg(QDialog* dialog)
   SnoopProcess::saveOptionDlg(dialog);
 
   flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
-  user    = dialog->findChild<QLineEdit*>("leUser")->text().toInt();
   memSize = (size_t)dialog->findChild<QLineEdit*>("leMemSize")->text().toInt();
 }
 #endif // QT_GUI_LIB

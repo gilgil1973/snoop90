@@ -14,7 +14,6 @@ REGISTER_METACLASS(SnoopFlowMgr, SnoopProcess)
 SnoopFlowMgrRequesterItem::SnoopFlowMgrRequesterItem()
 {
   requester = NULL;
-  user      = 0;
   offset    = 0;
   memSize   = 0;
 };
@@ -106,20 +105,19 @@ void SnoopFlowMgr::clearItems()
   udpFlow_Items.clear();
 }
 
-size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, int user, size_t memSize)
+size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize)
 {
   size_t currentOffset = 0;
   int _count = items.count();
   for (int i = 0; i < _count; i++)
   {
     const SnoopFlowMgrRequesterItem& item = items.at(i);
-    if (item.requester == requester && item.user == user) return currentOffset;
+    if (item.requester == requester) return currentOffset;
     currentOffset += item.memSize;
   }
 
   SnoopFlowMgrRequesterItem item;
   item.requester = requester;
-  item.user      = user;
   item.offset    = currentOffset;
   item.memSize   = memSize;
 
@@ -129,9 +127,9 @@ size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& 
   return currentOffset;
 }
 
-size_t SnoopFlowMgr::requestMemory_MacFlow(void* requester, int user, size_t memSize)
+size_t SnoopFlowMgr::requestMemory_MacFlow(void* requester, size_t memSize)
 {
-  return requestMemory(requester, macFlow_Items, user, memSize);
+  return requestMemory(requester, macFlow_Items, memSize);
 }
 
 void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
