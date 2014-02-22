@@ -82,8 +82,6 @@ void SnoopInterfaces::initialize()
 
   char errBuf[PCAP_ERRBUF_SIZE];
 
-  LOG_DEBUG("000"); // gilgil temp 2012.08.11
-
 #ifdef WIN32
   int i = pcap_findalldevs_ex("rpcap://", NULL, &allDevs, errBuf);
 #endif // WIN32
@@ -95,14 +93,12 @@ void SnoopInterfaces::initialize()
     LOG_ERROR("error in pcap_findalldevs_ex (%s)", errBuf);
     return;
   }
-  LOG_DEBUG("111"); // gilgil temp 2012.08.11
 
   //
   // Add null interface(for best adapter)
   //
   SnoopInterface nullInterface;
   push_back(nullInterface);
-  LOG_DEBUG("222"); // gilgil temp 2012.08.11
 
   //
   // Add interfaces
@@ -123,7 +119,6 @@ void SnoopInterfaces::initialize()
     dev = dev->next;
     i++;
   }
-  LOG_DEBUG("333"); // gilgil temp 2012.08.11
 
 #ifdef WIN32
   //
@@ -141,7 +136,6 @@ void SnoopInterfaces::initialize()
     LOG_ERROR("GetAdaptersInfo return %d(0x%x)", res, res);
     return;
   }
-  LOG_DEBUG("444"); // gilgil temp 2012.08.11
 
   //
   // Set adapterInfo (for Windows)
@@ -165,7 +159,6 @@ void SnoopInterfaces::initialize()
     }
     _interface.adapterInfo = p;
   }
-  LOG_DEBUG("555"); // gilgil temp 2012.08.11
 #endif // WIN32
 
   //
