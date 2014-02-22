@@ -41,8 +41,9 @@ SnoopFlowMgrRequesterItems::~SnoopFlowMgrRequesterItems()
 // ----------------------------------------------------------------------------
 SnoopFlowMgr::SnoopFlowMgr(void* owner) : SnoopProcess(owner)
 {
-  lastCheckTick = 0;
-  checkInterval = 1000;
+  lastCheckTickInSec   = 0;
+  checkIntervalInSec   = 1;
+  macFlow_TimeoutInSec = 60 * 60; // 1 hour
 }
 
 SnoopFlowMgr::~SnoopFlowMgr()
@@ -54,7 +55,7 @@ bool SnoopFlowMgr::doOpen()
 {
   clearMaps();
   clearItems();
-  lastCheckTick = tick();
+  lastCheckTickInSec = 0;
 
   return SnoopProcess::doOpen();
 }
@@ -77,6 +78,25 @@ void SnoopFlowMgr::clearMaps()
   macFlow_Map.clear();
   tcpFlow_Map.clear();
   udpFlow_Map.clear();
+}
+
+void SnoopFlowMgr::deleteOldMaps(struct timeval ts)
+{
+  //
+  // MacFlow
+  //
+  SnoopFlowMgrMap_MacFlow::iterator it = macFlow_Map.begin();
+  while (it != macFlow_Map.end())
+  {
+    const SnoopFlowMgrMapValue& value = it.value();
+    long elapsedInSec = ts.tv_sec - value.lastTs.tv_sec;
+    if (elapsedInSec >= macFlow_TimeoutInSec)
+    {
+      it = del_MacFlow((SnoopMacFlowKey&)it.key());
+      continue;
+    }
+    it++;
+  }
 }
 
 void SnoopFlowMgr::clearItems()
@@ -118,26 +138,30 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
 {
   SnoopFlowMgrMap_MacFlow::iterator it = macFlow_Map.find(key);
 
-  BYTE* totalMem;
-  if (it != macFlow_Map.end()) totalMem = it.value();
-  else totalMem = add_MacFlow(key);
-  LOG_ASSERT(totalMem != NULL);
-  packet->totalMem = totalMem;
+  if (it == macFlow_Map.end())
+    it = add_MacFlow(key, packet->pktHdr->ts);
+
+  SnoopFlowMgrMapValue& value = it.value();
+  value.lastTs = packet->pktHdr->ts;
+
+  packet->totalMem = value.totalMem;
   emit macFlow_Processed(packet);
 }
 
-BYTE* SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key)
+SnoopFlowMgrMap_MacFlow::iterator SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key, struct timeval ts)
 {
-  BYTE* totalMem = new BYTE[macFlow_Items.totalMemSize];
-  macFlow_Map.insert(key, totalMem);
+  SnoopFlowMgrMapValue value;
+  value.lastTs   = ts;
+  value.totalMem = new BYTE[macFlow_Items.totalMemSize];
+  SnoopFlowMgrMap_MacFlow::iterator it = macFlow_Map.insert(key, value);
   emit onNew_MacFlow(key);
-  return totalMem;
+  return it;
 }
 
-void SnoopFlowMgr::del_MacFlow(SnoopMacFlowKey& key)
+SnoopFlowMgrMap_MacFlow::iterator SnoopFlowMgr::del_MacFlow(SnoopMacFlowKey& key)
 {
   emit onDel_MacFlow(key);
-  macFlow_Map.remove(key);
+  return macFlow_Map.erase(key);
 }
 
 void SnoopFlowMgr::process(SnoopPacket* packet)
@@ -153,20 +177,29 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
     key.dstMac = packet->ethHdr->ether_dhost;
     process_MacFlow(packet, key);
   }
+
+  long now = packet->pktHdr->ts.tv_sec;
+  if (checkIntervalInSec != 0 && now - lastCheckTickInSec >= checkIntervalInSec)
+  {
+    deleteOldMaps(packet->pktHdr->ts);
+    lastCheckTickInSec = now;
+  }
 }
 
 void SnoopFlowMgr::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  checkInterval = xml.getInt64("checkInterval", checkInterval);
+  checkIntervalInSec   = xml.getInt64("checkIntervalInSec", checkIntervalInSec);
+  macFlow_TimeoutInSec = (long)xml.getInt("macFlow_TimeoutInSec", (int)macFlow_TimeoutInSec);
 }
 
 void SnoopFlowMgr::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  xml.setInt64("checkInterval", checkInterval);
+  xml.setInt64("checkIntervalInSec", checkIntervalInSec);
+  xml.setInt("macFlow_TimeoutInSec", (int)macFlow_TimeoutInSec);
 }
 
 #ifdef QT_GUI_LIB
@@ -174,13 +207,15 @@ void SnoopFlowMgr::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
 
-  VOptionable::addLineEdit(layout, "leCheckInterval", "Check Interval", QString::number(checkInterval));
+  VOptionable::addLineEdit(layout, "leCheckIntervalInSec",   "Check Interval(sec)",       QString::number(checkIntervalInSec));
+  VOptionable::addLineEdit(layout, "leMacFlow_TimeoutInSec", "MacFlow Timeout(sec)", QString::number(macFlow_TimeoutInSec));
 }
 
 void SnoopFlowMgr::saveOptionDlg(QDialog* dialog)
 {
   SnoopProcess::saveOptionDlg(dialog);
 
-  checkInterval = dialog->findChild<QLineEdit*>("leCheckInterval")->text().toLongLong();
+  checkIntervalInSec   = dialog->findChild<QLineEdit*>("leCheckIntervalInSec")->text().toLongLong();
+  macFlow_TimeoutInSec = dialog->findChild<QLineEdit*>("leMacFlow_TimeoutInSec")->text().toLong();
 }
 #endif // QT_GUI_LIB

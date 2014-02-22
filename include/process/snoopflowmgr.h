@@ -13,7 +13,6 @@
 
 #include <SnoopProcess>
 #include <SnoopFlowMgrAccessible>
-#include <VTick>
 
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrRequesterItem
@@ -60,25 +59,29 @@ protected:
   virtual bool doClose();
 
 public:
-  void clearMaps();
   SnoopFlowMgrMap_MacFlow macFlow_Map;
   SnoopFlowMgrMap_TcpFlow tcpFlow_Map;
   SnoopFlowMgrMap_UdpFlow udpFlow_Map;
+  void clearMaps();
+  void deleteOldMaps(struct timeval ts);
 
 public:
-  void clearItems();
   SnoopFlowMgrRequesterItems macFlow_Items;
   SnoopFlowMgrRequesterItems tcpFlow_Items;
   SnoopFlowMgrRequesterItems udpFlow_Items;
+  void clearItems();
 
 protected:
   size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, int user, size_t memSize);
 
 public:
+  //
+  // MacFlow
+  //
   size_t requestMemory_MacFlow(void* requester, int user, size_t memSize);
   void   process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
-  BYTE*  add_MacFlow(SnoopMacFlowKey& key);
-  void   del_MacFlow(SnoopMacFlowKey& key);
+  SnoopFlowMgrMap_MacFlow::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts);
+  SnoopFlowMgrMap_MacFlow::iterator del_MacFlow(SnoopMacFlowKey& key);
 
 public slots:
   void process(SnoopPacket* packet);
@@ -89,10 +92,11 @@ signals:
   void macFlow_Processed(SnoopPacket* packet);
 
 protected:
-  VTick lastCheckTick;
+  long lastCheckTickInSec;
 
 public:
-  VDuration checkInterval;
+  long checkIntervalInSec;
+  long macFlow_TimeoutInSec;
 
 public:
   virtual void load(VXml xml);
