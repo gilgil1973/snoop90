@@ -1,4 +1,5 @@
 #include <SnoopFlowMgrTest>
+#include <VDebugNew>
 
 REGISTER_METACLASS(SnoopFlowMgrTest, SnoopProcess)
 
@@ -7,9 +8,10 @@ REGISTER_METACLASS(SnoopFlowMgrTest, SnoopProcess)
 // ----------------------------------------------------------------------------
 SnoopFlowMgrTest::SnoopFlowMgrTest(void* owner) : SnoopProcess(owner)
 {
-  flowMgr  = NULL;
-  user     = 0;
-  memSize  = 0;
+  flowMgr       = NULL;
+  user          = 0;
+  memSize       = 0;
+  macFlowOffset = 0;
 }
 
 SnoopFlowMgrTest::~SnoopFlowMgrTest()
@@ -24,7 +26,7 @@ bool SnoopFlowMgrTest::doOpen()
     SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
     return false;
   }
-  flowMgr->registerAccessible_MacFlow(this, user, memSize);
+  macFlowOffset = flowMgr->requestMemory_MacFlow(this, user, memSize);
 
   return SnoopProcess::doOpen();
 }
@@ -34,19 +36,20 @@ bool SnoopFlowMgrTest::doClose()
   return SnoopProcess::doClose();
 }
 
-void SnoopFlowMgrTest::onNew_MacFlow(SnoopMacFlowKey& key, int user, void* mem)
+void SnoopFlowMgrTest::onNew_MacFlow(SnoopMacFlowKey& key)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()), user, mem);
+  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()));
 }
 
-void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey& key, int user, void* mem)
+void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey& key)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()), user, mem);
+  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()));
 }
 
-void SnoopFlowMgrTest::test(SnoopPacket* packet)
+void SnoopFlowMgrTest::process_MacFlow(SnoopPacket* packet)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s user=%d mem=%p", qPrintable(packet->ethHdr->ether_shost.str()), qPrintable(packet->ethHdr->ether_dhost.str()), packet->user, packet->mem);
+  BYTE* mem = packet->totalMem + macFlowOffset;
+  LOG_DEBUG("srcMac=%s dstMac=%s mem=%p", qPrintable(packet->ethHdr->ether_shost.str()), qPrintable(packet->ethHdr->ether_dhost.str()), mem);
 }
 
 void SnoopFlowMgrTest::load(VXml xml)
@@ -75,8 +78,7 @@ void SnoopFlowMgrTest::addOptionWidget(QLayout* layout)
   SnoopProcess::addOptionWidget(layout);
 
   QStringList flowMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
-  QComboBox* cbxFlowMgr = VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1);
-  cbxFlowMgr->setCurrentText(flowMgr == NULL ? "" : flowMgr->name);
+  VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1, flowMgr == NULL ? "" : flowMgr->name);
   VOptionable::addLineEdit(layout, "leUser", "User", QString::number(user));
   VOptionable::addLineEdit(layout, "leMemSize", "Mem Size", QString::number(memSize));
 }

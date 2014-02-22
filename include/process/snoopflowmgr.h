@@ -13,31 +13,32 @@
 
 #include <SnoopProcess>
 #include <SnoopFlowMgrAccessible>
+#include <VTick>
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrAccessibleItem
+// SnoopFlowMgrRequesterItem
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrAccessibleItem
+class SnoopFlowMgrRequesterItem
 {
 public:
-  SnoopFlowMgrAccessibleItem();
-  virtual ~SnoopFlowMgrAccessibleItem();
+  SnoopFlowMgrRequesterItem();
+  virtual ~SnoopFlowMgrRequesterItem();
 
 public:
-  ISnoopFlowMgrAccessible* accessible;
+  void*  requester;
   int    user;
   size_t offset;
   size_t memSize;
 };
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrAccessibleItems
+// SnoopFlowMgrRequesterItems
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrAccessibleItems : public QList<SnoopFlowMgrAccessibleItem>
+class SnoopFlowMgrRequesterItems : public QList<SnoopFlowMgrRequesterItem>
 {
 public:
-  SnoopFlowMgrAccessibleItems();
-  virtual ~SnoopFlowMgrAccessibleItems();
+  SnoopFlowMgrRequesterItems();
+  virtual ~SnoopFlowMgrRequesterItems();
 
 public:
   size_t totalMemSize;
@@ -58,32 +59,40 @@ protected:
   virtual bool doOpen();
   virtual bool doClose();
 
-protected:
+public:
   void clearMaps();
-  SnoopFlowMgrMap_MacFlow macFlow_map;
-  SnoopFlowMgrMap_TcpFlow tcpFlow_map;
-  SnoopFlowMgrMap_UdpFlow udpFlow_map;
-
-protected:
-  void clearItems();
-  void registerAccessible(ISnoopFlowMgrAccessible* accessible, SnoopFlowMgrAccessibleItems& items, int user, size_t memSize);
+  SnoopFlowMgrMap_MacFlow macFlow_Map;
+  SnoopFlowMgrMap_TcpFlow tcpFlow_Map;
+  SnoopFlowMgrMap_UdpFlow udpFlow_Map;
 
 public:
-  SnoopFlowMgrAccessibleItems macFlow_items;
-  void  registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessible, int user, size_t memSize);
-  void  fireAllOnNew_MacFlow(SnoopMacFlowKey& key, void* totalMem);
-  void  fireAllOnDel_MacFlow(SnoopMacFlowKey& key, void* totalMem);
-  void  process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
-  void* addNew_MacFlow(SnoopMacFlowKey& key);
+  void clearItems();
+  SnoopFlowMgrRequesterItems macFlow_Items;
+  SnoopFlowMgrRequesterItems tcpFlow_Items;
+  SnoopFlowMgrRequesterItems udpFlow_Items;
 
-  SnoopFlowMgrAccessibleItems tcpFlow_items;
-  SnoopFlowMgrAccessibleItems udpFlow_items;
+protected:
+  size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, int user, size_t memSize);
+
+public:
+  size_t requestMemory_MacFlow(void* requester, int user, size_t memSize);
+  void   process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
+  BYTE*  add_MacFlow(SnoopMacFlowKey& key);
+  void   del_MacFlow(SnoopMacFlowKey& key);
 
 public slots:
   void process(SnoopPacket* packet);
 
 signals:
-  void processed(SnoopPacket* packet);
+  void onNew_MacFlow(SnoopMacFlowKey& key);
+  void onDel_MacFlow(SnoopMacFlowKey& key);
+  void macFlow_Processed(SnoopPacket* packet);
+
+protected:
+  VTick lastCheckTick;
+
+public:
+  VDuration checkInterval;
 
 public:
   virtual void load(VXml xml);

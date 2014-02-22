@@ -70,8 +70,7 @@ public:
   ///
   /// flowmgr
   ///
-  int       user;
-  void*     mem;
+  BYTE*     totalMem;
 
 public:
   void clear();

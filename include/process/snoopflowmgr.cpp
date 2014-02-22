@@ -9,29 +9,29 @@
 REGISTER_METACLASS(SnoopFlowMgr, SnoopProcess)
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrAccessibleItem
+// SnoopFlowMgrRequesterItem
 // ----------------------------------------------------------------------------
-SnoopFlowMgrAccessibleItem::SnoopFlowMgrAccessibleItem()
+SnoopFlowMgrRequesterItem::SnoopFlowMgrRequesterItem()
 {
-  accessible = NULL;
-  user       = 0;
-  offset     = 0;
-  memSize    = 0;
+  requester = NULL;
+  user      = 0;
+  offset    = 0;
+  memSize   = 0;
 };
 
-SnoopFlowMgrAccessibleItem::~SnoopFlowMgrAccessibleItem()
+SnoopFlowMgrRequesterItem::~SnoopFlowMgrRequesterItem()
 {
 }
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrAccessibleItems
+// SnoopFlowMgrRequesterItems
 // ----------------------------------------------------------------------------
-SnoopFlowMgrAccessibleItems::SnoopFlowMgrAccessibleItems()
+SnoopFlowMgrRequesterItems::SnoopFlowMgrRequesterItems()
 {
   totalMemSize = 0;
 }
 
-SnoopFlowMgrAccessibleItems::~SnoopFlowMgrAccessibleItems()
+SnoopFlowMgrRequesterItems::~SnoopFlowMgrRequesterItems()
 {
   // gilgil temp 2014.02.21
 }
@@ -41,7 +41,8 @@ SnoopFlowMgrAccessibleItems::~SnoopFlowMgrAccessibleItems()
 // ----------------------------------------------------------------------------
 SnoopFlowMgr::SnoopFlowMgr(void* owner) : SnoopProcess(owner)
 {
-  // gilgil temp 2014.02.19
+  lastCheckTick = 0;
+  checkInterval = 1000;
 }
 
 SnoopFlowMgr::~SnoopFlowMgr()
@@ -53,12 +54,18 @@ bool SnoopFlowMgr::doOpen()
 {
   clearMaps();
   clearItems();
+  lastCheckTick = tick();
 
   return SnoopProcess::doOpen();
 }
 
 bool SnoopFlowMgr::doClose()
 {
+  while(macFlow_Map.count() > 0)
+  {
+    const SnoopMacFlowKey& key = macFlow_Map.begin().key();
+    del_MacFlow((SnoopMacFlowKey&)key);
+  }
   clearMaps();
   clearItems();
 
@@ -67,95 +74,70 @@ bool SnoopFlowMgr::doClose()
 
 void SnoopFlowMgr::clearMaps()
 {
-  macFlow_map.clear();
-  tcpFlow_map.clear();
-  udpFlow_map.clear();
+  macFlow_Map.clear();
+  tcpFlow_Map.clear();
+  udpFlow_Map.clear();
 }
 
 void SnoopFlowMgr::clearItems()
 {
-  macFlow_items.clear();
-  tcpFlow_items.clear();
-  udpFlow_items.clear();
+  macFlow_Items.clear();
+  tcpFlow_Items.clear();
+  udpFlow_Items.clear();
 }
 
-void SnoopFlowMgr::registerAccessible(ISnoopFlowMgrAccessible* accessible, SnoopFlowMgrAccessibleItems& items, int user, size_t memSize)
+size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, int user, size_t memSize)
 {
   size_t currentOffset = 0;
   int _count = items.count();
   for (int i = 0; i < _count; i++)
   {
-    const SnoopFlowMgrAccessibleItem& item = items.at(i);
-    if (item.accessible == accessible) return;
-    if (item.user       == user) return;
+    const SnoopFlowMgrRequesterItem& item = items.at(i);
+    if (item.requester == requester && item.user == user) return currentOffset;
     currentOffset += item.memSize;
   }
 
-  SnoopFlowMgrAccessibleItem item;
-  item.accessible = accessible;
-  item.user       = user;
-  item.offset     = currentOffset;
-  item.memSize    = memSize;
+  SnoopFlowMgrRequesterItem item;
+  item.requester = requester;
+  item.user      = user;
+  item.offset    = currentOffset;
+  item.memSize   = memSize;
+
   items.push_back(item);
-
   items.totalMemSize += memSize;
+
+  return currentOffset;
 }
 
-
-void SnoopFlowMgr::registerAccessible_MacFlow(ISnoopFlowMgrAccessible* accessible, int user, size_t memSize)
+size_t SnoopFlowMgr::requestMemory_MacFlow(void* requester, int user, size_t memSize)
 {
-  registerAccessible(accessible, macFlow_items, user, memSize);
-}
-
-void SnoopFlowMgr::fireAllOnNew_MacFlow(SnoopMacFlowKey& key, void* totalMem)
-{
-  foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
-  {
-    ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item.accessible);
-    LOG_ASSERT(accessible != NULL);
-    int user  = item.user;
-    void* mem = (void*)((char*)totalMem + item.offset);
-    accessible->onNew_MacFlow(key, user, mem);
-  }
-}
-
-void SnoopFlowMgr::fireAllOnDel_MacFlow(SnoopMacFlowKey& key, void* totalMem)
-{
-  foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
-  {
-    ISnoopFlowMgrAccessible_MacFlow* accessible = dynamic_cast<ISnoopFlowMgrAccessible_MacFlow*>(item.accessible);
-    LOG_ASSERT(accessible != NULL);
-    int user  = item.user;
-    void* mem = (void*)((char*)totalMem + item.offset);
-    accessible->onDel_MacFlow(key, user, mem);
-  }
+  return requestMemory(requester, macFlow_Items, user, memSize);
 }
 
 void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
 {
-  SnoopFlowMgrMap_MacFlow::iterator it = macFlow_map.find(key);
+  SnoopFlowMgrMap_MacFlow::iterator it = macFlow_Map.find(key);
 
-  void* totalMem;
-  if (it != macFlow_map.end()) totalMem = it.value();
-  else totalMem = addNew_MacFlow(key);
+  BYTE* totalMem;
+  if (it != macFlow_Map.end()) totalMem = it.value();
+  else totalMem = add_MacFlow(key);
   LOG_ASSERT(totalMem != NULL);
-
-  foreach (const SnoopFlowMgrAccessibleItem& item, macFlow_items)
-  {
-    ISnoopFlowMgrAccessible* accessible = item.accessible;
-    LOG_ASSERT(accessible != NULL);
-    packet->user = item.user;
-    packet->mem  = (void*)((char*)totalMem + item.offset);
-    emit processed(packet);
-  }
+  packet->totalMem = totalMem;
+  emit macFlow_Processed(packet);
 }
 
-void* SnoopFlowMgr::addNew_MacFlow(SnoopMacFlowKey& key)
+BYTE* SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key)
 {
-  void* totalMem = new char[macFlow_items.totalMemSize];
-  macFlow_map.insert(key, totalMem);
-  fireAllOnNew_MacFlow(key, totalMem);
+  BYTE* totalMem = new BYTE[macFlow_Items.totalMemSize];
+  macFlow_Map.insert(key, totalMem);
+  emit onNew_MacFlow(key);
   return totalMem;
+}
+
+void SnoopFlowMgr::del_MacFlow(SnoopMacFlowKey& key)
+{
+  emit onDel_MacFlow(key);
+  macFlow_Map.remove(key);
 }
 
 void SnoopFlowMgr::process(SnoopPacket* packet)
@@ -177,14 +159,14 @@ void SnoopFlowMgr::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  //drop = xml.getBool("drop", drop); // gilgil temp 2014.02.19
+  checkInterval = xml.getInt64("checkInterval", checkInterval);
 }
 
 void SnoopFlowMgr::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  //xml.setBool("drop", drop); // gilgil temp 2014.02.19
+  xml.setInt64("checkInterval", checkInterval);
 }
 
 #ifdef QT_GUI_LIB
@@ -192,13 +174,13 @@ void SnoopFlowMgr::addOptionWidget(QLayout* layout)
 {
   SnoopProcess::addOptionWidget(layout);
 
-  // VOptionable::addCheckBox(layout, "chkDrop", "Drop", drop); // gilgil temp 2014.02.19
+  VOptionable::addLineEdit(layout, "leCheckInterval", "Check Interval", QString::number(checkInterval));
 }
 
 void SnoopFlowMgr::saveOptionDlg(QDialog* dialog)
 {
   SnoopProcess::saveOptionDlg(dialog);
 
-  // drop = dialog->findChild<QCheckBox*>("chkDrop")->checkState() == Qt::Checked; // gilgil temp 2014.02.19
+  checkInterval = dialog->findChild<QLineEdit*>("leCheckInterval")->text().toLongLong();
 }
 #endif // QT_GUI_LIB

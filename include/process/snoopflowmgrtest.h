@@ -17,7 +17,7 @@
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrTest
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrTest : public SnoopProcess, public ISnoopFlowMgrAccessible_MacFlow
+class SnoopFlowMgrTest : public SnoopProcess
 {
   Q_OBJECT
 
@@ -34,12 +34,13 @@ protected:
   virtual bool doOpen();
   virtual bool doClose();
 
-public: // ISnoopFlowMgrAccessible_MacFlow
-  virtual void onNew_MacFlow(SnoopMacFlowKey& key, int user, void* mem);
-  virtual void onDel_MacFlow(SnoopMacFlowKey& key, int user, void* mem);
+protected:
+  size_t macFlowOffset;
 
 public slots:
-  void test(SnoopPacket* packet);
+  void onNew_MacFlow(SnoopMacFlowKey& key);
+  void onDel_MacFlow(SnoopMacFlowKey& key);
+  void process_MacFlow(SnoopPacket* packet);
 
 public:
   virtual void load(VXml xml);

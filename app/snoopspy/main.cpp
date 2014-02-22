@@ -15,10 +15,10 @@ int run(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
   VApp::initialize();
-  LOG_INFO("snoopspy version 9.0 started %s / %s", VDREAM_VERSION, SNOOP_VERSION);
+  LOG_INFO("snoopspy version 3 started %s / %s", VDREAM_VERSION, SNOOP_VERSION);
   explicitLink();
   int res = run(argc, argv);
   VApp::finalize();
-  LOG_INFO("SnoopSpy version 9.0 terminated");
+  LOG_INFO("SnoopSpy version 3 terminated");
   return res;
 }

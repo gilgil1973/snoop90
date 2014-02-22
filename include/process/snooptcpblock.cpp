@@ -238,8 +238,7 @@ void SnoopTcpBlock::addOptionWidget(QLayout* layout)
   SnoopProcess::addOptionWidget(layout);
 
   QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
-  QComboBox* cbxCapture = VOptionable::addComboBox(layout, "cbxCapture", "Capture", captureList, -1);
-  cbxCapture->setCurrentText(capture == NULL ? "" : capture->name);
+  VOptionable::addComboBox(layout, "cbxCapture",       "Capture",         captureList, -1, capture == NULL ? "" : capture->name);
   VOptionable::addCheckBox(layout, "chkForwardRst",    "Forward Rst",     forwardRst);
   VOptionable::addCheckBox(layout, "chkBackwardRst",   "Backward Rst",    backwardRst);
   VOptionable::addCheckBox(layout, "chkForwardFin",    "Forward Fin",     forwardFin);
