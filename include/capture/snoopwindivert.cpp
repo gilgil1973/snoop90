@@ -182,6 +182,29 @@ bool SnoopWinDivert::doClose()
   return res;
 }
 
+#ifdef WIN32
+int gettimeofday(struct timeval* tv, struct timezone * tzp)
+{
+  ULARGE_INTEGER  utime, birthunix;
+  FILETIME        systemtime;
+  static LONGLONG birthunixhnsec = 116444736000000000;  /*in units of 100 ns */
+  LONGLONG        usecs;
+
+  GetSystemTimeAsFileTime(&systemtime);
+  utime.LowPart  = systemtime.dwLowDateTime;
+  utime.HighPart = systemtime.dwHighDateTime;
+
+  birthunix.LowPart  = (DWORD) birthunixhnsec;
+  birthunix.HighPart = birthunixhnsec >> 32;
+
+  usecs = (LONGLONG) ((utime.QuadPart - birthunix.QuadPart) / 10);
+
+  tv->tv_sec  = (long)(usecs / 1000000);
+  tv->tv_usec = (long)(usecs % 1000000);
+  return 0;
+}
+#endif // WIN32
+
 int SnoopWinDivert::read(SnoopPacket* packet)
 {
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
@@ -204,34 +227,34 @@ int SnoopWinDivert::read(SnoopPacket* packet)
 
   // LOG_DEBUG("ifIdx=%u subIfIdx=%u Direction=%u readLen=%u", packet->divertAddr.IfIdx, packet->divertAddr.SubIfIdx, packet->divertAddr.Direction, readLen); // gilgil temp 2013.12.05
 
-  packet->pktData = this->pktData;
+  this->pktHdr.caplen = readLen;
+  this->pktHdr.len    = readLen;
+  gettimeofday(&this->pktHdr.ts, NULL);
+
   packet->pktHdr  = &this->pktHdr;
+  packet->pktData = this->pktData;
+  packet->linkType = dataLink();
 
-  ETH_HDR* ethHdr = (ETH_HDR*)pktData;
-  ethHdr->ether_dhost = Mac::cleanMac();
-  ethHdr->ether_shost = Mac::cleanMac();
-  ethHdr->ether_type  = htons(ETHERTYPE_IP);
+  packet->ethHdr = (ETH_HDR*)pktData;
+  packet->ethHdr->ether_dhost = Mac::cleanMac();
+  packet->ethHdr->ether_shost = Mac::cleanMac();
+  packet->ethHdr->ether_type  = htons(ETHERTYPE_IP);
 
-  IP_HDR* ipHdr;
-  if (tos != 0 && SnoopEth::isIp(packet->ethHdr, &ipHdr))
-    ipHdr->ip_tos = tos;
+  if (tos != 0 && SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
+    packet->ipHdr->ip_tos = tos;
 
   if (autoCorrectChecksum)
   {
-    if (SnoopEth::isIp(ethHdr, &ipHdr))
+    if (SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
     {
       packet->ipChanged = true;
-
-      TCP_HDR* tcpHdr;
-      UDP_HDR* udpHdr;
-      if (SnoopIp::isTcp(ipHdr, &tcpHdr))
+      if (SnoopIp::isTcp(packet->ipHdr, &packet->tcpHdr))
         packet->tcpChanged = true;
-      else if (SnoopIp::isUdp(ipHdr, &udpHdr))
+      else if (SnoopIp::isUdp(packet->ipHdr, &packet->udpHdr))
         packet->udpChanged = true;
     }
   }
 
-  packet->linkType = dataLink();
   return (int)readLen;
 }
 
