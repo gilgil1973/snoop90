@@ -15,40 +15,39 @@
 #include <SnoopTypeKey>
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrMap_MacFlow
+// Snoop_MacFlow_Map
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrMap_MacFlow : public QMap<SnoopMacFlowKey, SnoopFlowValue>
+class Snoop_MacFlow_Map : public QMap<SnoopMacFlowKey, SnoopFlowValue>
 {
-
 public:
-  SnoopFlowMgrMap_MacFlow();
-  virtual ~SnoopFlowMgrMap_MacFlow();
+  Snoop_MacFlow_Map();
+  virtual ~Snoop_MacFlow_Map();
   void clear();
-  SnoopFlowMgrMap_MacFlow::iterator erase(SnoopMacFlowKey& key);
+  Snoop_MacFlow_Map::iterator erase(SnoopMacFlowKey& key);
 };
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrMap_TcpFlow
+// Snoop_TcpFlow_Map
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrMap_TcpFlow : public QMap<SnoopTcpFlowKey, SnoopFlowValue>
+class Snoop_TcpFlow_Map : public QMap<SnoopTcpFlowKey, SnoopFlowValue>
 {
 public:
-  SnoopFlowMgrMap_TcpFlow();
-  virtual ~SnoopFlowMgrMap_TcpFlow();
+  Snoop_TcpFlow_Map();
+  virtual ~Snoop_TcpFlow_Map();
   void clear();
-  SnoopFlowMgrMap_TcpFlow::iterator erase(SnoopTcpFlowKey& key);
+  Snoop_TcpFlow_Map::iterator erase(SnoopTcpFlowKey& key);
 };
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrMap_UdpFlow
+// Snoop_UdpFlow_Map
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrMap_UdpFlow : public QMap<SnoopUdpFlowKey, SnoopFlowValue>
+class Snoop_UdpFlow_Map : public QMap<SnoopUdpFlowKey, SnoopFlowValue>
 {
 public:
-  SnoopFlowMgrMap_UdpFlow();
-  virtual ~SnoopFlowMgrMap_UdpFlow();
+  Snoop_UdpFlow_Map();
+  virtual ~Snoop_UdpFlow_Map();
   void clear();
-  SnoopFlowMgrMap_UdpFlow::iterator erase(SnoopUdpFlowKey& key);
+  Snoop_UdpFlow_Map::iterator erase(SnoopUdpFlowKey& key);
 };
 
 // ----------------------------------------------------------------------------
@@ -95,9 +94,10 @@ protected:
   virtual bool doClose();
 
 public:
-  SnoopFlowMgrMap_MacFlow macFlow_Map;
-  SnoopFlowMgrMap_TcpFlow tcpFlow_Map;
-  SnoopFlowMgrMap_UdpFlow udpFlow_Map;
+  Snoop_MacFlow_Map macFlow_Map;
+  Snoop_TcpFlow_Map tcpFlow_Map;
+  Snoop_UdpFlow_Map udpFlow_Map;
+
   void clearMaps();
   void deleteOldMaps(struct timeval ts);
 
@@ -105,6 +105,7 @@ public:
   SnoopFlowMgrRequesterItems macFlow_Items;
   SnoopFlowMgrRequesterItems tcpFlow_Items;
   SnoopFlowMgrRequesterItems udpFlow_Items;
+
   void clearItems();
 
 protected:
@@ -116,8 +117,8 @@ public:
   //
   size_t requestMemory_MacFlow(void* requester, size_t memSize);
   void   process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
-  SnoopFlowMgrMap_MacFlow::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts);
-  SnoopFlowMgrMap_MacFlow::iterator del_MacFlow(SnoopMacFlowKey& key);
+  Snoop_MacFlow_Map::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts);
+  Snoop_MacFlow_Map::iterator del_MacFlow(SnoopMacFlowKey& key);
 
 public slots:
   void process(SnoopPacket* packet);
