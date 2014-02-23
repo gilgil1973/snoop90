@@ -183,8 +183,10 @@ bool SnoopWinDivert::doClose()
 }
 
 #ifdef WIN32
-int gettimeofday(struct timeval* tv, struct timezone * tzp)
+int gettimeofday(struct timeval* tv, struct timezone * tz)
 {
+  Q_UNUSED(tz)
+
   ULARGE_INTEGER  utime, birthunix;
   FILETIME        systemtime;
   static LONGLONG birthunixhnsec = 116444736000000000;  /*in units of 100 ns */
@@ -231,11 +233,11 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   this->pktHdr.len    = readLen;
   gettimeofday(&this->pktHdr.ts, NULL);
 
-  packet->pktHdr  = &this->pktHdr;
-  packet->pktData = this->pktData;
+  packet->pktHdr   = &this->pktHdr;
+  packet->pktData  = this->pktData;
   packet->linkType = dataLink();
 
-  packet->ethHdr = (ETH_HDR*)pktData;
+  packet->ethHdr              = (ETH_HDR*)pktData;
   packet->ethHdr->ether_dhost = Mac::cleanMac();
   packet->ethHdr->ether_shost = Mac::cleanMac();
   packet->ethHdr->ether_type  = htons(ETHERTYPE_IP);
