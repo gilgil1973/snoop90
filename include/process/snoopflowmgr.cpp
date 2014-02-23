@@ -8,6 +8,104 @@
 
 REGISTER_METACLASS(SnoopFlowMgr, SnoopProcess)
 
+
+// ----------------------------------------------------------------------------
+// SnoopFlowMgrMap_MacFlow
+// ----------------------------------------------------------------------------
+SnoopFlowMgrMap_MacFlow::SnoopFlowMgrMap_MacFlow()
+{
+  clear();
+}
+
+SnoopFlowMgrMap_MacFlow::~SnoopFlowMgrMap_MacFlow()
+{
+  clear();
+}
+
+void SnoopFlowMgrMap_MacFlow::clear()
+{
+  for (SnoopFlowMgrMap_MacFlow::iterator it = begin(); it != end(); it++)
+  {
+    BYTE* totalMem = it.value().totalMem;
+    delete[] totalMem;
+  }
+  QMap<SnoopMacFlowKey, SnoopFlowValue>::clear();
+}
+
+SnoopFlowMgrMap_MacFlow::iterator SnoopFlowMgrMap_MacFlow::erase(SnoopMacFlowKey& key)
+{
+  SnoopFlowMgrMap_MacFlow::iterator it = find(key);
+  LOG_ASSERT(it != end());
+  BYTE* totalMem = it.value().totalMem;
+  delete[] totalMem;
+  return QMap<SnoopMacFlowKey, SnoopFlowValue>::erase(it);
+}
+
+// ----------------------------------------------------------------------------
+// SnoopFlowMgrMap_TcpFlow
+// ----------------------------------------------------------------------------
+SnoopFlowMgrMap_TcpFlow::SnoopFlowMgrMap_TcpFlow()
+{
+  clear();
+}
+
+SnoopFlowMgrMap_TcpFlow::~SnoopFlowMgrMap_TcpFlow()
+{
+  clear();
+}
+
+void SnoopFlowMgrMap_TcpFlow::clear()
+{
+  for (SnoopFlowMgrMap_TcpFlow::iterator it = begin(); it != end(); it++)
+  {
+    BYTE* totalMem = it.value().totalMem;
+    delete[] totalMem;
+  }
+  QMap<SnoopTcpFlowKey, SnoopFlowValue>::clear();
+}
+
+SnoopFlowMgrMap_TcpFlow::iterator SnoopFlowMgrMap_TcpFlow::erase(SnoopTcpFlowKey& key)
+{
+  SnoopFlowMgrMap_TcpFlow::iterator it = find(key);
+  LOG_ASSERT(it != end());
+  BYTE* totalMem = it.value().totalMem;
+  delete[] totalMem;
+  return QMap<SnoopTcpFlowKey, SnoopFlowValue>::erase(it);
+}
+
+// ----------------------------------------------------------------------------
+// SnoopFlowMgrMap_UdpFlow
+// ----------------------------------------------------------------------------
+SnoopFlowMgrMap_UdpFlow::SnoopFlowMgrMap_UdpFlow()
+{
+  clear();
+}
+
+SnoopFlowMgrMap_UdpFlow::~SnoopFlowMgrMap_UdpFlow()
+{
+  clear();
+}
+
+void SnoopFlowMgrMap_UdpFlow::clear()
+{
+  for (SnoopFlowMgrMap_UdpFlow::iterator it = begin(); it != end(); it++)
+  {
+    BYTE* totalMem = it.value().totalMem;
+    delete[] totalMem;
+  }
+  QMap<SnoopUdpFlowKey, SnoopFlowValue>::clear();
+}
+
+SnoopFlowMgrMap_TcpFlow::iterator SnoopFlowMgrMap_UdpFlow::erase(SnoopUdpFlowKey& key)
+{
+  SnoopFlowMgrMap_UdpFlow::iterator it = find(key);
+  LOG_ASSERT(it != end());
+  BYTE* totalMem = it.value().totalMem;
+  delete[] totalMem;
+  return QMap<SnoopUdpFlowKey, SnoopFlowValue>::erase(it);
+}
+
+
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrRequesterItem
 // ----------------------------------------------------------------------------
@@ -87,8 +185,8 @@ void SnoopFlowMgr::deleteOldMaps(struct timeval ts)
   SnoopFlowMgrMap_MacFlow::iterator it = macFlow_Map.begin();
   while (it != macFlow_Map.end())
   {
-    const SnoopFlowMgrMapValue& value = it.value();
-    long elapsedInSec = ts.tv_sec - value.lastTs.tv_sec;
+    const SnoopFlowValue& value = it.value();
+    long elapsedInSec = ts.tv_sec - value.ts.tv_sec;
     if (elapsedInSec >= macFlow_TimeoutInSec)
     {
       it = del_MacFlow((SnoopMacFlowKey&)it.key());
@@ -139,17 +237,17 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
   if (it == macFlow_Map.end())
     it = add_MacFlow(key, packet->pktHdr->ts);
 
-  SnoopFlowMgrMapValue& value = it.value();
-  value.lastTs = packet->pktHdr->ts;
+  SnoopFlowValue& value = it.value();
+  value.ts = packet->pktHdr->ts;
 
-  packet->totalMem = value.totalMem;
+  packet->flowValue = &value;
   emit macFlow_Processed(packet);
 }
 
 SnoopFlowMgrMap_MacFlow::iterator SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key, struct timeval ts)
 {
-  SnoopFlowMgrMapValue value;
-  value.lastTs   = ts;
+  SnoopFlowValue value;
+  value.ts       = ts;
   value.totalMem = new BYTE[macFlow_Items.totalMemSize];
   SnoopFlowMgrMap_MacFlow::iterator it = macFlow_Map.insert(key, value);
   emit onNew_MacFlow(key);

@@ -47,7 +47,7 @@ void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey& key)
 
 void SnoopFlowMgrTest::process_MacFlow(SnoopPacket* packet)
 {
-  BYTE* mem = packet->totalMem + macFlowOffset;
+  BYTE* mem = packet->flowValue->totalMem + macFlowOffset;
   LOG_DEBUG("srcMac=%s dstMac=%s mem=%p", qPrintable(packet->ethHdr->ether_shost.str()), qPrintable(packet->ethHdr->ether_dhost.str()), mem);
 }
 

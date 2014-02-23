@@ -15,6 +15,16 @@
 #include <windivert/windivert.h>
 
 // ----------------------------------------------------------------------------
+// SnoopFlowValue
+// ----------------------------------------------------------------------------
+class SnoopFlowValue
+{
+public:
+  struct timeval ts;
+  BYTE*          totalMem;
+};
+
+// ----------------------------------------------------------------------------
 // SnoopPacket
 // ----------------------------------------------------------------------------
 class SnoopPacket
@@ -68,9 +78,9 @@ public:
   WINDIVERT_ADDRESS divertAddr;
 
   ///
-  /// flowmgr
+  /// flow
   ///
-  BYTE*     totalMem;
+  SnoopFlowValue* flowValue;
 
 public:
   void clear();

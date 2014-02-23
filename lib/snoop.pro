@@ -47,7 +47,6 @@ SOURCES += \
     ../include/parse/snoopudpdata.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
-    ../include/process/snoopflowmgraccessible.cpp \
     ../include/process/snoopflowmgrtest.cpp \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
@@ -98,7 +97,6 @@ HEADERS += \
     ../include/parse/snoopudpdata.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopflowmgr.h \
-    ../include/process/snoopflowmgraccessible.h \
     ../include/process/snoopflowmgrtest.h \
     ../include/process/snoopprocess.h \
     ../include/process/snoopprocessfactory.h \

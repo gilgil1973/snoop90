@@ -12,7 +12,44 @@
 #define __SNOOP_FLOW_MGR_H__
 
 #include <SnoopProcess>
-#include <SnoopFlowMgrAccessible>
+#include <SnoopTypeKey>
+
+// ----------------------------------------------------------------------------
+// SnoopFlowMgrMap_MacFlow
+// ----------------------------------------------------------------------------
+class SnoopFlowMgrMap_MacFlow : public QMap<SnoopMacFlowKey, SnoopFlowValue>
+{
+
+public:
+  SnoopFlowMgrMap_MacFlow();
+  virtual ~SnoopFlowMgrMap_MacFlow();
+  void clear();
+  SnoopFlowMgrMap_MacFlow::iterator erase(SnoopMacFlowKey& key);
+};
+
+// ----------------------------------------------------------------------------
+// SnoopFlowMgrMap_TcpFlow
+// ----------------------------------------------------------------------------
+class SnoopFlowMgrMap_TcpFlow : public QMap<SnoopTcpFlowKey, SnoopFlowValue>
+{
+public:
+  SnoopFlowMgrMap_TcpFlow();
+  virtual ~SnoopFlowMgrMap_TcpFlow();
+  void clear();
+  SnoopFlowMgrMap_TcpFlow::iterator erase(SnoopTcpFlowKey& key);
+};
+
+// ----------------------------------------------------------------------------
+// SnoopFlowMgrMap_UdpFlow
+// ----------------------------------------------------------------------------
+class SnoopFlowMgrMap_UdpFlow : public QMap<SnoopUdpFlowKey, SnoopFlowValue>
+{
+public:
+  SnoopFlowMgrMap_UdpFlow();
+  virtual ~SnoopFlowMgrMap_UdpFlow();
+  void clear();
+  SnoopFlowMgrMap_UdpFlow::iterator erase(SnoopUdpFlowKey& key);
+};
 
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrRequesterItem
