@@ -75,15 +75,15 @@ public:
   bool      udpChanged;
 
   ///
-  /// windivert
-  ///
-  WINDIVERT_ADDRESS divertAddr;
-
-  ///
   /// flow
   ///
   void*           flowKey;  // SnoopMacFlowKey, ... // gilgil temp 2014.02.24
   SnoopFlowValue* flowValue;
+
+  ///
+  /// windivert
+  ///
+  WINDIVERT_ADDRESS divertAddr;
 
 public:
   void clear();
