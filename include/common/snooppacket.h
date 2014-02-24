@@ -20,6 +20,8 @@
 class SnoopFlowValue
 {
 public:
+  size_t         packets;
+  size_t         bytes;
   struct timeval ts;
   BYTE*          totalMem;
 };
@@ -80,6 +82,7 @@ public:
   ///
   /// flow
   ///
+  void*           flowKey;  // SnoopMacFlowKey, ... // gilgil temp 2014.02.24
   SnoopFlowValue* flowValue;
 
 public:

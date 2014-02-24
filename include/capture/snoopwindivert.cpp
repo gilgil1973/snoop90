@@ -183,26 +183,29 @@ bool SnoopWinDivert::doClose()
 }
 
 #ifdef WIN32
-int gettimeofday(struct timeval* tv, struct timezone * tz)
+int gettimeofday(struct timeval* tv, struct timezone* tz)
 {
   Q_UNUSED(tz)
 
-  ULARGE_INTEGER  utime, birthunix;
-  FILETIME        systemtime;
   static LONGLONG birthunixhnsec = 116444736000000000;  /*in units of 100 ns */
-  LONGLONG        usecs;
 
+  FILETIME systemtime;
   GetSystemTimeAsFileTime(&systemtime);
+
+  ULARGE_INTEGER utime;
   utime.LowPart  = systemtime.dwLowDateTime;
   utime.HighPart = systemtime.dwHighDateTime;
 
-  birthunix.LowPart  = (DWORD) birthunixhnsec;
+  ULARGE_INTEGER birthunix;
+  birthunix.LowPart  = (DWORD)birthunixhnsec;
   birthunix.HighPart = birthunixhnsec >> 32;
 
-  usecs = (LONGLONG) ((utime.QuadPart - birthunix.QuadPart) / 10);
+  LONGLONG usecs;
+  usecs = (LONGLONG)((utime.QuadPart - birthunix.QuadPart) / 10);
 
   tv->tv_sec  = (long)(usecs / 1000000);
   tv->tv_usec = (long)(usecs % 1000000);
+
   return 0;
 }
 #endif // WIN32

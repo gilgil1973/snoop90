@@ -47,8 +47,12 @@ void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey& key)
 
 void SnoopFlowMgrTest::process_MacFlow(SnoopPacket* packet)
 {
+  SnoopMacFlowKey* key = static_cast<SnoopMacFlowKey*>(packet->flowKey);
+
+  size_t packets = packet->flowValue->packets;
+  size_t bytes   = packet->flowValue->bytes;
   BYTE* mem = packet->flowValue->totalMem + macFlowOffset;
-  LOG_DEBUG("srcMac=%s dstMac=%s mem=%p", qPrintable(packet->ethHdr->ether_shost.str()), qPrintable(packet->ethHdr->ether_dhost.str()), mem);
+  LOG_DEBUG("srcMac=%s dstMac=%s pkts=%u bytes=%u mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), packets, bytes, mem);
 }
 
 void SnoopFlowMgrTest::load(VXml xml)

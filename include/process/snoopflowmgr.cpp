@@ -237,8 +237,11 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
     it = add_MacFlow(key, packet->pktHdr->ts);
 
   SnoopFlowValue& value = it.value();
+  value.packets++;
+  value.bytes += packet->pktHdr->caplen;
   value.ts = packet->pktHdr->ts;
 
+  packet->flowKey   = &key;
   packet->flowValue = &value;
   emit macFlow_Processed(packet);
 }
@@ -248,6 +251,8 @@ Snoop_MacFlow_Map::iterator SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key, stru
   SnoopFlowValue value;
   value.ts       = ts;
   value.totalMem = new BYTE[macFlow_Items.totalMemSize];
+  value.packets  = 0;
+  value.bytes    = 0;
   Snoop_MacFlow_Map::iterator it = macFlow_Map.insert(key, value);
   emit onNew_MacFlow(key);
   return it;
