@@ -128,9 +128,9 @@ void SnoopRemote::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopRemote::addOptionWidget(QLayout *layout)
+void SnoopRemote::optionAddWidget(QLayout *layout)
 {
-  SnoopPcap::addOptionWidget(layout);
+  SnoopPcap::optionAddWidget(layout);
 
   VOptionable::addLineEdit(layout, "leHost",         "Host",          host);
   VOptionable::addLineEdit(layout, "leUserName",     "User Name",     userName);
@@ -138,9 +138,9 @@ void SnoopRemote::addOptionWidget(QLayout *layout)
   VOptionable::addLineEdit(layout, "leAdapterIndex", "Adapter Index", QString::number(adapterIndex));
 }
 
-void SnoopRemote::saveOptionDlg(QDialog *dialog)
+void SnoopRemote::optionSaveDlg(QDialog *dialog)
 {
-  SnoopPcap::saveOptionDlg(dialog);
+  SnoopPcap::optionSaveDlg(dialog);
 
   host         = dialog->findChild<QLineEdit*>("leHost")->text();
   userName     = dialog->findChild<QLineEdit*>("leUserName")->text();

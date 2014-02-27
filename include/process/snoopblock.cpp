@@ -38,16 +38,16 @@ void SnoopBlock::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopBlock::addOptionWidget(QLayout* layout)
+void SnoopBlock::optionAddWidget(QLayout* layout)
 {
-  SnoopProcess::addOptionWidget(layout);
+  SnoopProcess::optionAddWidget(layout);
 
   VOptionable::addCheckBox(layout, "chkDrop", "Drop", drop);
 }
 
-void SnoopBlock::saveOptionDlg(QDialog* dialog)
+void SnoopBlock::optionSaveDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOptionDlg(dialog);
+  SnoopProcess::optionSaveDlg(dialog);
 
   drop = dialog->findChild<QCheckBox*>("chkDrop")->checkState() == Qt::Checked;
 }

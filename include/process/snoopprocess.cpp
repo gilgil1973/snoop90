@@ -32,12 +32,12 @@ void SnoopProcess::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopProcess::addOptionWidget(QLayout *layout)
+void SnoopProcess::optionAddWidget(QLayout *layout)
 {
   Q_UNUSED(layout)
 }
 
-void SnoopProcess::saveOptionDlg(QDialog *dialog)
+void SnoopProcess::optionSaveDlg(QDialog *dialog)
 {
   Q_UNUSED(dialog)
 }

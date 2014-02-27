@@ -303,17 +303,17 @@ void SnoopFlowMgr::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopFlowMgr::addOptionWidget(QLayout* layout)
+void SnoopFlowMgr::optionAddWidget(QLayout* layout)
 {
-  SnoopProcess::addOptionWidget(layout);
+  SnoopProcess::optionAddWidget(layout);
 
   VOptionable::addLineEdit(layout, "leCheckIntervalInSec",   "Check Interval(sec)",       QString::number(checkIntervalInSec));
   VOptionable::addLineEdit(layout, "leMacFlow_TimeoutInSec", "MacFlow Timeout(sec)", QString::number(macFlow_TimeoutInSec));
 }
 
-void SnoopFlowMgr::saveOptionDlg(QDialog* dialog)
+void SnoopFlowMgr::optionSaveDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOptionDlg(dialog);
+  SnoopProcess::optionSaveDlg(dialog);
 
   checkIntervalInSec   = dialog->findChild<QLineEdit*>("leCheckIntervalInSec")->text().toLongLong();
   macFlow_TimeoutInSec = dialog->findChild<QLineEdit*>("leMacFlow_TimeoutInSec")->text().toLong();

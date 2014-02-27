@@ -301,12 +301,12 @@ bool SnoopProcessFilter::event(QEvent *)
 }
 
 #include <QListView>
-void SnoopProcessFilter::addOptionWidget(QLayout *layout)
+void SnoopProcessFilter::optionAddWidget(QLayout *layout)
 {
-  SnoopFilter::addOptionWidget(layout);
+  SnoopFilter::optionAddWidget(layout);
 }
 
-bool SnoopProcessFilter::showOptionDlg(QDialog* dialog)
+bool SnoopProcessFilter::optionShowDlg(QDialog* dialog)
 {
   QListView* listView = new QListView(dialog);
   listView->setModel(myModel);
@@ -316,8 +316,8 @@ bool SnoopProcessFilter::showOptionDlg(QDialog* dialog)
   return true;
 }
 
-void SnoopProcessFilter::saveOptionDlg(QDialog *dialog)
+void SnoopProcessFilter::optionSaveDlg(QDialog *dialog)
 {
-  SnoopFilter::saveOptionDlg(dialog);
+  SnoopFilter::optionSaveDlg(dialog);
 }
 #endif // QT_GUI_LIB

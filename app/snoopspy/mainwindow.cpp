@@ -72,14 +72,14 @@ void MainWindow::finalizeControl()
 
 void MainWindow::loadControl()
 {
-  this->loadFromDefaultDoc("coord/main");
+  this->loadFromDefaultDoc("MainWindow");
   scene->addClasses();
   ui->treeWidget->expandAll();
 }
 
 void MainWindow::saveControl()
 {
-  this->saveToDefaultDoc("coord/main");
+  this->saveToDefaultDoc("MainWindow");
 }
 
 void MainWindow::setControl()
@@ -170,14 +170,12 @@ void MainWindow::dataChanged(QModelIndex,QModelIndex)
 
 void MainWindow::load(VXml xml)
 {
-  {
-    QRect rect = geometry();
-    rect.setLeft  ((xml.getInt("left",   0)));
-    rect.setTop   ((xml.getInt("top",    0)));
-    rect.setWidth ((xml.getInt("width",  640)));
-    rect.setHeight((xml.getInt("height", 480)));
-    setGeometry(rect);
-  }
+  QRect rect = geometry();
+  rect.setLeft  ((xml.getInt("left",   0)));
+  rect.setTop   ((xml.getInt("top",    0)));
+  rect.setWidth ((xml.getInt("width",  640)));
+  rect.setHeight((xml.getInt("height", 480)));
+  setGeometry(rect);
 
   {
     VXml sizesXML = xml.gotoChild("sizes");
@@ -421,7 +419,6 @@ void MainWindow::on_treeWidget_clicked(const QModelIndex &index)
   setControl();
 }
 
-
 void MainWindow::on_actionShowOption_triggered()
 {
   if (scene->selectedItems().isEmpty()) return;
@@ -436,15 +433,7 @@ void MainWindow::on_actionShowOption_triggered()
   VOptionable* optionable = dynamic_cast<VOptionable*>(object);
   if (optionable == NULL) return;
 
-  QDialog* dialog = optionable->createOptionDlg();
-  dialog->setWindowTitle(object->name + " Option");
-  optionable->addOptionWidget(dialog->layout());
-  bool res = optionable->showOptionDlg(dialog);
-  if (res)
-  {
-    optionable->saveOptionDlg(dialog);
-    selectionChanged();
-  }
+  if (optionable->optionDoAll()) selectionChanged();
 }
 
 void MainWindow::on_actionCapture_Filter_triggered()

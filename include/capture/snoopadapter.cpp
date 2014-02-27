@@ -88,9 +88,9 @@ void SnoopAdapter::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopAdapter::addOptionWidget(QLayout *layout)
+void SnoopAdapter::optionAddWidget(QLayout *layout)
 {
-  SnoopPcap::addOptionWidget(layout);
+  SnoopPcap::optionAddWidget(layout);
 
   QStringList strList;
   SnoopInterfaces& intfs = SnoopInterfaces::instance();
@@ -105,9 +105,9 @@ void SnoopAdapter::addOptionWidget(QLayout *layout)
   VOptionable::addComboBox(layout, "cbxAdapterIndex", "Adapter", strList, adapterIndex);
 }
 
-void SnoopAdapter::saveOptionDlg(QDialog *dialog)
+void SnoopAdapter::optionSaveDlg(QDialog *dialog)
 {
-  SnoopPcap::saveOptionDlg(dialog);
+  SnoopPcap::optionSaveDlg(dialog);
 
   adapterIndex = dialog->findChild<QComboBox*>("cbxAdapterIndex")->currentIndex();
 }

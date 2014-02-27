@@ -12,12 +12,12 @@ SnoopFilter::~SnoopFilter()
 }
 
 #ifdef QT_GUI_LIB
-void SnoopFilter::addOptionWidget(QLayout *layout)
+void SnoopFilter::optionAddWidget(QLayout *layout)
 {
   Q_UNUSED(layout)
 }
 
-void SnoopFilter::saveOptionDlg(QDialog *dialog)
+void SnoopFilter::optionSaveDlg(QDialog *dialog)
 {
   Q_UNUSED(dialog)
 }

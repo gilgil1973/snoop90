@@ -328,9 +328,9 @@ void SnoopWinDivert::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopWinDivert::addOptionWidget(QLayout* layout)
+void SnoopWinDivert::optionAddWidget(QLayout* layout)
 {
-  SnoopCapture::addOptionWidget(layout);
+  SnoopCapture::optionAddWidget(layout);
 
   VOptionable::addLineEdit(layout, "leFilter",               "Filter",                filter);
   VOptionable::addLineEdit(layout, "lePriority",             "Priority",              QString::number(priority));
@@ -343,9 +343,9 @@ void SnoopWinDivert::addOptionWidget(QLayout* layout)
   VOptionable::addCheckBox(layout, "chkAutoCorrectChecksum", "Auto Correct Checksum", autoCorrectChecksum);
 }
 
-void SnoopWinDivert::saveOptionDlg(QDialog* dialog)
+void SnoopWinDivert::optionSaveDlg(QDialog* dialog)
 {
-  SnoopCapture::saveOptionDlg(dialog);
+  SnoopCapture::optionSaveDlg(dialog);
 
   filter    = dialog->findChild<QLineEdit*>("leFilter")->text();
   priority  = dialog->findChild<QLineEdit*>("lePriority")->text().toUShort();

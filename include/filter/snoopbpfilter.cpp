@@ -99,17 +99,17 @@ void SnoopBpFilter::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopBpFilter::addOptionWidget(QLayout *layout)
+void SnoopBpFilter::optionAddWidget(QLayout *layout)
 {
-  SnoopFilter::addOptionWidget(layout);
+  SnoopFilter::optionAddWidget(layout);
 
   VOptionable::addLineEdit(layout, "leFilter",   "Filter",    filter);
   VOptionable::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
 }
 
-void SnoopBpFilter::saveOptionDlg(QDialog *dialog)
+void SnoopBpFilter::optionSaveDlg(QDialog *dialog)
 {
-  SnoopFilter::saveOptionDlg(dialog);
+  SnoopFilter::optionSaveDlg(dialog);
 
   filter   = dialog->findChild<QLineEdit*>("leFilter")->text();
   linkType = dialog->findChild<QLineEdit*>("leLinkType")->text().toInt();

@@ -219,9 +219,9 @@ void SnoopDataChange::saveToItems(QTableWidget* tableWidget)
   }
 }
 
-void SnoopDataChange::addOptionWidget(QLayout* layout)
+void SnoopDataChange::optionAddWidget(QLayout* layout)
 {
-  SnoopProcess::addOptionWidget(layout);
+  SnoopProcess::optionAddWidget(layout);
 
   VOptionable::addCheckBox(layout, "chkTcpChange", "TCP Change", tcpChange);
   VOptionable::addCheckBox(layout, "chkUdpChange", "UDP Change", udpChange);
@@ -246,14 +246,14 @@ void SnoopDataChange::addOptionWidget(QLayout* layout)
   layout->addItem(myLayout);
 }
 
-bool SnoopDataChange::showOptionDlg(QDialog* dialog)
+bool SnoopDataChange::optionShowDlg(QDialog* dialog)
 {
-  return VOptionable::showOptionDlg(dialog);
+  return VOptionable::optionShowDlg(dialog);
 }
 
-void SnoopDataChange::saveOptionDlg(QDialog* dialog)
+void SnoopDataChange::optionSaveDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOptionDlg(dialog);
+  SnoopProcess::optionSaveDlg(dialog);
 
   tcpChange = dialog->findChild<QCheckBox*>("chkTcpChange")->checkState() == Qt::Checked;
   udpChange = dialog->findChild<QCheckBox*>("chkUdpChange")->checkState() == Qt::Checked;

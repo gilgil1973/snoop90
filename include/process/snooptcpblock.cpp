@@ -233,9 +233,9 @@ void SnoopTcpBlock::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopTcpBlock::addOptionWidget(QLayout* layout)
+void SnoopTcpBlock::optionAddWidget(QLayout* layout)
 {
-  SnoopProcess::addOptionWidget(layout);
+  SnoopProcess::optionAddWidget(layout);
 
   QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
   VOptionable::addComboBox(layout, "cbxCapture",       "Capture",         captureList, -1, capture == NULL ? "" : capture->name);
@@ -247,9 +247,9 @@ void SnoopTcpBlock::addOptionWidget(QLayout* layout)
   VOptionable::addLineEdit(layout, "leBackwardFinMsg", "Forward Fin Msg", backwardFinMsg);
 }
 
-void SnoopTcpBlock::saveOptionDlg(QDialog* dialog)
+void SnoopTcpBlock::optionSaveDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOptionDlg(dialog);
+  SnoopProcess::optionSaveDlg(dialog);
 
   capture        = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxCapture")->currentText()));
   forwardRst     = dialog->findChild<QCheckBox*>("chkForwardRst")->checkState() == Qt::Checked;

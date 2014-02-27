@@ -85,9 +85,9 @@ public:
   void         loadFromItems(QTableWidget* tableWidget);
   void         saveToItems(QTableWidget* tableWidget);
 
-  virtual void addOptionWidget(QLayout* layout);
-  virtual bool showOptionDlg(QDialog* dialog);
-  virtual void saveOptionDlg(QDialog* dialog);
+  virtual void optionAddWidget(QLayout* layout);
+  virtual bool optionShowDlg(QDialog* dialog);
+  virtual void optionSaveDlg(QDialog* dialog);
 #endif // QT_GUI_LIB
 };
 

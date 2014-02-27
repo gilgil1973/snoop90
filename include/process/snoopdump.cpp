@@ -98,17 +98,17 @@ void SnoopDump::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopDump::addOptionWidget(QLayout* layout)
+void SnoopDump::optionAddWidget(QLayout* layout)
 {
-  SnoopProcess::addOptionWidget(layout);
+  SnoopProcess::optionAddWidget(layout);
 
   VOptionable::addLineEdit(layout, "leFilePath", "File Path", filePath);
   VOptionable::addLineEdit(layout, "leLinkType", "Link Type", QString::number(linkType));
 }
 
-void SnoopDump::saveOptionDlg(QDialog* dialog)
+void SnoopDump::optionSaveDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOptionDlg(dialog);
+  SnoopProcess::optionSaveDlg(dialog);
 
   filePath = dialog->findChild<QLineEdit*>("leFilePath")->text();
   linkType = dialog->findChild<QLineEdit*>("leLinkType")->text().toInt();

@@ -74,18 +74,18 @@ void SnoopFlowMgrTest::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopFlowMgrTest::addOptionWidget(QLayout* layout)
+void SnoopFlowMgrTest::optionAddWidget(QLayout* layout)
 {
-  SnoopProcess::addOptionWidget(layout);
+  SnoopProcess::optionAddWidget(layout);
 
   QStringList flowMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
   VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1, flowMgr == NULL ? "" : flowMgr->name);
   VOptionable::addLineEdit(layout, "leMemSize", "Mem Size", QString::number(memSize));
 }
 
-void SnoopFlowMgrTest::saveOptionDlg(QDialog* dialog)
+void SnoopFlowMgrTest::optionSaveDlg(QDialog* dialog)
 {
-  SnoopProcess::saveOptionDlg(dialog);
+  SnoopProcess::optionSaveDlg(dialog);
 
   flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
   memSize = (size_t)dialog->findChild<QLineEdit*>("leMemSize")->text().toInt();

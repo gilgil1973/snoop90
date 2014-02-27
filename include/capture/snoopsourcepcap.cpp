@@ -45,16 +45,16 @@ void SnoopSourcePcap::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopSourcePcap::addOptionWidget(QLayout* layout)
+void SnoopSourcePcap::optionAddWidget(QLayout* layout)
 {
-  SnoopPcap::addOptionWidget(layout);
+  SnoopPcap::optionAddWidget(layout);
 
   VOptionable::addLineEdit(layout, "leSource", "Source", source);
 }
 
-void SnoopSourcePcap::saveOptionDlg(QDialog* dialog)
+void SnoopSourcePcap::optionSaveDlg(QDialog* dialog)
 {
-  SnoopPcap::saveOptionDlg(dialog);
+  SnoopPcap::optionSaveDlg(dialog);
 
   source = dialog->findChild<QLineEdit*>("leSource")->text();
 }

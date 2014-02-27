@@ -213,9 +213,9 @@ void SnoopPcap::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopPcap::addOptionWidget(QLayout* layout)
+void SnoopPcap::optionAddWidget(QLayout* layout)
 {
-  SnoopCapture::addOptionWidget(layout);
+  SnoopCapture::optionAddWidget(layout);
 
   VOptionable::addLineEdit(layout, "leFilter",      "Filter",       filter);
   VOptionable::addLineEdit(layout, "leSnapLen",     "Snap Len",     QString::number(snapLen));
@@ -223,9 +223,9 @@ void SnoopPcap::addOptionWidget(QLayout* layout)
   VOptionable::addLineEdit(layout, "leReadTimeout", "Read Timeout", QString::number(readTimeout));
 }
 
-void SnoopPcap::saveOptionDlg(QDialog* dialog)
+void SnoopPcap::optionSaveDlg(QDialog* dialog)
 {
-  SnoopCapture::saveOptionDlg(dialog);
+  SnoopCapture::optionSaveDlg(dialog);
 
   filter      = dialog->findChild<QLineEdit*>("leFilter")->text();
   snapLen     = dialog->findChild<QLineEdit*>("leSnapLen")->text().toInt();
