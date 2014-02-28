@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include <VDebugNew>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -10,8 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
   aboutDlg = NULL;
   initializeControl();
-  loadControl();
-  setControl();
 }
 
 MainWindow::~MainWindow()
@@ -22,10 +19,16 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
+void MainWindow::showEvent(QShowEvent* showEvent)
+{
+  loadControl();
+  setControl();
+  QMainWindow::showEvent(showEvent);
+}
+
 void MainWindow::initializeControl()
 {
-  move(0, 0);
-  resize(640, 480);
+  move(0, 0); resize(640, 480);
 
   ui->dockWidget->setWidget(ui->leftSplitter); // (ui->treeWidget);
 
@@ -65,13 +68,14 @@ void MainWindow::initializeControl()
 
 void MainWindow::finalizeControl()
 {
-  delete scene;
-  delete view;
-  delete model;
+  SAFE_DELETE(scene);
+  SAFE_DELETE(view);
+  SAFE_DELETE(model);
 }
 
 void MainWindow::loadControl()
 {
+  qDebug() << view->geometry(); // gilgil temp
   this->loadFromDefaultDoc("MainWindow");
   scene->addClasses();
   ui->treeWidget->expandAll();
@@ -170,84 +174,73 @@ void MainWindow::dataChanged(QModelIndex,QModelIndex)
 
 void MainWindow::load(VXml xml)
 {
-  QRect rect = geometry();
-  rect.setLeft  ((xml.getInt("left",   0)));
-  rect.setTop   ((xml.getInt("top",    0)));
-  rect.setWidth ((xml.getInt("width",  640)));
-  rect.setHeight((xml.getInt("height", 480)));
-  setGeometry(rect);
-
   {
-    VXml sizesXML = xml.gotoChild("sizes");
-    QList<int> sizes;
-
-    sizes.clear();
-    QStringList mainSplitterValues = sizesXML.getStr("main_splitter").split(",");
-    foreach (QString value, mainSplitterValues)
+    VXml coordXml = xml.findChild("coord");
+    if (!coordXml.isNull())
     {
-      sizes.push_back(value.toInt());
-    }
-    mainSplitter->setSizes(sizes);
-
-    sizes.clear();
-    QStringList leftSplitterValues = sizesXML.getStr("left_splitter").split(",");
-    foreach (QString value, leftSplitterValues)
-    {
-      sizes.push_back(value.toInt());
-    }
-    ui->leftSplitter->setSizes(sizes);
-
-    sizes.clear();
-    QStringList treeViewValues = sizesXML.getStr("treeView").split(",");
-    int column = 0;
-    foreach (QString value, treeViewValues)
-    {
-      if (column <= 2 && value != "") ui->treeView->setColumnWidth(column, value.toInt());
-      column++;
+      QRect rect = geometry();
+      rect.setLeft  ((coordXml.getInt("left",   0)));
+      rect.setTop   ((coordXml.getInt("top",    0)));
+      rect.setWidth ((coordXml.getInt("width",  640)));
+      rect.setHeight((coordXml.getInt("height", 480)));
+      setGeometry(rect);
     }
   }
 
-  scene->setSceneRect(view->geometry());
+  {
+    VXml sizesXml = xml.findChild("sizes");
+    QList<int> sizes;
+    QStringList strList;
+    if (!sizesXml.isNull())
+    {
+      strList = sizesXml.getStr("mainSplitter").split(",");
+      sizes.clear(); foreach (QString s, strList) sizes << s.toInt();
+      mainSplitter->setSizes(sizes);
+
+      strList = sizesXml.getStr("leftSplitter").split(",");
+      sizes.clear(); foreach (QString s, strList) sizes << s.toInt();
+      ui->leftSplitter->setSizes(sizes);
+
+      strList = sizesXml.getStr("treeView").split(",");
+      sizes.clear(); foreach (QString s, strList) sizes << s.toInt();
+      for (int i = 0; i < strList.count(); i++)  ui->treeView->setColumnWidth(i, sizes.at(i));
+    }
+  }
 
   scene->load(xml.gotoChild("scene"));
 }
 
 void MainWindow::save(VXml xml)
 {
-  QRect rect = geometry();
-  xml.setInt("left",   rect.left());
-  xml.setInt("top",    rect.top());
-  xml.setInt("width",  rect.width());
-  xml.setInt("height", rect.height());
-
-  VXml childXml = xml.gotoChild("sizes");
-
-  QString mainSplitterValues;
-  for (int i = 0; i < mainSplitter->count(); i++)
   {
-    mainSplitterValues += QString::number(mainSplitter->sizes().at(i));
-    if (i < mainSplitter->count() - 1)
-      mainSplitterValues += ",";
+    VXml coordXml = xml.gotoChild("coord");
+    QRect rect = geometry();
+    coordXml.setInt("left",   rect.left());
+    coordXml.setInt("top",    rect.top());
+    coordXml.setInt("width",  rect.width());
+    coordXml.setInt("height", rect.height());
   }
-  childXml.setStr("main_splitter", mainSplitterValues);
 
-  QString leftSplitterValues;
-  for (int i = 0; i < ui->leftSplitter->count(); i++)
   {
-    leftSplitterValues += QString::number(ui->leftSplitter->sizes().at(i));
-    if (i < mainSplitter->count() - 1)
-      leftSplitterValues += ",";
-  }
-  childXml.setStr("left_splitter", leftSplitterValues);
+    VXml sizesXml = xml.gotoChild("sizes");
+    QList<int> sizes;
+    QString strList;
 
-  QString treeViewValues;
-  for (int i =0; i < 2 - 1; i++) // 2 == column count of treeView
-  {
-    treeViewValues += QString::number(ui->treeView->columnWidth(i));
-    if (i < 2)
-      treeViewValues += ",";
+    sizes = mainSplitter->sizes();
+    strList.clear(); foreach (int size, sizes) strList += QString::number(size) + ",";
+    strList = strList.left(strList.count() - 1);
+    sizesXml.setStr("mainSplitter", strList);
+
+    sizes = ui->leftSplitter->sizes();
+    strList.clear(); foreach (int size, sizes) strList += QString::number(size) + ",";
+    strList = strList.left(strList.count() - 1);
+    sizesXml.setStr("leftSplitter", strList);
+
+    static const int columnCount = 2;
+    strList.clear(); for (int i = 0; i < columnCount; i++) strList += QString::number(ui->treeView->columnWidth(i)) + ",";
+    strList = strList.left(strList.count() - 1);
+    sizesXml.setStr("treeView", strList);
   }
-  childXml.setStr("treeView", treeViewValues);
 
   scene->save(xml.gotoChild("scene"));
 }

@@ -35,6 +35,16 @@ public:
   explicit MainWindow(QWidget *parent = 0);
   ~MainWindow();
 
+protected:
+  void showEvent(QShowEvent* showEvent);
+
+public:
+  void initializeControl();
+  void finalizeControl();
+  void loadControl();
+  void saveControl();
+  void setControl();
+
 public:
   AboutDlg*  aboutDlg;
 
@@ -47,13 +57,6 @@ public:
   DomModel*       model;
   VObject*        selectObject;
   VXmlDoc         selectDoc;
-
-public:
-  void initializeControl();
-  void finalizeControl();
-  void loadControl();
-  void saveControl();
-  void setControl();
 
 public slots:
   void changed(QList<QRectF> region);
