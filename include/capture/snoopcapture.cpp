@@ -45,48 +45,14 @@ int SnoopCapture::read(SnoopPacket* packet)
   return -1;
 }
 
-#include <SnoopIp>  // for SnoopIp::checksum
-#include <SnoopTcp> // for SnoopTcp::checksum
-#include <SnoopUdp> // for SnoopUdp::checksum
-void SnoopCapture::postRead(SnoopPacket* packet)
-{
-  if (captureType() != SnoopCaptureType::InPath) return;
-  if (packet->drop) return;
-  {
-    if (!packet->drop)
-    {
-      //
-      // checksum
-      //
-      if (packet->tcpChanged)
-      {
-        LOG_ASSERT(packet->ipHdr != NULL);
-        LOG_ASSERT(packet->tcpHdr != NULL);
-        packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
-      }
-      if (packet->udpChanged)
-      {
-        LOG_ASSERT(packet->ipHdr != NULL);
-        LOG_ASSERT(packet->udpHdr != NULL);
-        packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
-      }
-      if (packet->ipChanged)
-      {
-        LOG_ASSERT(packet->ipHdr != NULL);
-        packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
-      }
-
-      //
-      // relay
-      //
-      relay(packet);
-    }
-  }
-}
-
+#include <SnoopEth>
+#include <SnoopIp>
+#include <SnoopTcp>
+#include <SnoopUdp>
 void SnoopCapture::parse(SnoopPacket* packet)
 {
   if (SnoopEth::parseAll(packet)) return;
+  // gilgil temp 2014.03.01
 }
 
 int SnoopCapture::write(SnoopPacket* packet)
@@ -107,15 +73,44 @@ int SnoopCapture::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
 
 int SnoopCapture::relay(SnoopPacket* packet)
 {
-  Q_UNUSED(packet)
-  SET_ERROR(SnoopError, "relay not supported", VERR_NOT_SUPPORTED);
-  return VERR_FAIL;
+  if (captureType() != SnoopCaptureType::InPath) return VERR_FAIL;
+  if (packet->drop) return VERR_FAIL;
+
+  //
+  // TCP checksum
+  //
+  if (packet->tcpChanged)
+  {
+    LOG_ASSERT(packet->ipHdr != NULL);
+    LOG_ASSERT(packet->tcpHdr != NULL);
+    packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
+  }
+
+  //
+  // UDP checksum
+  //
+  if (packet->udpChanged)
+  {
+    LOG_ASSERT(packet->ipHdr != NULL);
+    LOG_ASSERT(packet->udpHdr != NULL);
+    packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
+  }
+
+  //
+  // IP checksum
+  //
+  if (packet->ipChanged)
+  {
+    LOG_ASSERT(packet->ipHdr != NULL);
+    packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
+  }
+
+  return packet->pktHdr->caplen;
 }
 
 void SnoopCapture::run()
 {
   SnoopCaptureType _captureType = captureType();
-
   emit opened();
   while (runThread().active())
   {
@@ -123,7 +118,7 @@ void SnoopCapture::run()
     if (res == 0) continue;
     if (res < 0) break;
     emit captured(&packet);
-    postRead(&packet);
+    relay(&packet);
   }
   emit closed();
 }

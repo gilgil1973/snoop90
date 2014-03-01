@@ -39,7 +39,6 @@ public:
   virtual int write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr = NULL);
 
 public:
-  void postRead(SnoopPacket* packet);
   void parse(SnoopPacket* packet);
 
 public:
