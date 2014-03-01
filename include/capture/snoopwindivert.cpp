@@ -350,8 +350,8 @@ void SnoopWinDivert::optionSaveDlg(QDialog* dialog)
   filter    = dialog->findChild<QLineEdit*>("leFilter")->text();
   priority  = dialog->findChild<QLineEdit*>("lePriority")->text().toUShort();
   layer     = (DIVERT_LAYER) dialog->findChild<QLineEdit*>("leLayer")->text().toInt();
-  flags     = 0;
 
+  flags     = 0;
   if (dialog->findChild<QCheckBox*>("chkFlagSniff")->checkState()      == Qt::Checked) flags |= WINDIVERT_FLAG_SNIFF;
   if (dialog->findChild<QCheckBox*>("chkFlagDrop")->checkState()       == Qt::Checked) flags |= WINDIVERT_FLAG_DROP;
   if (dialog->findChild<QCheckBox*>("chkFlagNoChecksum")->checkState() == Qt::Checked) flags |= WINDIVERT_FLAG_NO_CHECKSUM;
