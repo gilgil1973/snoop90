@@ -7,8 +7,8 @@
 SnoopCapture::SnoopCapture(void* owner) : VObject(owner)
 {
   VGraph* graph = dynamic_cast<VGraph*>((VGraph*)owner);
-  autoRead    = graph != NULL ? true : false;
-  parsePacket = true;
+  autoRead  = graph != NULL ? true : false;
+  autoParse = true;
   packet.clear();
 }
 
@@ -160,7 +160,6 @@ void SnoopCapture::run()
     int res = read(&packet);
     if (res == 0) continue;
     if (res < 0) break;
-    if (parsePacket) parse(&packet);
     emit captured(&packet);
     relay(&packet);
   }
@@ -171,16 +170,16 @@ void SnoopCapture::load(VXml xml)
 {
   VObject::load(xml);
 
-  autoRead    = xml.getBool("autoRead",    autoRead);
-  parsePacket = xml.getBool("parsePacket", parsePacket);
+  autoRead  = xml.getBool("autoRead",  autoRead);
+  autoParse = xml.getBool("autoParse", autoParse);
 }
 
 void SnoopCapture::save(VXml xml)
 {
   VObject::save(xml);
 
-  xml.setBool("autoRead",    autoRead);
-  xml.setBool("parsePacket", parsePacket);
+  xml.setBool("autoRead",  autoRead);
+  xml.setBool("autoParse", autoParse);
 }
 
 #ifdef QT_GUI_LIB

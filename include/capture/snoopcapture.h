@@ -51,7 +51,7 @@ public:
   //
 public:
   bool         autoRead;
-  bool         parsePacket;
+  bool         autoParse;
 
 protected:
   virtual void run();

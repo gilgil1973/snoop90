@@ -66,6 +66,7 @@ int SnoopPcap::read(SnoopPacket* packet)
     return VERR_FAIL;
   }
   LOG_ASSERT(m_pcap != NULL);
+  
   packet->clear();
   int res;
   int i = pcap_next_ex(m_pcap, (pcap_pkthdr**)&packet->pktHdr, (const u_char**)&packet->pktData);
@@ -83,7 +84,10 @@ int SnoopPcap::read(SnoopPacket* packet)
       res = packet->pktHdr->caplen;
       break;
   }
+  
   packet->linkType = dataLink();
+  if (autoParse) parse(packet);
+  
   return res;
 }
 

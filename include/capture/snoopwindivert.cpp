@@ -245,18 +245,40 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   packet->ethHdr->ether_shost = Mac::cleanMac();
   packet->ethHdr->ether_type  = htons(ETHERTYPE_IP);
 
-  if (tos != 0 && SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
-    packet->ipHdr->ip_tos = tos;
+  bool parsed = false;
+  if (tos != 0)
+  {
+    parse(packet);
+    parsed =  true;
+    if (packet->ipHdr != NULL) packet->ipHdr->ip_tos = tos;
+  }
 
   if (autoCorrectChecksum)
   {
-    if (SnoopEth::isIp(packet->ethHdr, &packet->ipHdr))
+    if (!parsed)
+    {
+      parse(packet);
+      parsed = true;
+    }
+    if (packet->ipHdr != NULL)
     {
       packet->ipChanged = true;
-      if (SnoopIp::isTcp(packet->ipHdr, &packet->tcpHdr))
+      if (packet->tcpHdr != NULL)
+      {
         packet->tcpChanged = true;
-      else if (SnoopIp::isUdp(packet->ipHdr, &packet->udpHdr))
+      } else
+      if (packet->udpHdr != NULL)
+      {
         packet->udpChanged = true;
+      }
+    }
+  }
+
+  if (autoParse)
+  {
+    if (!parsed)
+    {
+      parse(packet);
     }
   }
 
