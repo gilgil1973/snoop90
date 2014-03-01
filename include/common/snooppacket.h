@@ -41,21 +41,20 @@ public:
   ///
   /// datalink layer
   ///
-  int       linkType;
+  int       linkType; // DLT_EN10MB, ...
   ETH_HDR*  ethHdr;
-  FDDI_HDR* fddiHdr;
 
   ///
   /// network layer
   ///
-  UINT16    netType;
+  UINT16    netType; // ETHERTYPE_IP, ETHERTYPE_ARP, ...
   IP_HDR*   ipHdr;
   ARP_HDR*  arpHdr;
 
   ///
   /// transport layer(protocol)
   ///
-  UINT8     proto;
+  UINT8     proto; // IPPROTO_TCP, IPPROTO_UDP, IPPROTO_ICMP, ...
   TCP_HDR*  tcpHdr;
   UDP_HDR*  udpHdr;
   ICMP_HDR* icmpHdr;

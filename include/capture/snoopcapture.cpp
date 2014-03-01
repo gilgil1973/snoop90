@@ -6,7 +6,8 @@
 // ----------------------------------------------------------------------------
 SnoopCapture::SnoopCapture(void* owner) : VObject(owner)
 {
-  autoRead    = true;
+  VGraph* graph = dynamic_cast<VGraph*>((VGraph*)owner);
+  autoRead    = graph != NULL ? true : false;
   parsePacket = true;
   packet.clear();
 }
@@ -47,12 +48,54 @@ int SnoopCapture::read(SnoopPacket* packet)
 
 #include <SnoopEth>
 #include <SnoopIp>
+#include <SnoopArp>
 #include <SnoopTcp>
 #include <SnoopUdp>
+#include <SnoopIcmp>
+#include <SnoopTcpData>
+#include <SnoopUdpData>
 void SnoopCapture::parse(SnoopPacket* packet)
 {
-  if (SnoopEth::parseAll(packet)) return;
-  // gilgil temp 2014.03.01
+  //
+  // eth
+  //
+  if (SnoopEth::parse(packet))
+  {
+    //
+    // ip
+    //
+    if (SnoopIp::parse(packet))
+    {
+      //
+      // tcp
+      //
+      if (SnoopTcp::parse(packet))
+      {
+        //
+        // tcp data
+        //
+        SnoopTcpData::parse(packet);
+      } else
+      //
+      // udp
+      //
+      if (SnoopUdp::parse(packet))
+      {
+        //
+        // udp data
+        //
+        SnoopUdpData::parse(packet);
+      } else
+      //
+      // icmp
+      //
+      SnoopIcmp::parse(packet);
+    } else
+    //
+    // arp
+    //
+    SnoopArp::parse(packet);
+  }
 }
 
 int SnoopCapture::write(SnoopPacket* packet)
@@ -117,6 +160,7 @@ void SnoopCapture::run()
     int res = read(&packet);
     if (res == 0) continue;
     if (res < 0) break;
+    if (parsePacket) parse(&packet);
     emit captured(&packet);
     relay(&packet);
   }
@@ -127,16 +171,16 @@ void SnoopCapture::load(VXml xml)
 {
   VObject::load(xml);
 
-  autoRead    = xml.getBool("autoRead", autoRead);
-  parsePacket = xml.getBool("autoRead", autoRead);
+  autoRead    = xml.getBool("autoRead",    autoRead);
+  parsePacket = xml.getBool("parsePacket", parsePacket);
 }
 
 void SnoopCapture::save(VXml xml)
 {
   VObject::save(xml);
 
-  xml.setBool("autoRead", autoRead);
-  xml.setBool("autoRead", autoRead);
+  xml.setBool("autoRead",    autoRead);
+  xml.setBool("parsePacket", parsePacket);
 }
 
 #ifdef QT_GUI_LIB
