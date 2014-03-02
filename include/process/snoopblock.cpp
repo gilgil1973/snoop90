@@ -1,7 +1,4 @@
 #include <SnoopBlock>
-#include <SnoopEth>
-#include <SnoopIp>
-#include <SnoopTcp>
 
 REGISTER_METACLASS(SnoopBlock, SnoopProcess)
 

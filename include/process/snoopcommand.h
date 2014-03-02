@@ -8,8 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
-#ifndef __SNOOP_BLOCK_H__
-#define __SNOOP_BLOCK_H__
+#ifndef __SNOOP_COMMAND_H__
+#define __SNOOP_COMMAND_H__
 
 #include <SnoopProcess>
 
@@ -43,4 +43,4 @@ public: // for VOptionable
 #endif // QT_GUI_LIB
 };
 
-#endif // __SNOOP_BLOCK_H__
+#endif // __SNOOP_COMMAND_H__
