@@ -1,6 +1,7 @@
 #include <SnoopProcessFactory>
 
 #include <SnoopBlock>
+#include <SnoopCommand>
 #include <SnoopDataChange>
 #include <SnoopDelay>
 #include <SnoopFlowMgr>
@@ -16,6 +17,7 @@
 void SnoopProcessFactory::explicitLink()
 {
   SnoopBlock        block;
+  SnoopCommand      command;
   SnoopDataChange   dataChange;
   SnoopDelay        delay;
   SnoopDump         dump;

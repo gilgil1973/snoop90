@@ -5,7 +5,7 @@
 #-------------------------------------------------
 CONFIG += SNOOP_LIB_BUILD
 #QT    -= gui
-#QT    += gui widgets
+QT    += gui widgets
 
 include (snoop.pri)
 
@@ -51,6 +51,7 @@ SOURCES += \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
     ../include/process/snoopblock.cpp \
+    ../include/process/snoopcommand.cpp \
     ../include/process/snoopdatachange.cpp \
     ../include/process/snoopdelay.cpp \
     ../include/process/snooptcpblock.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     ../include/process/snoopprocess.h \
     ../include/process/snoopprocessfactory.h \
     ../include/process/snoopblock.h \
+    ../include/process/snoopcommand.h \
     ../include/process/snoopdatachange.h \
     ../include/process/snoopdelay.h \
     ../include/process/snooptcpblock.h \
