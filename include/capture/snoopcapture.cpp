@@ -6,8 +6,7 @@
 // ----------------------------------------------------------------------------
 SnoopCapture::SnoopCapture(void* owner) : VObject(owner)
 {
-  VGraph* graph = dynamic_cast<VGraph*>((VGraph*)owner);
-  autoRead  = graph != NULL ? true : false;
+  autoRead = true;
   autoParse = true;
   packet.clear();
 }

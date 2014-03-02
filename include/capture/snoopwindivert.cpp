@@ -249,7 +249,7 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   if (tos != 0)
   {
     parse(packet);
-    parsed =  true;
+    parsed = true;
     if (packet->ipHdr != NULL) packet->ipHdr->ip_tos = tos;
   }
 
