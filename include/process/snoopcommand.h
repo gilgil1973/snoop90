@@ -14,6 +14,44 @@
 #include <SnoopProcess>
 
 // ----------------------------------------------------------------------------
+// SnoopCommandItem
+// ----------------------------------------------------------------------------
+class SnoopCommandItem : public VXmlable
+{
+public:
+  SnoopCommandItem();
+  virtual ~SnoopCommandItem();
+
+public:
+  bool    enabled;
+  QString command;
+  bool    sync;
+
+protected:
+  QProcess* process;
+
+public:
+  bool execute();
+
+public:
+  virtual void load(VXml xml);
+  virtual void save(VXml xml);
+};
+
+// ----------------------------------------------------------------------------
+// SnoopCommandItems
+// ----------------------------------------------------------------------------
+class SnoopCommandItems : public QList<SnoopCommandItem>, public VXmlable
+{
+public:
+  bool execute();
+
+public:
+  virtual void load(VXml xml);
+  virtual void save(VXml xml);
+};
+
+// ----------------------------------------------------------------------------
 // SnoopCommand
 // ----------------------------------------------------------------------------
 class SnoopCommand : public SnoopProcess
@@ -29,8 +67,8 @@ protected:
   virtual bool doClose();
 
 public:
-  QStringList openCommands;
-  QStringList closeCommands;
+  SnoopCommandItems openCommands;
+  SnoopCommandItems closeCommands;
 
 public:
   virtual void load(VXml xml);
