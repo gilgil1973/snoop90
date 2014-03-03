@@ -23,10 +23,32 @@
 #include "dommodel.h"
 #include "aboutdlg.h"
 
+// ----------------------------------------------------------------------------
+// Param
+// ----------------------------------------------------------------------------
+class Param
+{
+public:
+  Param();
+
+public:
+  QString fileName;
+  bool    autoOpen;
+
+public:
+  bool parse(int argc, char* argv[]);
+};
+
+// ----------------------------------------------------------------------------
+// MainWindow
+// ----------------------------------------------------------------------------
 namespace Ui {
 class MainWindow;
 }
 
+// ----------------------------------------------------------------------------
+// MainWindow
+// ----------------------------------------------------------------------------
 class MainWindow : public QMainWindow, VXmlable
 {
   Q_OBJECT
@@ -113,7 +135,6 @@ private slots:
 
 private:
   Ui::MainWindow *ui;
-
 };
 
 #endif // MAINWINDOW_H

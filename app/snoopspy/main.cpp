@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 {
   VApp::initialize();
   LOG_INFO("snoopspy version 3 started %s / %s", VDREAM_VERSION, SNOOP_VERSION);
+  VApp::instance().setArguments(argc, argv);
   explicitLink();
   int res = run(argc, argv);
   VApp::finalize();

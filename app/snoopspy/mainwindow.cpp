@@ -1,7 +1,38 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <VApp>
 #include <VDebugNew>
 
+// ----------------------------------------------------------------------------
+// Param
+// ----------------------------------------------------------------------------
+Param::Param()
+{
+  fileName = "";
+  autoOpen = false;
+}
+
+bool Param::parse(int argc, char* argv[])
+{
+  //
+  // snoopspy [< filename > [autoopen]]
+  //
+  if (argc >= 2)
+  {
+    fileName = argv[1];
+  }
+  if (argc >= 3)
+  {
+    QString s = QString(argv[2]).toLower();
+    autoOpen = s == "autoopen";
+  }
+
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// MainWindow
+// ----------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
@@ -75,10 +106,29 @@ void MainWindow::finalizeControl()
 
 void MainWindow::loadControl()
 {
-  qDebug() << view->geometry(); // gilgil temp
   this->loadFromDefaultDoc("MainWindow");
   scene->addClasses();
   ui->treeWidget->expandAll();
+
+  VApp& app = VApp::instance();
+  Param param;
+  param.parse(app.argc(), app.argv());
+  if (param.fileName != "")
+  {
+    this->fileName = param.fileName;
+    QString errStr;
+    if (scene->loadFromFile(this->fileName, errStr))
+    {
+      m_changed = false;
+
+      if (param.autoOpen)
+        ui->actionStart->trigger();
+    } else
+    {
+      QMessageBox::information(this, "error", errStr);
+    }
+    setControl();
+  }
 }
 
 void MainWindow::saveControl()

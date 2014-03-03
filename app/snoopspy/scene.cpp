@@ -200,7 +200,8 @@ bool Scene::loadFromFile(QString fileName, QString& errStr)
   bool res = this->graph->loadFromFile(fileName, "graph");
   if (!res)
   {
-    errStr = this->graph->error.msg;
+    errStr = qformat("can not open file(%s)", qPrintable(fileName));
+    LOG_ERROR("%s", qPrintable(errStr));
     return false;
   }
 
