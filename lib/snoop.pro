@@ -45,16 +45,16 @@ SOURCES += \
     ../include/parse/snooptcpdata.cpp \
     ../include/parse/snoopudp.cpp \
     ../include/parse/snoopudpdata.cpp \
+    ../include/process/snoopblock.cpp \
     ../include/process/snoopcommand.cpp \
     ../include/process/snoopcommandwidget.cpp \
+    ../include/process/snoopdatachange.cpp \
+    ../include/process/snoopdelay.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
     ../include/process/snoopflowmgrtest.cpp \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
-    ../include/process/snoopblock.cpp \
-    ../include/process/snoopdatachange.cpp \
-    ../include/process/snoopdelay.cpp \
     ../include/process/snooptcpblock.cpp \
     ../include/process/snoopwriteadapter.cpp
 
@@ -97,16 +97,16 @@ HEADERS += \
     ../include/parse/snooptcpdata.h \
     ../include/parse/snoopudp.h \
     ../include/parse/snoopudpdata.h \
+    ../include/process/snoopblock.h \
     ../include/process/snoopcommand.h \
     ../include/process/snoopcommandwidget.h \
+    ../include/process/snoopdatachange.h \
+    ../include/process/snoopdelay.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopflowmgr.h \
     ../include/process/snoopflowmgrtest.h \
     ../include/process/snoopprocess.h \
     ../include/process/snoopprocessfactory.h \
-    ../include/process/snoopblock.h \
-    ../include/process/snoopdatachange.h \
-    ../include/process/snoopdelay.h \
     ../include/process/snooptcpblock.h \
     ../include/process/snoopwriteadapter.h \
     ../include/windivert/windivert.h
