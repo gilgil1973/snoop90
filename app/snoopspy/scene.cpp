@@ -383,6 +383,8 @@ void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
               QStringList _slotList   = VGraph::slotList(endNode->object);
               _slotList.removeOne("deleteLater()");
               _slotList.removeOne("_q_reregisterTimers(void*)");
+              _slotList.removeOne("open()");
+              _slotList.removeOne("close()");
 
               if (signalSlotForm == NULL) signalSlotForm = new SignalSlotForm((QWidget*)this->parent());
               signalSlotForm->ui->lwSignalList->clear();
