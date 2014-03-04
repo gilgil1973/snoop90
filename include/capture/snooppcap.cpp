@@ -74,20 +74,20 @@ int SnoopPcap::read(SnoopPacket* packet)
     case -2: // if EOF was reached reading from an offline capture
       SET_DEBUG_ERROR(SnoopError, qformat("pcap_next_ex return -2(%s)", pcap_geterr(m_pcap)), VERR_IN_PCAP_NEXT_EX);
       res = VERR_FAIL;
+      break;
     case -1: // if an error occurred
       SET_DEBUG_ERROR(SnoopError, qformat("pcap_next_ex return -1(%s)", pcap_geterr(m_pcap)), VERR_IN_PCAP_NEXT_EX);
       res = VERR_FAIL;
+      break;
     case 0 : // if the timeout occurs
       res = 0;
       break;
     default: // packet captured
       res = packet->pktHdr->caplen;
+      packet->linkType = dataLink();
+      if (autoParse) parse(packet);
       break;
   }
-  
-  packet->linkType = dataLink();
-  if (autoParse) parse(packet);
-  
   return res;
 }
 

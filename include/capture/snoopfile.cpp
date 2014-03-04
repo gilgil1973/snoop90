@@ -104,6 +104,6 @@ void SnoopFile::optionSaveDlg(QDialog *dialog)
   SnoopPcap::optionSaveDlg(dialog);
 
   fileName = dialog->findChild<QLineEdit*>("leFileName")->text();
-  speed    = dialog->findChild<QLineEdit*>("leFileName")->text().toDouble();
+  speed    = dialog->findChild<QLineEdit*>("leSpeed")->text().toDouble();
 }
 #endif // QT_GUI_LIB
