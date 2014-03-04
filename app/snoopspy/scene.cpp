@@ -7,6 +7,7 @@ Scene::Scene(QObject *parent) : QGraphicsScene(parent)
   graph          = new VGraph;
   signalSlotForm = NULL;
   line           = NULL;
+
   // categoryNames.push_back("VMyObject"); // gilgil temp 2012.08.02
   // categoryNames.push_back("VNet"); // gilgil temp 2012.08.02
   categoryNames.push_back("SnoopCapture"); // gilgil temp 2012.08.02
