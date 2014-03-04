@@ -140,6 +140,14 @@ void MainWindow::saveControl()
 
 void MainWindow::setControl()
 {
+  QString title = "SnoopSpy";
+  if (fileName != "")
+  {
+    QFileInfo fi(fileName);
+    title = fi.baseName();
+  }
+  setWindowTitle(title);
+
   ui->actionSaveFile->setEnabled(m_changed && fileName != "");
   ui->actionSaveFileAs->setEnabled(m_changed);
 
@@ -299,6 +307,7 @@ void MainWindow::save(VXml xml)
 
 void MainWindow::on_actionNewFile_triggered()
 {
+  fileName = "";
   scene->clear();
   setControl();
 }
