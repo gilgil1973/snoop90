@@ -160,7 +160,8 @@ void SnoopCapture::run()
     if (res == 0) continue;
     if (res < 0) break;
     emit captured(&packet);
-    relay(&packet);
+    if (_captureType == SnoopCaptureType::InPath)
+      relay(&packet);
   }
   emit closed();
 }
