@@ -79,11 +79,7 @@ int SnoopAutoDetectAdapter::detect(QString& host)
 SnoopAutoDetectAdapterItem::SnoopAutoDetectAdapterItem(void* owner) : VObject(owner)
 {
   adapter.autoRead = true;
-  bool res = QObject::connect(&adapter, SIGNAL(captured(SnoopPacket*)), this, SLOT(recv(SnoopPacket*)), Qt::DirectConnection);
-  if (!res)
-  {
-    LOG_ERROR("connect fail");
-  }
+  VObject::connect(&adapter, SIGNAL(captured(SnoopPacket*)), this, SLOT(recv(SnoopPacket*)), Qt::DirectConnection);
 }
 
 SnoopAutoDetectAdapterItem::~SnoopAutoDetectAdapterItem()

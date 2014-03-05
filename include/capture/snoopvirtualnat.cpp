@@ -8,16 +8,10 @@ REGISTER_METACLASS(SnoopVirtualNat, SnoopCapture)
 SnoopVirtualNat::SnoopVirtualNat(void* owner) : SnoopCapture(owner)
 { 
   virAdapterIndex = snoop::INVALID_ADAPTER_INDEX;
-  if (!QObject::connect(&virAdapter, SIGNAL(captured(SnoopPacket*)), this, SLOT(myVirtualRecv(SnoopPacket*)), Qt::DirectConnection))
-  {
-    LOG_ERROR("qconnect error");
-  }
+  VObject::connect(&virAdapter, SIGNAL(captured(SnoopPacket*)), this, SLOT(myVirtualRecv(SnoopPacket*)), Qt::DirectConnection);
 
   realAdapterIndex    = snoop::DEFAULT_ADAPTER_INDEX;
-  if (!QObject::connect(&realAdapter, SIGNAL(captured(SnoopPacket*)), this, SLOT(myRealRecv(SnoopPacket*)), Qt::DirectConnection))
-  {
-    LOG_ERROR("qconnect error");
-  }
+  VObject::connect(&realAdapter, SIGNAL(captured(SnoopPacket*)), this, SLOT(myRealRecv(SnoopPacket*)), Qt::DirectConnection);
 }
 
 SnoopVirtualNat::~SnoopVirtualNat()

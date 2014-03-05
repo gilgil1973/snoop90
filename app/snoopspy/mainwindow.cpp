@@ -68,7 +68,7 @@ void MainWindow::initializeControl()
   scene    = new Scene(this);
   scene->setTreeWidget(ui->treeWidget);
 
-  QObject::connect(scene->graph, SIGNAL(closed()), this, SLOT(on_actionStop_triggered()));
+  VObject::connect(scene->graph, SIGNAL(closed()), this, SLOT(on_actionStop_triggered()));
 
   view     = new View(this);
   view->setScene(scene);
@@ -220,7 +220,7 @@ void MainWindow::selectionChanged()
     ui->treeView->setModel(newModel);
     delete model;
     model = newModel;
-    QObject::connect(newModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+    VObject::connect(newModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
     ui->treeView->expandAll();
   }
 }

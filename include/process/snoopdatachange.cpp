@@ -232,11 +232,11 @@ void SnoopDataChange::optionAddWidget(QLayout* layout)
 
   QPushButton* pbAdd = new QPushButton(layout->parentWidget());
   pbAdd->setText("Add");
-  QObject::connect(pbAdd, SIGNAL(clicked()), this, SLOT(on_pbAdd_clicked()));
+  VObject::connect(pbAdd, SIGNAL(clicked()), this, SLOT(on_pbAdd_clicked()));
 
   QPushButton* pbDel = new QPushButton(layout->parentWidget());
   pbDel->setText("Delete");
-  QObject::connect(pbDel, SIGNAL(clicked()), this, SLOT(on_pbDel_clicked()));
+  VObject::connect(pbDel, SIGNAL(clicked()), this, SLOT(on_pbDel_clicked()));
 
   QGridLayout* myLayout = new QGridLayout;
   myLayout->setHorizontalSpacing(8);
