@@ -37,8 +37,8 @@ protected:
   size_t macFlowOffset;
 
 public slots:
-  void onNew_MacFlow(SnoopMacFlowKey& key);
-  void onDel_MacFlow(SnoopMacFlowKey& key);
+  void onNew_MacFlow(SnoopMacFlowKey* key);
+  void onDel_MacFlow(SnoopMacFlowKey* key);
   void process_MacFlow(SnoopPacket* packet);
 
 public:

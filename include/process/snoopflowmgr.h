@@ -124,8 +124,8 @@ public slots:
   void process(SnoopPacket* packet);
 
 signals:
-  void onNew_MacFlow(SnoopMacFlowKey& key);
-  void onDel_MacFlow(SnoopMacFlowKey& key);
+  void onNew_MacFlow(SnoopMacFlowKey* key);
+  void onDel_MacFlow(SnoopMacFlowKey* key);
   void macFlow_Processed(SnoopPacket* packet);
 
 protected:

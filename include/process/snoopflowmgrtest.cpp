@@ -27,6 +27,12 @@ bool SnoopFlowMgrTest::doOpen()
   }
   macFlowOffset = flowMgr->requestMemory_MacFlow(this, memSize);
 
+  VObjectConnection connection("onNew_MacFlow(SnoopMacFlowKey*)", this, "onNew_MacFlow(SnoopMacFlowKey*)");
+  if (flowMgr->connections.indexOf(connection) == -1)
+  {
+    LOG_WARN("onNew_MacFlow must be connected");
+  }
+
   return SnoopProcess::doOpen();
 }
 
@@ -35,14 +41,14 @@ bool SnoopFlowMgrTest::doClose()
   return SnoopProcess::doClose();
 }
 
-void SnoopFlowMgrTest::onNew_MacFlow(SnoopMacFlowKey& key)
+void SnoopFlowMgrTest::onNew_MacFlow(SnoopMacFlowKey* key)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()));
+  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
 }
 
-void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey& key)
+void SnoopFlowMgrTest::onDel_MacFlow(SnoopMacFlowKey* key)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()));
+  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
 }
 
 void SnoopFlowMgrTest::process_MacFlow(SnoopPacket* packet)

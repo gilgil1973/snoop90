@@ -254,13 +254,13 @@ Snoop_MacFlow_Map::iterator SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key, stru
   value.packets  = 0;
   value.bytes    = 0;
   Snoop_MacFlow_Map::iterator it = macFlow_Map.insert(key, value);
-  emit onNew_MacFlow(key);
+  emit onNew_MacFlow(&key);
   return it;
 }
 
 Snoop_MacFlow_Map::iterator SnoopFlowMgr::del_MacFlow(SnoopMacFlowKey& key)
 {
-  emit onDel_MacFlow(key);
+  emit onDel_MacFlow(&key);
   return macFlow_Map.erase(key);
 }
 
