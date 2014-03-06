@@ -147,7 +147,6 @@ void SnoopCommand::save(VXml xml)
   closeCommands.save(xml.gotoChild("close"));
 }
 
-
 #ifdef QT_GUI_LIB
 #include "snoopcommandwidget.h"
 #include "ui_snoopcommandwidget.h"
@@ -168,7 +167,7 @@ void SnoopCommand::optionSaveDlg(QDialog* dialog)
 
   SnoopCommandWidget* widget = dialog->findChild<SnoopCommandWidget*>("snoopCommandWidget");
   LOG_ASSERT(widget != NULL);
-  openCommands   << *(widget->ui->tvOpen);
-   closeCommands << *(widget->ui->tvClose);
+  openCommands  << *(widget->ui->tvOpen);
+  closeCommands << *(widget->ui->tvClose);
 }
 #endif // QT_GUI_LIB
