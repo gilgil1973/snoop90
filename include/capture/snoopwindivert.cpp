@@ -262,15 +262,15 @@ int SnoopWinDivert::read(SnoopPacket* packet)
     }
     if (packet->ipHdr != NULL)
     {
-      packet->ipChanged = true;
       if (packet->tcpHdr != NULL)
       {
-        packet->tcpChanged = true;
+        packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
       } else
       if (packet->udpHdr != NULL)
       {
-        packet->udpChanged = true;
+        packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
       }
+      packet->ipHdr->ip_sum = htons(SnoopIp::checksum(packet->ipHdr));
     }
   }
 
