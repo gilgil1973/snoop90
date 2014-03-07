@@ -89,7 +89,7 @@ void SnoopCommandItems::save(VXml xml)
   for (int i = 0; i < this->count(); i++)
   {
     SnoopCommandItem& item = (SnoopCommandItem&)this->at(i);
-    item.save(xml.gotoChild("command" + QString::number(i++)));
+    item.save(xml.gotoChild("command" + QString::number(i)));
   }
 }
 
