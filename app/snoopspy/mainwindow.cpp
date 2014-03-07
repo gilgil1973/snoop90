@@ -487,7 +487,7 @@ void MainWindow::on_actionShowOption_triggered()
   VOptionable* optionable = dynamic_cast<VOptionable*>(object);
   if (optionable == NULL) return;
 
-  if (optionable->optionDoAll()) selectionChanged();
+  if (optionable->optionDoAll(this)) selectionChanged();
 }
 
 void MainWindow::on_actionCapture_Filter_triggered()
