@@ -5,11 +5,11 @@
 
 Node::Node(VObject* object)
 {
-  LOG_DEBUG("%p scene()=%p", this, this->scene()); // gilgil temp 2012.07.27
+  // LOG_DEBUG("%p scene()=%p", this, this->scene()); // gilgil temp 2012.07.27
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
   this->object = object;
-  LOG_DEBUG("scene=%p", scene()); // gilgil temp 2012.07.27
+  // LOG_DEBUG("scene=%p", scene()); // gilgil temp 2012.07.27
 }
 
 Node::~Node()
@@ -17,7 +17,7 @@ Node::~Node()
   if (object != NULL)
   {
     Scene* scene = (Scene*)this->scene();
-    LOG_DEBUG("%p scene=%p", this, scene); // gilgil temp 2012.07.27
+    // LOG_DEBUG("%p scene=%p", this, scene); // gilgil temp 2012.07.27
     scene->graph->objectList.delObject(object);
     object = NULL;
   }
