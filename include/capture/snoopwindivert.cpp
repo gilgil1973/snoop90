@@ -46,7 +46,8 @@ public:
   WinDivertSendFunc WinDivertSend;
 
 public:
-  bool ok;
+  bool   ok;
+  VError error;
 
 private: // singleton
   SnoopWinDivertLib()
@@ -56,7 +57,8 @@ private: // singleton
     WinDivertSetParam = NULL;
     WinDivertRecv     = NULL;
     WinDivertSend     = NULL;
-    ok             = false;
+    ok                = false;
+    error.clear();
 
     SetLastError(ERROR_SUCCESS);
     lib = new QLibrary("WinDivert.dll");
@@ -66,9 +68,11 @@ private: // singleton
       QString errorMsg = "";
       switch (lastError)
       {
-        case ERROR_INVALID_PARAMETER: errorMsg = "ERROR_INVALID_PARAMETER";
+        case ERROR_INVALID_PARAMETER: errorMsg = "ERROR_INVALID_PARAMETER"; break;
+        case ERROR_MOD_NOT_FOUND    : errorMsg = "ERROR_MOD_NOT_FOUND"; break;
       }
-      LOG_FATAL("lib->load() return false error=%s(%u)", qPrintable(errorMsg), lastError);
+      QString msg = qformat("load(\"WinDivert.dll\") return false error=%s(%u)", qPrintable(errorMsg), lastError);
+      SET_ERROR(VWinDivertError, msg, (int)lastError);
       return;
     }
 
@@ -122,7 +126,7 @@ bool SnoopWinDivert::doOpen()
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
   if (!lib.ok)
   {
-    SET_ERROR(WinDivertError, "can not load WinDivert", VERR_LOAD_FAIL);
+    error = lib.error;
     return false;
   }
 
@@ -140,20 +144,20 @@ bool SnoopWinDivert::doOpen()
       case ERROR_INVALID_IMAGE_HASH: msg = "ERROR_INVALID_IMAGE_HASH";    break;
       default:                       msg = qformat("unknown error %u", lastError); break;
     }
-    SET_ERROR(WinDivertError, qformat("error in WinDivertOpen %s", qPrintable(msg)), lastError);
+    SET_ERROR(VWinDivertError, qformat("error in WinDivertOpen %s", qPrintable(msg)), lastError);
     return false;
   }
 
   if (!lib.WinDivertSetParam(handle, WINDIVERT_PARAM_QUEUE_LEN, queueLen))
   {
     DWORD lastError = GetLastError();
-    SET_ERROR(WinDivertError, "error in DivertSetParam(DIVERT_PARAM_QUEUE_LEN)" , lastError);
+    SET_ERROR(VWinDivertError, "error in DivertSetParam(DIVERT_PARAM_QUEUE_LEN)" , lastError);
     return false;
   }
   if (!lib.WinDivertSetParam(handle, WINDIVERT_PARAM_QUEUE_TIME, queueTime))
   {
     DWORD lastError = GetLastError();
-    SET_ERROR(WinDivertError, "error in DivertSetParam(DIVERT_PARAM_QUEUE_TIME)" , lastError);
+    SET_ERROR(VWinDivertError, "error in DivertSetParam(DIVERT_PARAM_QUEUE_TIME)" , lastError);
     return false;
   }
 
@@ -167,7 +171,7 @@ bool SnoopWinDivert::doClose()
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
   if (!lib.ok)
   {
-    SET_ERROR(WinDivertError, "can not load WinDivert", VERR_LOAD_FAIL);
+    error = lib.error;
     return false;
   }
 
@@ -215,7 +219,7 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
   if (!lib.ok)
   {
-    SET_ERROR(WinDivertError, "can not load WinDivert", VERR_LOAD_FAIL);
+    error = lib.error;
     return VERR_FAIL;
   }
 
@@ -225,7 +229,7 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   if (!res)
   {
     DWORD lastError = GetLastError();
-    SET_DEBUG_ERROR(WinDivertError, qformat("WinDivertRecv return FALSE last error=%d(0x%x)", lastError, lastError), lastError);
+    SET_DEBUG_ERROR(VWinDivertError, qformat("WinDivertRecv return FALSE last error=%d(0x%x)", lastError, lastError), lastError);
     return VERR_FAIL;
   }
   readLen += sizeof(ETH_HDR);
@@ -295,7 +299,7 @@ int SnoopWinDivert::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
   if (!lib.ok)
   {
-    SET_ERROR(WinDivertError, "can not load WinDivert", VERR_LOAD_FAIL);
+    error = lib.error;
     return false;
   }
 
@@ -304,7 +308,7 @@ int SnoopWinDivert::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
   if (!res)
   {
     DWORD lastError = GetLastError();
-    SET_DEBUG_ERROR(WinDivertError, qformat("WinDivertSend return FALSE last error=%d(0x%x)", lastError, lastError), lastError);
+    SET_DEBUG_ERROR(VWinDivertError, qformat("WinDivertSend return FALSE last error=%d(0x%x)", lastError, lastError), lastError);
     return VERR_FAIL;
   }
   return (int)writeLen;

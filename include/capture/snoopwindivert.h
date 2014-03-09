@@ -71,8 +71,8 @@ public: // for VOptionable
 };
 
 // ----------------------------------------------------------------------------
-// WinDivertError
+// VWinDivertError
 // ----------------------------------------------------------------------------
-VDECLARE_ERROR_CLASS(WinDivertError)
+VDECLARE_ERROR_CLASS(VWinDivertError)
 
 #endif // __SNOOP_WIN_DIVERT_H__
