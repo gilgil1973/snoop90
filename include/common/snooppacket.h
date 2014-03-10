@@ -23,6 +23,7 @@ public:
   size_t         packets;
   size_t         bytes;
   struct timeval ts;
+  bool           created;
   BYTE*          totalMem;
 };
 
