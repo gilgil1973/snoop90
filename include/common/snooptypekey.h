@@ -100,8 +100,8 @@ public:
 class SnoopPortFlowKey
 {
 public:
-  int srcPort;
-  int dstPort;
+  UINT16 srcPort;
+  UINT16 dstPort;
 
   bool operator < (const SnoopPortFlowKey& rhs) const;
 };
@@ -112,8 +112,8 @@ public:
 class SnoopPortSessionKey
 {
 public:
-  int port1;
-  int port2;
+  UINT16 port1;
+  UINT16 port2;
 
   bool operator < (const SnoopPortSessionKey& rhs) const;
 };
@@ -124,8 +124,8 @@ public:
 class SnoopTransportKey
 {
 public:
-  Ip  ip;
-  int port;
+  Ip     ip;
+  UINT16 port;
 
   bool operator < (const SnoopTransportKey& rhs) const;
 };
@@ -139,10 +139,10 @@ typedef SnoopTransportKey SnoopUdpKey;
 class SnoopTransportFlowKey
 {
 public:
-  Ip  srcIp;
-  int srcPort;
-  Ip  dstIp;
-  int dstPort;
+  Ip     srcIp;
+  UINT16 srcPort;
+  Ip     dstIp;
+  UINT16 dstPort;
 
   bool operator < (const SnoopTransportFlowKey& rhs) const;
 };
@@ -156,10 +156,10 @@ typedef SnoopTransportFlowKey SnoopUdpFlowKey;
 class SnoopTransportSessionKey
 {
 public:
-  Ip  ip1;
-  int port1;
-  Ip  ip2;
-  int port2;
+  Ip     ip1;
+  UINT16 port1;
+  Ip     ip2;
+  UINT16 port2;
 
   bool operator < (const SnoopTransportSessionKey& rhs) const;
 };
