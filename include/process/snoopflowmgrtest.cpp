@@ -77,9 +77,6 @@ bool SnoopFlowMgrTest::doOpen()
     flowMgr->checkConnect(SIGNAL(udpFlowDeleted(SnoopUdpFlowKey*)), this, SLOT(udpFlowDelete(SnoopUdpFlowKey*)), true);
   }
 
-
-
-
   return SnoopProcess::doOpen();
 }
 
@@ -90,12 +87,12 @@ bool SnoopFlowMgrTest::doClose()
 
 void SnoopFlowMgrTest::macFlowCreate(SnoopMacFlowKey* key)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
+  LOG_DEBUG("%s > %s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
 }
 
 void SnoopFlowMgrTest::macFlowDelete(SnoopMacFlowKey* key)
 {
-  LOG_DEBUG("srcMac=%s dstMac=%s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
+  LOG_DEBUG("%s > %s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
 }
 
 void SnoopFlowMgrTest::macFlowProcess(SnoopPacket* packet)
@@ -105,17 +102,17 @@ void SnoopFlowMgrTest::macFlowProcess(SnoopPacket* packet)
   size_t packets = packet->flowValue->packets;
   size_t bytes   = packet->flowValue->bytes;
   BYTE* mem = packet->flowValue->totalMem + macFlowOffset;
-  LOG_DEBUG("srcMac=%s dstMac=%s pkts=%u bytes=%u mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), packets, bytes, mem);
+  LOG_DEBUG("%s > %s pkts=%u bytes=%u mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), packets, bytes, mem);
 }
 
 void SnoopFlowMgrTest::ipFlowCreate(SnoopIpFlowKey* key)
 {
-  LOG_DEBUG("srcIp=%s dstIp=%s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
+  LOG_DEBUG("%s > %s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
 }
 
 void SnoopFlowMgrTest::ipFlowDelete(SnoopIpFlowKey* key)
 {
-  LOG_DEBUG("srcIp=%s dstIp=%s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
+  LOG_DEBUG("%s > %s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
 }
 
 void SnoopFlowMgrTest::ipFlowProcess(SnoopPacket* packet)
@@ -124,38 +121,48 @@ void SnoopFlowMgrTest::ipFlowProcess(SnoopPacket* packet)
 
   size_t packets = packet->flowValue->packets;
   size_t bytes   = packet->flowValue->bytes;
-  BYTE* mem = packet->flowValue->totalMem + macFlowOffset;
-  LOG_DEBUG("srcIp=%s dstIp=%s pkts=%u bytes=%u mem=%p", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()), packets, bytes, mem);
+  BYTE* mem = packet->flowValue->totalMem + ipFlowOffset;
+  LOG_DEBUG("%s > %s pkts=%u bytes=%u mem=%p", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()), packets, bytes, mem);
 }
 
-void SnoopFlowMgrTest::tcpFlowCreate(SnoopIpFlowKey* key)
+void SnoopFlowMgrTest::tcpFlowCreate(SnoopTcpFlowKey* key)
 {
-
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
-void SnoopFlowMgrTest::tcpFlowDelete(SnoopIpFlowKey* key)
+void SnoopFlowMgrTest::tcpFlowDelete(SnoopTcpFlowKey* key)
 {
-
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
 void SnoopFlowMgrTest::tcpFlowProcess(SnoopPacket* packet)
 {
+  SnoopTcpFlowKey* key = static_cast<SnoopTcpFlowKey*>(packet->flowKey);
 
+  size_t packets = packet->flowValue->packets;
+  size_t bytes   = packet->flowValue->bytes;
+  BYTE* mem = packet->flowValue->totalMem + tcpFlowOffset;
+  LOG_DEBUG("%s:%d > %s:%d pkts=%u bytes=%u mem=%p", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort, packets, bytes, mem);
 }
 
-void SnoopFlowMgrTest::udpFlowCreate(SnoopIpFlowKey* key)
+void SnoopFlowMgrTest::udpFlowCreate(SnoopUdpFlowKey* key)
 {
-
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
-void SnoopFlowMgrTest::udpFlowDelete(SnoopIpFlowKey* key)
+void SnoopFlowMgrTest::udpFlowDelete(SnoopUdpFlowKey* key)
 {
-
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
 void SnoopFlowMgrTest::udpFlowProcess(SnoopPacket* packet)
 {
+  SnoopUdpFlowKey* key = static_cast<SnoopUdpFlowKey*>(packet->flowKey);
 
+  size_t packets = packet->flowValue->packets;
+  size_t bytes   = packet->flowValue->bytes;
+  BYTE* mem = packet->flowValue->totalMem + udpFlowOffset;
+  LOG_DEBUG("%s:%d > %s:%d pkts=%u bytes=%u mem=%p", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort, packets, bytes, mem);
 }
 
 void SnoopFlowMgrTest::load(VXml xml)
@@ -216,9 +223,9 @@ void SnoopFlowMgrTest::optionSaveDlg(QDialog* dialog)
   macFlowMemSize = (size_t)dialog->findChild<QLineEdit*>("leMacFlowMemSize")->text().toInt();
   ipFlowEnabled  = dialog->findChild<QCheckBox*>("chkIpFlowEnabled")->checkState() == Qt::Checked;
   ipFlowMemSize  = (size_t)dialog->findChild<QLineEdit*>("leIpFlowMemSize")->text().toInt();
-  tcpFlowEnabled = dialog->findChild<QCheckBox*>("chkMacFlowEnabled")->checkState() == Qt::Checked;
-  tcpFlowMemSize = (size_t)dialog->findChild<QLineEdit*>("leMacFlowMemSize")->text().toInt();
-  udpFlowEnabled = dialog->findChild<QCheckBox*>("chkMacFlowEnabled")->checkState() == Qt::Checked;
-  udpFlowMemSize = (size_t)dialog->findChild<QLineEdit*>("leMacFlowMemSize")->text().toInt();
+  tcpFlowEnabled = dialog->findChild<QCheckBox*>("chkTcpFlowEnabled")->checkState() == Qt::Checked;
+  tcpFlowMemSize = (size_t)dialog->findChild<QLineEdit*>("leTcpFlowMemSize")->text().toInt();
+  udpFlowEnabled = dialog->findChild<QCheckBox*>("chkUdpFlowEnabled")->checkState() == Qt::Checked;
+  udpFlowMemSize = (size_t)dialog->findChild<QLineEdit*>("leUdpFlowMemSize")->text().toInt();
 }
 #endif // QT_GUI_LIB

@@ -509,7 +509,7 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
 {
   Snoop_MacFlow_Map::iterator it = macFlow_Map.find(key);
   if (it == macFlow_Map.end())
-    it = add_MacFlow(key, packet->pktHdr->ts, false);
+    it = add_MacFlow(key, packet->pktHdr->ts, true);
   SnoopFlowValue& value = it.value();
   if (!value.created)
   {
@@ -531,7 +531,7 @@ void SnoopFlowMgr::process_IpFlow(SnoopPacket* packet, SnoopIpFlowKey& key)
 {
   Snoop_IpFlow_Map::iterator it = ipFlow_Map.find(key);
   if (it == ipFlow_Map.end())
-    it = add_IpFlow(key, packet->pktHdr->ts, false);
+    it = add_IpFlow(key, packet->pktHdr->ts, true);
   SnoopFlowValue& value = it.value();
   if (!value.created)
   {
@@ -552,7 +552,7 @@ void SnoopFlowMgr::process_TcpFlow(SnoopPacket* packet, SnoopTcpFlowKey& key)
 {
   Snoop_TcpFlow_Map::iterator it = tcpFlow_Map.find(key);
   if (it == tcpFlow_Map.end())
-    it = add_TcpFlow(key, packet->pktHdr->ts, false);
+    it = add_TcpFlow(key, packet->pktHdr->ts, true);
   SnoopFlowValue& value = it.value();
   if (!value.created)
   {
@@ -573,7 +573,7 @@ void SnoopFlowMgr::process_UdpFlow(SnoopPacket* packet, SnoopUdpFlowKey& key)
 {
   Snoop_UdpFlow_Map::iterator it = udpFlow_Map.find(key);
   if (it == udpFlow_Map.end())
-    it = add_UdpFlow(key, packet->pktHdr->ts, false);
+    it = add_UdpFlow(key, packet->pktHdr->ts, true);
   SnoopFlowValue& value = it.value();
   if (!value.created)
   {

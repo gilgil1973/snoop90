@@ -65,15 +65,15 @@ public slots:
   //
   // TcpFlow
   //
-  void tcpFlowCreate(SnoopIpFlowKey* key);
-  void tcpFlowDelete(SnoopIpFlowKey* key);
+  void tcpFlowCreate(SnoopTcpFlowKey* key);
+  void tcpFlowDelete(SnoopTcpFlowKey* key);
   void tcpFlowProcess(SnoopPacket* packet);
 
   //
   // UdpFlow
   //
-  void udpFlowCreate(SnoopIpFlowKey* key);
-  void udpFlowDelete(SnoopIpFlowKey* key);
+  void udpFlowCreate(SnoopUdpFlowKey* key);
+  void udpFlowDelete(SnoopUdpFlowKey* key);
   void udpFlowProcess(SnoopPacket* packet);
 
 public:
