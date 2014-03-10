@@ -172,35 +172,38 @@ signals:
   //
   void macFlowCreated(SnoopMacFlowKey* key);
   void macFlowDeleted(SnoopMacFlowKey* key);
-  void macFlowProcessed(SnoopPacket* packet);
+  void macFlowCaptured(SnoopPacket* packet);
 
   //
   // IpFlow
   //
   void ipFlowCreated(SnoopIpFlowKey* key);
   void ipFlowDeleted(SnoopIpFlowKey* key);
-  void ipFlowProcessed(SnoopPacket* packet);
+  void ipFlowCaptured(SnoopPacket* packet);
 
   //
   // TcpFlow
   //
   void tcpFlowCreated(SnoopTcpFlowKey* key);
   void tcpFlowDeleted(SnoopTcpFlowKey* key);
-  void tcpFlowProcessed(SnoopPacket* packet);
+  void tcpFlowCaptured(SnoopPacket* packet);
 
   //
   // UdpFlow
   //
   void udpFlowCreated(SnoopUdpFlowKey* key);
   void udpFlowDeleted(SnoopUdpFlowKey* key);
-  void udpFlowProcessed(SnoopPacket* packet);
+  void udpFlowCaptured(SnoopPacket* packet);
 
 protected:
   long lastCheckTickInSec;
 
 public:
   long checkIntervalInSec;
-  long macFlow_TimeoutInSec;
+  long macFlowTimeoutInSec;
+  long ipFlowTimeoutInSec;
+  long tcpFlowTimeoutInSec;
+  long udpFlowTimeoutInSec;
 
 public:
   virtual void load(VXml xml);
