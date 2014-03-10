@@ -44,5 +44,3 @@ void operator << (QTreeWidget& treeWidget, SnoopCommandItems& items);
 #endif // QT_GUI_LIB
 
 #endif // SNOOPCOMMANDWIDGET_H
-
-
