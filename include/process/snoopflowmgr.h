@@ -27,6 +27,18 @@ public:
 };
 
 // ----------------------------------------------------------------------------
+// Snoop_IpFlow_Map
+// ----------------------------------------------------------------------------
+class Snoop_IpFlow_Map : public QMap<SnoopIpFlowKey, SnoopFlowValue>
+{
+public:
+  Snoop_IpFlow_Map();
+  virtual ~Snoop_IpFlow_Map();
+  void clear();
+  Snoop_IpFlow_Map::iterator erase(SnoopIpFlowKey& key);
+};
+
+// ----------------------------------------------------------------------------
 // Snoop_TcpFlow_Map
 // ----------------------------------------------------------------------------
 class Snoop_TcpFlow_Map : public QMap<SnoopTcpFlowKey, SnoopFlowValue>
@@ -95,6 +107,7 @@ protected:
 
 public:
   Snoop_MacFlow_Map macFlow_Map;
+  Snoop_IpFlow_Map  ipFlow_Map;
   Snoop_TcpFlow_Map tcpFlow_Map;
   Snoop_UdpFlow_Map udpFlow_Map;
 
@@ -103,6 +116,7 @@ public:
 
 public:
   SnoopFlowMgrRequesterItems macFlow_Items;
+  SnoopFlowMgrRequesterItems ipFlow_Items;
   SnoopFlowMgrRequesterItems tcpFlow_Items;
   SnoopFlowMgrRequesterItems udpFlow_Items;
 
@@ -110,25 +124,78 @@ public:
 
 protected:
   size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize);
-  void checkConnect(const char* signal, VObject* receiver, const char* slot);
+  void checkConnect(const char* signal, VObject* receiver, const char* slot, bool autoConnect);
 
 public:
   //
   // MacFlow
   //
   size_t requestMemory_MacFlow(void* requester, size_t memSize);
-  void   process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
-  Snoop_MacFlow_Map::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts);
+  Snoop_MacFlow_Map::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts, bool created);
   Snoop_MacFlow_Map::iterator del_MacFlow(SnoopMacFlowKey& key);
-  void check_MacFlow_Connect(VObject* receiver);
+  void check_MacFlow_Connect(VObject* receiver, bool autoConnect);
+
+  //
+  // IpFlow
+  //
+  size_t requestMemory_IpFlow(void* requester, size_t memSize);
+  Snoop_IpFlow_Map::iterator add_IpFlow(SnoopIpFlowKey& key, struct timeval ts, bool created);
+  Snoop_IpFlow_Map::iterator del_IpFlow(SnoopIpFlowKey& key);
+  void check_IpFlow_Connect(VObject* receiver, bool autoConnect);
+
+  //
+  // TcpFlow
+  //
+  size_t requestMemory_TcpFlow(void* requester, size_t memSize);
+  Snoop_TcpFlow_Map::iterator add_TcpFlow(SnoopTcpFlowKey& key, struct timeval ts, bool created);
+  Snoop_TcpFlow_Map::iterator del_TcpFlow(SnoopTcpFlowKey& key);
+  void check_TcpFlow_Connect(VObject* receiver, bool autoConnect);
+
+  //
+  // UdpFlow
+  //
+  size_t requestMemory_UdpFlow(void* requester, size_t memSize);
+  Snoop_UdpFlow_Map::iterator add_UdpFlow(SnoopUdpFlowKey& key, struct timeval ts, bool created);
+  Snoop_UdpFlow_Map::iterator del_UdpFlow(SnoopUdpFlowKey& key);
+  void check_UdpFlow_Connect(VObject* receiver, bool autoConnect);
 
 public slots:
   void process(SnoopPacket* packet);
 
+protected:
+  void process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
+  void process_IpFlow(SnoopPacket* packet, SnoopIpFlowKey& key);
+  void process_TcpFlow(SnoopPacket* packet, SnoopTcpFlowKey& key);
+  void process_UdpFlow(SnoopPacket* packet, SnoopUdpFlowKey& key);
+
 signals:
+  //
+  // MacFlow
+  //
   void onNew_MacFlow(SnoopMacFlowKey* key);
   void onDel_MacFlow(SnoopMacFlowKey* key);
   void macFlow_Processed(SnoopPacket* packet);
+
+  //
+  // IpFlow
+  //
+  void onNew_IpFlow(SnoopIpFlowKey* key);
+  void onDel_IpFlow(SnoopIpFlowKey* key);
+  void ipFlow_Processed(SnoopPacket* packet);
+
+  //
+  // TcpFlow
+  //
+  void onNew_TcpFlow(SnoopTcpFlowKey* key);
+  void onDel_TcpFlow(SnoopTcpFlowKey* key);
+  void tcpFlow_Processed(SnoopPacket* packet);
+
+  //
+  // UdpFlow
+  //
+  void onNew_UdpFlow(SnoopUdpFlowKey* key);
+  void onDel_UdpFlow(SnoopUdpFlowKey* key);
+  void udpFlow_Processed(SnoopPacket* packet);
 
 protected:
   long lastCheckTickInSec;

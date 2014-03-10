@@ -37,9 +37,19 @@ protected:
   size_t macFlowOffset;
 
 public slots:
+  //
+  // MacFlow
+  //
   void onNew_MacFlow(SnoopMacFlowKey* key);
   void onDel_MacFlow(SnoopMacFlowKey* key);
   void process_MacFlow(SnoopPacket* packet);
+
+  //
+  // IpFlow
+  //
+  void onNew_IpFlow(SnoopIpFlowKey* key);
+  void onDel_IpFlow(SnoopIpFlowKey* key);
+  void process_IpFlow(SnoopPacket* packet);
 
 public:
   virtual void load(VXml xml);

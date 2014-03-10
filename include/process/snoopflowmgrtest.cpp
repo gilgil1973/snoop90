@@ -27,7 +27,7 @@ bool SnoopFlowMgrTest::doOpen()
   }
   macFlowOffset = flowMgr->requestMemory_MacFlow(this, memSize);
 
-  flowMgr->check_MacFlow_Connect(this);
+  flowMgr->check_MacFlow_Connect(this, false);
 
   return SnoopProcess::doOpen();
 }
@@ -55,6 +55,26 @@ void SnoopFlowMgrTest::process_MacFlow(SnoopPacket* packet)
   size_t bytes   = packet->flowValue->bytes;
   BYTE* mem = packet->flowValue->totalMem + macFlowOffset;
   LOG_DEBUG("srcMac=%s dstMac=%s pkts=%u bytes=%u mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), packets, bytes, mem);
+}
+
+void SnoopFlowMgrTest::onNew_IpFlow(SnoopIpFlowKey* key)
+{
+  LOG_DEBUG("srcIp=%s dstIp=%s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
+}
+
+void SnoopFlowMgrTest::onDel_IpFlow(SnoopIpFlowKey* key)
+{
+  LOG_DEBUG("srcIp=%s dstIp=%s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
+}
+
+void SnoopFlowMgrTest::process_IpFlow(SnoopPacket* packet)
+{
+  SnoopIpFlowKey* key = static_cast<SnoopIpFlowKey*>(packet->flowKey);
+
+  size_t packets = packet->flowValue->packets;
+  size_t bytes   = packet->flowValue->bytes;
+  BYTE* mem = packet->flowValue->totalMem + macFlowOffset;
+  LOG_DEBUG("srcIp=%s dstIp=%s pkts=%u bytes=%u mem=%p", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()), packets, bytes, mem);
 }
 
 void SnoopFlowMgrTest::load(VXml xml)
