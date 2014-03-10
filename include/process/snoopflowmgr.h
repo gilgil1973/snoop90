@@ -124,6 +124,8 @@ public:
 
 protected:
   size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize);
+
+public:
   void checkConnect(const char* signal, VObject* receiver, const char* slot, bool autoConnect);
 
 public:
@@ -133,7 +135,6 @@ public:
   size_t requestMemory_MacFlow(void* requester, size_t memSize);
   Snoop_MacFlow_Map::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts, bool created);
   Snoop_MacFlow_Map::iterator del_MacFlow(SnoopMacFlowKey& key);
-  void check_MacFlow_Connect(VObject* receiver, bool autoConnect);
 
   //
   // IpFlow
@@ -141,7 +142,6 @@ public:
   size_t requestMemory_IpFlow(void* requester, size_t memSize);
   Snoop_IpFlow_Map::iterator add_IpFlow(SnoopIpFlowKey& key, struct timeval ts, bool created);
   Snoop_IpFlow_Map::iterator del_IpFlow(SnoopIpFlowKey& key);
-  void check_IpFlow_Connect(VObject* receiver, bool autoConnect);
 
   //
   // TcpFlow
@@ -149,7 +149,6 @@ public:
   size_t requestMemory_TcpFlow(void* requester, size_t memSize);
   Snoop_TcpFlow_Map::iterator add_TcpFlow(SnoopTcpFlowKey& key, struct timeval ts, bool created);
   Snoop_TcpFlow_Map::iterator del_TcpFlow(SnoopTcpFlowKey& key);
-  void check_TcpFlow_Connect(VObject* receiver, bool autoConnect);
 
   //
   // UdpFlow
@@ -157,7 +156,6 @@ public:
   size_t requestMemory_UdpFlow(void* requester, size_t memSize);
   Snoop_UdpFlow_Map::iterator add_UdpFlow(SnoopUdpFlowKey& key, struct timeval ts, bool created);
   Snoop_UdpFlow_Map::iterator del_UdpFlow(SnoopUdpFlowKey& key);
-  void check_UdpFlow_Connect(VObject* receiver, bool autoConnect);
 
 public slots:
   void process(SnoopPacket* packet);
@@ -172,30 +170,30 @@ signals:
   //
   // MacFlow
   //
-  void onNew_MacFlow(SnoopMacFlowKey* key);
-  void onDel_MacFlow(SnoopMacFlowKey* key);
-  void macFlow_Processed(SnoopPacket* packet);
+  void macFlowCreated(SnoopMacFlowKey* key);
+  void macFlowDeleted(SnoopMacFlowKey* key);
+  void macFlowProcessed(SnoopPacket* packet);
 
   //
   // IpFlow
   //
-  void onNew_IpFlow(SnoopIpFlowKey* key);
-  void onDel_IpFlow(SnoopIpFlowKey* key);
-  void ipFlow_Processed(SnoopPacket* packet);
+  void ipFlowCreated(SnoopIpFlowKey* key);
+  void ipFlowDeleted(SnoopIpFlowKey* key);
+  void ipFlowProcessed(SnoopPacket* packet);
 
   //
   // TcpFlow
   //
-  void onNew_TcpFlow(SnoopTcpFlowKey* key);
-  void onDel_TcpFlow(SnoopTcpFlowKey* key);
-  void tcpFlow_Processed(SnoopPacket* packet);
+  void tcpFlowCreated(SnoopTcpFlowKey* key);
+  void tcpFlowDeleted(SnoopTcpFlowKey* key);
+  void tcpFlowProcessed(SnoopPacket* packet);
 
   //
   // UdpFlow
   //
-  void onNew_UdpFlow(SnoopUdpFlowKey* key);
-  void onDel_UdpFlow(SnoopUdpFlowKey* key);
-  void udpFlow_Processed(SnoopPacket* packet);
+  void udpFlowCreated(SnoopUdpFlowKey* key);
+  void udpFlowDeleted(SnoopUdpFlowKey* key);
+  void udpFlowProcessed(SnoopPacket* packet);
 
 protected:
   long lastCheckTickInSec;

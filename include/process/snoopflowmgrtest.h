@@ -27,7 +27,15 @@ public:
 
 public:
   SnoopFlowMgr* flowMgr;
-  size_t        memSize;
+
+  bool          macFlowEnabled;
+  size_t        macFlowMemSize;
+  bool          ipFlowEnabled;
+  size_t        ipFlowMemSize;
+  bool          tcpFlowEnabled;
+  size_t        tcpFlowMemSize;
+  bool          udpFlowEnabled;
+  size_t        udpFlowMemSize;
 
 protected:
   virtual bool doOpen();
@@ -35,21 +43,38 @@ protected:
 
 protected:
   size_t macFlowOffset;
+  size_t ipFlowOffset;
+  size_t tcpFlowOffset;
+  size_t udpFlowOffset;
 
 public slots:
   //
   // MacFlow
   //
-  void onNew_MacFlow(SnoopMacFlowKey* key);
-  void onDel_MacFlow(SnoopMacFlowKey* key);
-  void process_MacFlow(SnoopPacket* packet);
+  void macFlowCreate(SnoopMacFlowKey* key);
+  void macFlowDelete(SnoopMacFlowKey* key);
+  void macFlowProcess(SnoopPacket* packet);
 
   //
   // IpFlow
   //
-  void onNew_IpFlow(SnoopIpFlowKey* key);
-  void onDel_IpFlow(SnoopIpFlowKey* key);
-  void process_IpFlow(SnoopPacket* packet);
+  void ipFlowCreate(SnoopIpFlowKey* key);
+  void ipFlowDelete(SnoopIpFlowKey* key);
+  void ipFlowProcess(SnoopPacket* packet);
+
+  //
+  // TcpFlow
+  //
+  void tcpFlowCreate(SnoopIpFlowKey* key);
+  void tcpFlowDelete(SnoopIpFlowKey* key);
+  void tcpFlowProcess(SnoopPacket* packet);
+
+  //
+  // UdpFlow
+  //
+  void udpFlowCreate(SnoopIpFlowKey* key);
+  void udpFlowDelete(SnoopIpFlowKey* key);
+  void udpFlowProcess(SnoopPacket* packet);
 
 public:
   virtual void load(VXml xml);
