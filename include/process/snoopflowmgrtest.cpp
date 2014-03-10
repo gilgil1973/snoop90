@@ -27,11 +27,7 @@ bool SnoopFlowMgrTest::doOpen()
   }
   macFlowOffset = flowMgr->requestMemory_MacFlow(this, memSize);
 
-  VObjectConnection connection("onNew_MacFlow(SnoopMacFlowKey*)", this, "onNew_MacFlow(SnoopMacFlowKey*)");
-  if (flowMgr->connections.indexOf(connection) == -1)
-  {
-    LOG_WARN("onNew_MacFlow must be connected");
-  }
+  flowMgr->check_MacFlow_Connect(this);
 
   return SnoopProcess::doOpen();
 }

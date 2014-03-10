@@ -110,6 +110,7 @@ public:
 
 protected:
   size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize);
+  void checkConnect(const char* signal, VObject* receiver, const char* slot);
 
 public:
   //
@@ -119,6 +120,7 @@ public:
   void   process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
   Snoop_MacFlow_Map::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts);
   Snoop_MacFlow_Map::iterator del_MacFlow(SnoopMacFlowKey& key);
+  void check_MacFlow_Connect(VObject* receiver);
 
 public slots:
   void process(SnoopPacket* packet);

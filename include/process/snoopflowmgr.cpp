@@ -224,6 +224,18 @@ size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& 
   return currentOffset;
 }
 
+void SnoopFlowMgr::checkConnect(const char* signal, VObject* receiver, const char* slot)
+{
+  VObjectConnection connection(signal, receiver, slot);
+  if (this->connections.indexOf(connection) == -1)
+  {
+    LOG_WARN("%s(%s) %s > %s(%s) %s must be connected",
+      qPrintable(this->name),     qPrintable(this->className()),     signal,
+      qPrintable(receiver->name), qPrintable(receiver->className()), slot);
+    VObject::connect(this, signal, receiver, slot, Qt::DirectConnection);
+  }
+}
+
 size_t SnoopFlowMgr::requestMemory_MacFlow(void* requester, size_t memSize)
 {
   return requestMemory(requester, macFlow_Items, memSize);
@@ -262,6 +274,20 @@ Snoop_MacFlow_Map::iterator SnoopFlowMgr::del_MacFlow(SnoopMacFlowKey& key)
 {
   emit onDel_MacFlow(&key);
   return macFlow_Map.erase(key);
+}
+
+void SnoopFlowMgr::check_MacFlow_Connect(VObject* receiver)
+{
+  {
+    const char* signal = SIGNAL(onNew_MacFlow(SnoopMacFlowKey*));
+    const char* slot   = SLOT(onNew_MacFlow(SnoopMacFlowKey*));
+    checkConnect(signal, receiver, slot);;
+  }
+  {
+    const char* signal = SIGNAL(onDel_MacFlow(SnoopMacFlowKey*));
+    const char* slot   = SLOT(onDel_MacFlow(SnoopMacFlowKey*));
+    checkConnect(signal, receiver, slot);;
+  }
 }
 
 void SnoopFlowMgr::process(SnoopPacket* packet)
