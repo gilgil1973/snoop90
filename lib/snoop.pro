@@ -111,7 +111,5 @@ HEADERS += \
     ../include/process/snoopwriteadapter.h \
     ../include/windivert/windivert.h
 
-contains(QT, gui) {
 FORMS += \
     ../include/process/snoopcommandwidget.ui
-}
