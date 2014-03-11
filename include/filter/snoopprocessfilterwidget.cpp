@@ -41,6 +41,8 @@ bool SnoopProcessFilterWidget::event(QEvent* event)
 
 void SnoopProcessFilterWidget::showPolicyMap()
 {
+  VLock lock(filter->policyMap);
+
   ui->treeWidget->clear();
   SnoopProcessPolicyMap& map = filter->policyMap;
   int i = 0;
@@ -59,6 +61,8 @@ void SnoopProcessFilterWidget::showPolicyMap()
 
 void SnoopProcessFilterWidget::setPolicyMap()
 {
+  VLock lock(filter->policyMap);
+
   int _count = ui->treeWidget->topLevelItemCount();
   for (int i = 0; i < _count; i++)
   {
@@ -77,6 +81,7 @@ void SnoopProcessFilterWidget::on_pbClear_clicked()
 
 void SnoopProcessFilterWidget::on_treeWidget_clicked(const QModelIndex &index)
 {
+  Q_UNUSED(index)
   setPolicyMap();
 }
 

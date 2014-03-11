@@ -151,47 +151,6 @@ bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleFlowKey& tuple, /*out*/
   return true;
 }
 
-// ----- gilgil temp 2014.03.10 -----
-/*
-bool SnoopProcessFilter::getACK(SnoopTupleFlowKey& tuple, bool& ack)
-{
-  VLock lock(tupleMap);
-  SnoopProcessTupleMap::iterator it = tupleMap.find(tuple);
-  if (it != tupleMap.end())
-  {
-    SnoopProcessTupleValue& value = it.value();
-    ack = value.ack;
-    return true;
-  }
-
-  SnoopTupleFlowKey reverseTuple;
-  reverseTuple.proto         = tuple.proto;
-  reverseTuple.flow.srcIp   = tuple.flow.dstIp;
-  reverseTuple.flow.srcPort = tuple.flow.dstPort;
-  reverseTuple.flow.dstIp   = tuple.flow.srcIp;
-  reverseTuple.flow.dstPort = tuple.flow.srcPort;
-
-  it = tupleMap.find(reverseTuple);
-  if (it != tupleMap.end())
-  {
-    SnoopProcessTupleValue& value = it.value();
-    ack = value.ack;
-    return true;
-  }
-
-
-  ack = pit.value();
-
-  SnoopProcessTupleValue value;
-  value.pid = pid;
-  value.ack = ack;
-  tupleMap[tuple] = value;
-
-  return true;
-}
-*/
-// ----------------------------------
-
 void SnoopProcessFilter::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
   SnoopProcessFilterItem* item = (SnoopProcessFilterItem*)(value->totalMem + tcpFlowOffset);
@@ -239,6 +198,7 @@ void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFil
     return;
   }
 
+  VLock lock(policyMap);
   SnoopProcessPolicyMap::iterator pit = policyMap.find(processName);
   if (pit == policyMap.end())
   {
@@ -248,6 +208,7 @@ void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFil
     QCoreApplication::postEvent(widget, new QShowPolicyMapEvent);
 #endif // QT_GUI_LIB
   }
+
   bool ack = pit.value();
   item->ack= ack;
 }
