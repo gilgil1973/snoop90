@@ -12,7 +12,7 @@ View::~View()
 
 void View::mousePressEvent(QMouseEvent *event)
 {
-  LOG_DEBUG("View::mousePressEvent");
+  // LOG_DEBUG("View::mousePressEvent"); // gilgil temp 2014.03.11
   QGraphicsView::mousePressEvent(event);
 }
 
@@ -24,6 +24,6 @@ void View::mouseMoveEvent(QMouseEvent *event)
 
 void View::dropEvent(QDropEvent *event)
 {
-  LOG_DEBUG("View::dropEvent");
+  // LOG_DEBUG("View::dropEvent"); // gilgil temp 2014.03.11
   QGraphicsView::dropEvent(event);
 }
