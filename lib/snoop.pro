@@ -5,7 +5,7 @@
 #-------------------------------------------------
 CONFIG += SNOOP_LIB_BUILD
 #QT    -= gui
-QT    += gui widgets
+#QT    += gui widgets
 
 include (snoop.pri)
 
