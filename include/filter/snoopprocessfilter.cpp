@@ -219,10 +219,20 @@ void SnoopProcessFilter::check(SnoopPacket* packet)
 
   if (packet->proto == IPPROTO_TCP)
   {
+    if (packet->flowValue == NULL)
+    {
+      LOG_ERROR("packet->flowValue is null");
+      return;
+    }
     item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + tcpFlowOffset);
   } else
   if (packet->proto == IPPROTO_UDP)
   {
+    if (packet->flowValue == NULL)
+    {
+      LOG_ERROR("packet->flowValue is null");
+      return;
+    }
     item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + udpFlowOffset);
   } else
   {
