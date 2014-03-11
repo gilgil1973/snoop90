@@ -10,11 +10,23 @@ Scene::Scene(QObject *parent) : QGraphicsScene(parent)
 
   // categoryNames.push_back("VMyObject"); // gilgil temp 2012.08.02
   // categoryNames.push_back("VNet"); // gilgil temp 2012.08.02
-  categoryNames.push_back("SnoopCapture"); // gilgil temp 2012.08.02
-  categoryNames.push_back("SnoopFilter"); // gilgil temp 2012.08.02
-  categoryNames.push_back("SnoopProcess"); // gilgil temp 2012.08.02
+  categoryNames.push_back("SnoopCapture");
+  categoryNames.push_back("SnoopFilter");
+  categoryNames.push_back("SnoopProcess");
+
   removePrefixNames.push_back("VMy");
   removePrefixNames.push_back("Snoop");
+
+  removeSignalNames.push_back("destroyed(QObject*)");
+  removeSignalNames.push_back("destroyed()");
+  removeSignalNames.push_back("objectNameChanged(QString)");
+  removeSignalNames.push_back("opened()");
+  removeSignalNames.push_back("closed()");
+
+  removeSlotNames.push_back("deleteLater()");
+  removeSlotNames.push_back("_q_reregisterTimers(void*)");
+  removeSlotNames.push_back("open()");
+  removeSlotNames.push_back("close()");
 }
 
 Scene::~Scene()
@@ -374,17 +386,16 @@ void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
               Node *endNode           = (Node*)endItems.first();
 
               QStringList _signalList = VGraph::signalList(startNode->object);
-              _signalList.removeOne("destroyed(QObject*)");
-              _signalList.removeOne("destroyed()");
-              _signalList.removeOne("objectNameChanged(QString)");
-              _signalList.removeOne("opened()");
-              _signalList.removeOne("closed()");
+              foreach (QString name, removeSignalNames)
+              {
+                _signalList.removeAll(name);
+              }
 
               QStringList _slotList   = VGraph::slotList(endNode->object);
-              _slotList.removeOne("deleteLater()");
-              _slotList.removeOne("_q_reregisterTimers(void*)");
-              _slotList.removeOne("open()");
-              _slotList.removeOne("close()");
+              foreach (QString name, removeSlotNames)
+              {
+                _slotList.removeAll(name);
+              }
 
               if (signalSlotForm == NULL) signalSlotForm = new SignalSlotForm((QWidget*)this->parent());
               signalSlotForm->ui->lwSignalList->clear();
@@ -424,12 +435,16 @@ void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void Scene::load(VXml xml)
 {
-  categoryNames = xml.getStr("categoryNames", categoryNames.join(",")).split(",");
-  removePrefixNames = xml.getStr("removePrefixNames", removePrefixNames.join(",")).split(",");
+  categoryNames     = xml.getStr("categoryNames",     categoryNames.join("/")).split("/");
+  removePrefixNames = xml.getStr("removePrefixNames", removePrefixNames.join("/")).split("/");
+  removeSignalNames = xml.getStr("removeSignalNames", removeSignalNames.join("/")).split("/");
+  removeSlotNames   = xml.getStr("removeSlotNames",   removeSlotNames.join("/")).split("/");
 }
 
 void Scene::save(VXml xml)
 {
-  xml.setStr("categoryNames", categoryNames.join(","));
-  xml.setStr("removePrefixNames", removePrefixNames.join(","));
+  xml.setStr("categoryNames",     categoryNames.join("/"));
+  xml.setStr("removePrefixNames", removePrefixNames.join("/"));
+  xml.setStr("removeSignalNames", removeSignalNames.join("/"));
+  xml.setStr("removeSlotNames",   removeSlotNames.join("/"));
 }

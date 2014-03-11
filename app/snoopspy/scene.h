@@ -39,6 +39,8 @@ protected:
 public:
   QStringList categoryNames;
   QStringList removePrefixNames;
+  QStringList removeSignalNames;
+  QStringList removeSlotNames;
 
 public: // for treeWidget
   void setTreeWidget(QTreeWidget* treeWidget) { this->treeWidget = treeWidget; }
