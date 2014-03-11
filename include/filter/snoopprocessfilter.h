@@ -14,22 +14,16 @@
 #include <QMap>
 #include <SnoopFilter>
 #include <SnoopTypeKey>
+#include <SnoopFlowMgr>
 
 // ----------------------------------------------------------------------------
-// SnoopProcessTupleValue
+// SnoopProcessFilterItem
 // ----------------------------------------------------------------------------
-class SnoopProcessTupleValue
+class SnoopProcessFilterItem
 {
 public:
   quint32 pid;
   bool    ack;
-};
-
-// ----------------------------------------------------------------------------
-// SnoopProcessTupleValue
-// ----------------------------------------------------------------------------
-class SnoopProcessTupleMap : public QMap<SnoopTupleFlowKey, SnoopProcessTupleValue>, public VLockable
-{
 };
 
 // ----------------------------------------------------------------------------
@@ -42,30 +36,13 @@ public:
   virtual void save(VXml xml);
 };
 
-#ifdef QT_GUI_LIB
-#include <QStringListModel>
-// ----------------------------------------------------------------------------
-// SnoopProcessFilterModel
-// ----------------------------------------------------------------------------
-class SnoopProcessFilterModel : public QStringListModel
-{
-public:
-  SnoopProcessPolicyMap* policyMap;
-
-public:
-  void initialize();
-  void addPolicy(QString processName, bool ack);
-
-public:
-  virtual QVariant data(const QModelIndex &index, int role) const;
-  virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-  virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-};
-#endif // QT_GUI_LIB
-
 // ----------------------------------------------------------------------------
 // SnoopProcessFilter
 // ----------------------------------------------------------------------------
+#ifdef QT_GUI_LIB
+class SnoopProcessFilterWidget;
+#endif // QT_GUI_LIB
+
 class SnoopProcessFilter : public SnoopFilter
 {
   Q_OBJECT
@@ -79,35 +56,41 @@ protected:
   virtual bool doClose();
 
 protected:
-  SnoopProcessTupleMap tupleMap;
   bool getProcessInfo(/*in*/ SnoopTupleFlowKey& tuple, /*out*/ quint32& pid, /*out*/ QString& processName);
   bool getACK(/*in*/ SnoopTupleFlowKey& tuple, /*out*/ bool& ack);
 
 public:
+  SnoopFlowMgr*         flowMgr;
   SnoopProcessPolicyMap policyMap;
 
+protected:
+    size_t tupleFlowOffset;
+#ifdef QT_GUI_LIB
+public:
+  bool showStatus;
+
+protected:
+  SnoopProcessFilterWidget* widget;
+#endif // QT_GUI_LIB
+
+protected slots:
+  void tupleCreate(SnoopTupleFlowKey* key, SnoopFlowValue* value);
+  void tupleDelete(SnoopTupleFlowKey* key, SnoopFlowValue* value);
+
 public slots:
-  void check(SnoopPacket* packet);
+  void tupleCheck(SnoopPacket* packet);
 
 signals:
   void ack(SnoopPacket* packet);
   void nak(SnoopPacket* packet);
-
-signals:
-  void onNewProcess(QString& processName);
-  void onNewPID(SnoopTupleFlowKey& tuple, QString& processName);
 
 public:
   virtual void load(VXml xml);
   virtual void save(VXml xml);
 
 #ifdef QT_GUI_LIB
-private: // VOptionable
-  SnoopProcessFilterModel* myModel;
 public: // for VOptionable
-  virtual bool event(QEvent *);
   virtual void optionAddWidget(QLayout* layout);
-  virtual bool optionShowDlg(QDialog* dialog);
   virtual void optionSaveDlg(QDialog* dialog);
 #endif // QT_GUI_LIB
 };

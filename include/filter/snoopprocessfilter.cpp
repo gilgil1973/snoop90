@@ -3,6 +3,9 @@
 #include <SnoopUdp>
 #include <SnoopNetStat>
 #include <VDebugNew>
+#include "snoopprocessfilterwidget.h"
+
+REGISTER_METACLASS(SnoopProcessFilter, SnoopFilter)
 
 // ----------------------------------------------------------------------------
 // SnoopProcessPolicyMap
@@ -33,79 +36,17 @@ void SnoopProcessPolicyMap::save(VXml xml)
   }
 }
 
-#ifdef QT_GUI_LIB
-// ----------------------------------------------------------------------------
-// SnoopProcessFilterModel
-// ----------------------------------------------------------------------------
-void SnoopProcessFilterModel::initialize()
-{
-  QStringList strList;
-  for (SnoopProcessPolicyMap::iterator it = policyMap->begin(); it != policyMap->end(); it++)
-  {
-    strList.push_back(it.key());
-  }
-  this->setStringList(strList);
-}
-
-void SnoopProcessFilterModel::addPolicy(QString processName, bool ack)
-{
-  QStringList strList = this->stringList();
-  if (strList.contains(processName))
-  {
-    LOG_ERROR("%s alread exists", qPrintable(processName));
-    return;
-  }
-  (*policyMap)[processName] = ack;
-  this->setStringList(strList);
-}
-
-QVariant SnoopProcessFilterModel::data(const QModelIndex &index, int role) const
-{
-  if (role == Qt::CheckStateRole)
-  {
-    QString processName = index.data().toString();
-    SnoopProcessPolicyMap::iterator it = policyMap->find(processName);
-    if (it == policyMap->end()) return QVariant();
-    return it.value();
-  }
-  return QStringListModel::data(index, role);
-}
-
-bool SnoopProcessFilterModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-  if (role == Qt::CheckStateRole)
-  {
-    QString processName = index.data().toString();
-    SnoopProcessPolicyMap::iterator it = policyMap->find(processName);
-    if (it == policyMap->end()) return false;
-    (*policyMap)[processName] = !it.value();
-    return true;
-  }
-  return QStringListModel::setData(index, value, role);
-}
-
-Qt::ItemFlags SnoopProcessFilterModel::flags(const QModelIndex &index) const
-{
-  if (!index.isValid()) return 0;
-  switch (index.column())
-  {
-    case 0: return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
-     default: return Qt::NoItemFlags;
-  }
-}
-#endif // QT_GUI_LIB
-
-REGISTER_METACLASS(SnoopProcessFilter, SnoopFilter)
-
 // ----------------------------------------------------------------------------
 // SnoopProcessFilter
 // ----------------------------------------------------------------------------
 SnoopProcessFilter::SnoopProcessFilter(void* owner) : SnoopFilter(owner)
 {
-  policyMap[""] = false;
+  flowMgr         = NULL;
+  policyMap[""]   = false;
+  tupleFlowOffset = 0;
 #ifdef QT_GUI_LIB
-  myModel = new SnoopProcessFilterModel;
-  myModel->policyMap = &policyMap;
+  showStatus      = true;
+  widget          = NULL;
 #endif // QT_GUI_LIB
 }
 
@@ -113,22 +54,54 @@ SnoopProcessFilter::~SnoopProcessFilter()
 {
   close();
 #ifdef QT_GUI_LIB
-  SAFE_DELETE(myModel);
+  SAFE_DELETE(widget);
 #endif // QT_GUI_LIB
 }
 
+#ifdef QT_GUI_LIB
+#include <QApplication>
+#endif // QT_GUI_LIB
 bool SnoopProcessFilter::doOpen()
 {
-  this->owner;
-  VLock lock(tupleMap);
-  tupleMap.clear();
+  if (flowMgr == NULL)
+  {
+    SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
+    return false;
+  }
+
+  tupleFlowOffset = flowMgr->requestMemory_MacFlow(this, sizeof(SnoopProcessFilterItem));
+  flowMgr->checkConnect(SIGNAL(tupleFlowCreated(SnoopTupleFlowKey*,SnoopFlowValue*)), this, SLOT(tupleCreate(SnoopTupleFlowKey*,SnoopFlowValue*)), true);
+  flowMgr->checkConnect(SIGNAL(tupleFlowDeleted(SnoopTupleFlowKey*,SnoopFlowValue*)), this, SLOT(tupleDelete(SnoopTupleFlowKey*,SnoopFlowValue*)), true);
+
+#ifdef QT_GUI_LIB
+  if (showStatus)
+  {
+    QWidget* mainWindow = NULL;
+    if (widget == NULL)
+    {
+      QWidgetList list = QApplication::allWidgets();
+      for (int i = 0; i < list.count(); i++)
+      {
+        QWidget* widget = list.at(i);
+        QString className = widget->metaObject()->className();
+        if (className == "MainWindow")
+        {
+          mainWindow = widget;
+          break;
+        }
+      }
+      widget = new SnoopProcessFilterWidget(mainWindow, Qt::Window);
+      widget->setWindowTitle(name + " Status");
+      widget->filter = this;
+    }
+    widget->show();
+  }
+#endif // QT_GUI_LIB
   return true;
 }
 
 bool SnoopProcessFilter::doClose()
 {
-  VLock lock(tupleMap);
-  tupleMap.clear();
   return true;
 }
 
@@ -137,14 +110,23 @@ bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleFlowKey& tuple, /*out*/
   pid = SnoopNetStat::instance().getPID(tuple);
   if (pid == SnoopNetStat::UNKNOWN_PROCESS_ID)
   {
-    LOG_ERROR("getPID return UNKNOWN_PROCESS_ID");
+    LOG_ERROR("getPID return UNKNOWN_PROCESS_ID(%s %s:%u > %s:%u)",
+      tuple.proto == IPPROTO_TCP ? "TCP" : "UDP",
+      qPrintable(tuple.flow.srcIp.str()), tuple.flow.srcPort,
+      qPrintable(tuple.flow.dstIp.str()), tuple.flow.dstPort
+    );
     processName = SnoopNetStat::UNKNOWN_PROCESS_NAME;
   } else
   {
     processName = SnoopNetStat::instance().getProcessName(pid);
     if (processName == SnoopNetStat::UNKNOWN_PROCESS_NAME)
     {
-      LOG_ERROR("can not find processName for pid(%d) is", pid);
+      LOG_ERROR("can not find processName for pid(%d)(%s %s:%u > %s:%u)",
+        pid,
+        tuple.proto == IPPROTO_TCP ? "TCP" : "UDP",
+        qPrintable(tuple.flow.srcIp.str()), tuple.flow.srcPort,
+        qPrintable(tuple.flow.dstIp.str()), tuple.flow.dstPort
+      );
       return false;
     }
   }
@@ -154,10 +136,12 @@ bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleFlowKey& tuple, /*out*/
     qPrintable(tuple.flow.dstIp.str()), tuple.flow.dstPort,
     pid, qPrintable(processName)
   );
-  return true; // gilgil temp 2012.06.11
+  return true;
 }
 
-bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleFlowKey& tuple, /*out*/ bool& ack)
+// ----- gilgil temp 2014.03.10 -----
+/*
+bool SnoopProcessFilter::getACK(SnoopTupleFlowKey& tuple, bool& ack)
 {
   VLock lock(tupleMap);
   SnoopProcessTupleMap::iterator it = tupleMap.find(tuple);
@@ -183,33 +167,7 @@ bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleFlowKey& tuple, /*out*/ bool& a
     return true;
   }
 
-  quint32 pid;
-  QString processName;
-  if (!getProcessInfo(tuple, pid, processName))
-  {
-    LOG_ERROR("getProcessInfo %u (%s:%d > %s:%d) return false",
-      tuple.proto,
-      qPrintable(tuple.flow.srcIp.str()), tuple.flow.srcPort,
-      qPrintable(tuple.flow.dstIp.str()), tuple.flow.dstPort);
-    return false;
-  }
 
-  SnoopProcessPolicyMap::iterator pit = policyMap.find(processName);
-  if (pit == policyMap.end())
-  {
-    pit = policyMap.find(SnoopNetStat::UNKNOWN_PROCESS_NAME);
-    if (pit == policyMap.end())
-    {
-      LOG_ERROR("can not find policy for (%s)", qPrintable(processName));
-      return false;
-    }
-    LOG_DEBUG("onNewProcess %s", qPrintable(processName)); // gilgil temp 2012.08.28
-#ifdef QT_GUI_LIB
-    myModel->addPolicy(processName, false);
-#endif // QT_GUI_LIB
-    QCoreApplication::postEvent(this, new QEvent(QEvent::User));
-    emit onNewProcess(processName);
-  }
   ack = pit.value();
 
   SnoopProcessTupleValue value;
@@ -219,61 +177,53 @@ bool SnoopProcessFilter::getACK(/*in*/ SnoopTupleFlowKey& tuple, /*out*/ bool& a
 
   return true;
 }
+*/
+// ----------------------------------
 
-void SnoopProcessFilter::check(SnoopPacket* packet)
+void SnoopProcessFilter::tupleCreate(SnoopTupleFlowKey* key, SnoopFlowValue* value)
 {
-  SnoopTupleFlowKey tuple;
-  if (!SnoopIp::parseAll(packet))
+  SnoopProcessFilterItem* item = (SnoopProcessFilterItem*)(value->totalMem + tupleFlowOffset);
+  item->pid = 0;
+  item->ack = false;
+
+  QString processName;
+  if (!getProcessInfo(*key, item->pid, processName))
   {
-    emit nak(packet);
+    LOG_ERROR("getProcessInfo %u (%s:%d > %s:%d) return false",
+      key->proto,
+      qPrintable(key->flow.srcIp.str()), key->flow.srcPort,
+      qPrintable(key->flow.dstIp.str()), key->flow.dstPort);
     return;
   }
-  // ----- gilgil temp 2012.09.11 -----
-  /*
-  if (packet->ethHdr->ether_dhost.isBroadcast() || packet->ethHdr->ether_dhost.isMulticast())
+
+  SnoopProcessPolicyMap::iterator pit = policyMap.find(processName);
+  if (pit == policyMap.end())
   {
-    emit nak(packet);
-    return;
-  }
-  */
-  // ----------------------------------
-  if (SnoopTcp::parseAll(packet))
-  {
-    tuple.proto        = IPPROTO_TCP;
-    tuple.flow.srcIp   = ntohl(packet->ipHdr->ip_src);
-    tuple.flow.srcPort = ntohs(packet->tcpHdr->th_sport);
-    tuple.flow.dstIp   = ntohl(packet->ipHdr->ip_dst);
-    tuple.flow.dstPort = ntohs(packet->tcpHdr->th_dport);
-  } else
-  if (SnoopUdp::parseAll(packet))
-  {
-    tuple.proto        = IPPROTO_UDP;
-    tuple.flow.srcIp   = ntohl(packet->ipHdr->ip_src);
-    tuple.flow.srcPort = ntohs(packet->udpHdr->uh_sport);
-    tuple.flow.dstIp   = ntohl(packet->ipHdr->ip_dst);
-    tuple.flow.dstPort = ntohs(packet->udpHdr->uh_dport);
-    // ----- gilgil temp 2012.09.11 -----
-    /*
-    if (tuple.flow.dst_ip.isBroadcast() || tuple.flow.dst_ip.isMulticast())
+    pit = policyMap.find(SnoopNetStat::UNKNOWN_PROCESS_NAME);
+    if (pit == policyMap.end())
     {
-      emit nak(packet);
+      LOG_ERROR("can not find policy for (%s)", qPrintable(processName));
       return;
     }
-    */
-    // ----------------------------------
-  } else
-  {
-    emit nak(packet);
-    return;
+    LOG_DEBUG("onNewProcess %s", qPrintable(processName)); // gilgil temp 2012.08.28
+#ifdef QT_GUI_LIB
+    // myModel->addPolicy(processName, false); // gilgil temp 2014.03.10
+    QCoreApplication::postEvent(widget, new QEvent(QEvent::User)); // gilgil temp 2014.03.10
+#endif // QT_GUI_LIB
   }
-  bool _ack = false;
-  bool res  = getACK(tuple, _ack);
-  if (!res)
-  {
-    LOG_ERROR("check return false");
-    return;
-  }
-  if (_ack)
+}
+
+void SnoopProcessFilter::tupleDelete(SnoopTupleFlowKey* key, SnoopFlowValue* value)
+{
+  Q_UNUSED(key)
+  Q_UNUSED(value)
+}
+
+void SnoopProcessFilter::tupleCheck(SnoopPacket* packet)
+{
+  SnoopProcessFilterItem* item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + tupleFlowOffset);
+
+  if (item->ack)
     emit ack(packet);
   else
     emit nak(packet);
@@ -283,6 +233,8 @@ void SnoopProcessFilter::load(VXml xml)
 {
   SnoopFilter::load(xml);
 
+  QString flowMgrName = xml.getStr("flowMgr", "");
+  if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
   policyMap.load(xml.gotoChild("policies"));
 }
 
@@ -290,34 +242,36 @@ void SnoopProcessFilter::save(VXml xml)
 {
   SnoopFilter::save(xml);
 
+  QString flowMgrName = flowMgr == NULL ? "" : flowMgr->name;
+  xml.setStr("flowMgr", flowMgrName);
   policyMap.save(xml.gotoChild("policies"));
 }
 
 #ifdef QT_GUI_LIB
+// ----- gilgil temp 2014.03.10 -----
+/*
 bool SnoopProcessFilter::event(QEvent *)
 {
   myModel->initialize();
   return true;
 }
+*/
+// ----------------------------------
 
-#include <QListView>
-void SnoopProcessFilter::optionAddWidget(QLayout *layout)
+void SnoopProcessFilter::optionAddWidget(QLayout* layout)
 {
   SnoopFilter::optionAddWidget(layout);
+
+  QStringList flowMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
+  VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1, flowMgr == NULL ? "" : flowMgr->name);
+  VOptionable::addCheckBox(layout, "chkShowStatus", "Show Status", showStatus);
 }
 
-bool SnoopProcessFilter::optionShowDlg(QDialog* dialog)
-{
-  QListView* listView = new QListView(dialog);
-  listView->setModel(myModel);
-  myModel->initialize();
-  dialog->layout()->addWidget(listView);
-  dialog->show();
-  return true;
-}
-
-void SnoopProcessFilter::optionSaveDlg(QDialog *dialog)
+void SnoopProcessFilter::optionSaveDlg(QDialog* dialog)
 {
   SnoopFilter::optionSaveDlg(dialog);
+
+  flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
+  showStatus = dialog->findChild<QCheckBox*>("chkShowStatus")->checkState() == Qt::Checked;
 }
 #endif // QT_GUI_LIB

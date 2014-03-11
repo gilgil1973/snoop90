@@ -136,6 +136,37 @@ Snoop_TcpFlow_Map::iterator Snoop_UdpFlow_Map::erase(SnoopUdpFlowKey& key)
   return QMap<SnoopUdpFlowKey, SnoopFlowValue>::erase(it);
 }
 
+// ----------------------------------------------------------------------------
+// Snoop_TupleFlow_Map
+// ----------------------------------------------------------------------------
+Snoop_TupleFlow_Map::Snoop_TupleFlow_Map()
+{
+  clear();
+}
+
+Snoop_TupleFlow_Map::~Snoop_TupleFlow_Map()
+{
+  clear();
+}
+
+void Snoop_TupleFlow_Map::clear()
+{
+  for (Snoop_TupleFlow_Map::iterator it = begin(); it != end(); it++)
+  {
+    BYTE* totalMem = it.value().totalMem;
+    delete[] totalMem;
+  }
+  QMap<SnoopTupleFlowKey, SnoopFlowValue>::clear();
+}
+
+Snoop_TupleFlow_Map::iterator Snoop_TupleFlow_Map::erase(SnoopTupleFlowKey& key)
+{
+  Snoop_TupleFlow_Map::iterator it = find(key);
+  LOG_ASSERT(it != end());
+  BYTE* totalMem = it.value().totalMem;
+  delete[] totalMem;
+  return QMap<SnoopTupleFlowKey, SnoopFlowValue>::erase(it);
+}
 
 // ----------------------------------------------------------------------------
 // SnoopFlowMgrRequesterItem
@@ -169,12 +200,13 @@ SnoopFlowMgrRequesterItems::~SnoopFlowMgrRequesterItems()
 // ----------------------------------------------------------------------------
 SnoopFlowMgr::SnoopFlowMgr(void* owner) : SnoopProcess(owner)
 {
-  lastCheckTickInSec  = 0;
-  checkIntervalInSec  = 1;
-  macFlowTimeoutInSec = 60 * 60; // 1 hour
-  ipFlowTimeoutInSec  = 60 * 5;  // 1 hour
-  tcpFlowTimeoutInSec = 60 * 5;  // 5 minute
-  udpFlowTimeoutInSec = 60 * 5;  // 5 minute
+  lastCheckTick    = 0;
+  checkInterval    = 1;
+  macFlowTimeout   = 60 * 60; // 1 hour
+  ipFlowTimeout    = 60 * 5;  // 1 hour
+  tcpFlowTimeout   = 60 * 5;  // 5 minute
+  udpFlowTimeout   = 60 * 5;  // 5 minute
+  tupleFlowTimeout = 60 * 5;  // 5 minute
 }
 
 SnoopFlowMgr::~SnoopFlowMgr()
@@ -186,7 +218,7 @@ bool SnoopFlowMgr::doOpen()
 {
   clearMaps();
   clearItems();
-  lastCheckTickInSec = 0;
+  lastCheckTick = 0;
 
   return SnoopProcess::doOpen();
 }
@@ -253,8 +285,8 @@ void SnoopFlowMgr::deleteOldMaps(struct timeval ts)
     while (it != macFlow_Map.end())
     {
       const SnoopFlowValue& value = it.value();
-      long elapsedInSec = ts.tv_sec - value.ts.tv_sec;
-      if (elapsedInSec >= macFlowTimeoutInSec)
+      long elapsed = ts.tv_sec - value.ts.tv_sec;
+      if (elapsed >= macFlowTimeout)
       {
         it = del_MacFlow((SnoopMacFlowKey&)it.key());
         continue;
@@ -271,8 +303,8 @@ void SnoopFlowMgr::deleteOldMaps(struct timeval ts)
     while (it != ipFlow_Map.end())
     {
       const SnoopFlowValue& value = it.value();
-      long elapsedInSec = ts.tv_sec - value.ts.tv_sec;
-      if (elapsedInSec >= ipFlowTimeoutInSec)
+      long elapsed = ts.tv_sec - value.ts.tv_sec;
+      if (elapsed >= ipFlowTimeout)
       {
         it = del_IpFlow((SnoopIpFlowKey&)it.key());
         continue;
@@ -289,8 +321,8 @@ void SnoopFlowMgr::deleteOldMaps(struct timeval ts)
     while (it != tcpFlow_Map.end())
     {
       const SnoopFlowValue& value = it.value();
-      long elapsedInSec = ts.tv_sec - value.ts.tv_sec;
-      if (elapsedInSec >= tcpFlowTimeoutInSec)
+      long elapsed = ts.tv_sec - value.ts.tv_sec;
+      if (elapsed >= tcpFlowTimeout)
       {
         it = del_TcpFlow((SnoopTcpFlowKey&)it.key());
         continue;
@@ -307,10 +339,28 @@ void SnoopFlowMgr::deleteOldMaps(struct timeval ts)
     while (it != udpFlow_Map.end())
     {
       const SnoopFlowValue& value = it.value();
-      long elapsedInSec = ts.tv_sec - value.ts.tv_sec;
-      if (elapsedInSec >= udpFlowTimeoutInSec)
+      long elapsed = ts.tv_sec - value.ts.tv_sec;
+      if (elapsed >= udpFlowTimeout)
       {
         it = del_UdpFlow((SnoopUdpFlowKey&)it.key());
+        continue;
+      }
+      it++;
+    }
+  }
+
+  //
+  // TupleFlow
+  //
+  {
+    Snoop_TupleFlow_Map::iterator it = tupleFlow_Map.begin();
+    while (it != tupleFlow_Map.end())
+    {
+      const SnoopFlowValue& value = it.value();
+      long elapsed = ts.tv_sec - value.ts.tv_sec;
+      if (elapsed >= tupleFlowTimeout)
+      {
+        it = del_TupleFlow((SnoopTupleFlowKey&)it.key());
         continue;
       }
       it++;
@@ -321,8 +371,10 @@ void SnoopFlowMgr::deleteOldMaps(struct timeval ts)
 void SnoopFlowMgr::clearItems()
 {
   macFlow_Items.clear();
+  ipFlow_Items.clear();
   tcpFlow_Items.clear();
   udpFlow_Items.clear();
+  tupleFlow_Items.clear();
 }
 
 size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize)
@@ -378,7 +430,7 @@ Snoop_MacFlow_Map::iterator SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key, stru
   Snoop_MacFlow_Map::iterator it = macFlow_Map.insert(key, value);
   if (created)
   {
-    emit macFlowCreated(&key);
+    emit macFlowCreated((SnoopMacFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   }
   return it;
 }
@@ -391,7 +443,7 @@ Snoop_MacFlow_Map::iterator SnoopFlowMgr::del_MacFlow(SnoopMacFlowKey& key)
     LOG_FATAL("key(%s > %s) is null", qPrintable(key.srcMac.str()), qPrintable(key.dstMac.str()));
     return it;
   }
-  emit macFlowDeleted(&key);
+  emit macFlowDeleted((SnoopMacFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   return macFlow_Map.erase(key);
 }
 
@@ -411,7 +463,7 @@ Snoop_IpFlow_Map::iterator SnoopFlowMgr::add_IpFlow(SnoopIpFlowKey& key, struct 
   Snoop_IpFlow_Map::iterator it = ipFlow_Map.insert(key, value);
   if (created)
   {
-    emit ipFlowCreated(&key);
+    emit ipFlowCreated((SnoopIpFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   }
   return it;
 }
@@ -424,7 +476,7 @@ Snoop_IpFlow_Map::iterator SnoopFlowMgr::del_IpFlow(SnoopIpFlowKey& key)
     LOG_FATAL("key(%s > %s) is null", qPrintable(key.srcIp.str()), qPrintable(key.dstIp.str()));
     return it;
   }
-  emit ipFlowDeleted(&key);
+  emit ipFlowDeleted((SnoopIpFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   return ipFlow_Map.erase(key);
 }
 
@@ -444,7 +496,7 @@ Snoop_TcpFlow_Map::iterator SnoopFlowMgr::add_TcpFlow(SnoopTcpFlowKey& key, stru
   Snoop_TcpFlow_Map::iterator it = tcpFlow_Map.insert(key, value);
   if (created)
   {
-    emit tcpFlowCreated(&key);
+    emit tcpFlowCreated((SnoopTcpFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   }
   return it;
 }
@@ -457,7 +509,7 @@ Snoop_TcpFlow_Map::iterator SnoopFlowMgr::del_TcpFlow(SnoopTcpFlowKey& key)
     LOG_FATAL("key(%s:%d > %s:%d) is null", qPrintable(key.srcIp.str()), key.srcPort, qPrintable(key.dstIp.str()), key.dstPort);
     return it;
   }
-  emit tcpFlowDeleted(&key);
+  emit tcpFlowDeleted((SnoopTcpFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   return tcpFlow_Map.erase(key);
 }
 
@@ -477,7 +529,7 @@ Snoop_UdpFlow_Map::iterator SnoopFlowMgr::add_UdpFlow(SnoopUdpFlowKey& key, stru
   Snoop_UdpFlow_Map::iterator it = udpFlow_Map.insert(key, value);
   if (created)
   {
-    emit udpFlowCreated(&key);
+    emit udpFlowCreated((SnoopUdpFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   }
   return it;
 }
@@ -490,8 +542,41 @@ Snoop_UdpFlow_Map::iterator SnoopFlowMgr::del_UdpFlow(SnoopUdpFlowKey& key)
     LOG_FATAL("key(%s:%d > %s:%d) is null", qPrintable(key.srcIp.str()), key.srcIp, qPrintable(key.dstIp.str()), key.dstPort);
     return it;
   }
-  emit udpFlowDeleted(&key);
+  emit udpFlowDeleted((SnoopUdpFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
   return udpFlow_Map.erase(key);
+}
+
+size_t SnoopFlowMgr::requestMemory_TupleFlow(void* requester, size_t memSize)
+{
+  return requestMemory(requester, tupleFlow_Items, memSize);
+}
+
+Snoop_TupleFlow_Map::iterator SnoopFlowMgr::add_TupleFlow(SnoopTupleFlowKey& key, struct timeval ts, bool created)
+{
+  SnoopFlowValue value;
+  value.packets = 0;
+  value.bytes   = 0;
+  value.ts      = ts;
+  value.created = created;
+  value.totalMem = new BYTE[macFlow_Items.totalMemSize];
+  Snoop_TupleFlow_Map::iterator it = tupleFlow_Map.insert(key, value);
+  if (created)
+  {
+    emit tupleFlowCreated((SnoopTupleFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
+  }
+  return it;
+}
+
+Snoop_TupleFlow_Map::iterator SnoopFlowMgr::del_TupleFlow(SnoopTupleFlowKey& key)
+{
+  Snoop_TupleFlow_Map::iterator it = tupleFlow_Map.find(key);
+  if (it == tupleFlow_Map.end())
+  {
+    LOG_FATAL("key(%d %s:%d > %s:%d) is null", key.proto, qPrintable(key.flow.srcIp.str()), key.flow.srcIp, qPrintable(key.flow.dstIp.str()), key.flow.dstPort);
+    return it;
+  }
+  emit tupleFlowDeleted((SnoopTupleFlowKey*)&it.key(), (SnoopFlowValue*)&it.value());
+  return tupleFlow_Map.erase(key);
 }
 
 void SnoopFlowMgr::process(SnoopPacket* packet)
@@ -516,6 +601,8 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
     {
       Ip srcIp = ntohl(packet->ipHdr->ip_src);
       Ip dstIp = ntohl(packet->ipHdr->ip_dst);
+      UINT16 srcPort;
+      UINT16 dstPort;
 
       SnoopIpFlowKey key;
       key.srcIp = srcIp;
@@ -527,8 +614,8 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
       //
       if (packet->tcpHdr != NULL)
       {
-        UINT16 srcPort = ntohs(packet->tcpHdr->th_sport);
-        UINT16 dstPort = ntohs(packet->tcpHdr->th_dport);
+        srcPort = ntohs(packet->tcpHdr->th_sport);
+        dstPort = ntohs(packet->tcpHdr->th_dport);
 
         SnoopTcpFlowKey key;
         key.srcIp   = srcIp;
@@ -543,8 +630,8 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
       //
       if (packet->udpHdr != NULL)
       {
-        UINT16 srcPort = ntohs(packet->udpHdr->uh_sport);
-        UINT16 dstPort = ntohs(packet->udpHdr->uh_dport);
+        srcPort = ntohs(packet->udpHdr->uh_sport);
+        dstPort = ntohs(packet->udpHdr->uh_dport);
 
         SnoopUdpFlowKey key;
         key.srcIp   = srcIp;
@@ -553,14 +640,28 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
         key.dstPort = dstPort;
         process_UdpFlow(packet, key);
       }
+
+      //
+      // TupleFlow
+      //
+      if (packet->proto == IPPROTO_TCP || packet->proto == IPPROTO_UDP)
+      {
+        SnoopTupleFlowKey flowKey;
+        flowKey.proto        = packet->proto;
+        flowKey.flow.srcIp   = srcIp;
+        flowKey.flow.srcPort = srcPort;
+        flowKey.flow.dstIp   = dstIp;
+        flowKey.flow.dstPort = dstPort;
+        process_TupleFlow(packet, flowKey);
+      }
     }
   }
 
   long now = packet->pktHdr->ts.tv_sec;
-  if (checkIntervalInSec != 0 && now - lastCheckTickInSec >= checkIntervalInSec)
+  if (checkInterval != 0 && now - lastCheckTick >= checkInterval)
   {
     deleteOldMaps(packet->pktHdr->ts);
-    lastCheckTickInSec = now;
+    lastCheckTick = now;
   }
 }
 
@@ -574,7 +675,7 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
   {
     value.created = true;
     SnoopMacFlowKey* key = (SnoopMacFlowKey*)&it.key();
-    emit macFlowCreated(key);
+    emit macFlowCreated(key, &value);
   }
 
   value.packets++;
@@ -583,7 +684,7 @@ void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
 
   packet->flowKey   = &key;
   packet->flowValue = &value;
-  emit macFlowCaptured(packet);
+  emit macCaptured(packet);
 }
 
 void SnoopFlowMgr::process_IpFlow(SnoopPacket* packet, SnoopIpFlowKey& key)
@@ -596,7 +697,7 @@ void SnoopFlowMgr::process_IpFlow(SnoopPacket* packet, SnoopIpFlowKey& key)
   {
     value.created = true;
     SnoopIpFlowKey* key = (SnoopIpFlowKey*)&it.key();
-    emit ipFlowCreated(key);
+    emit ipFlowCreated(key, &value);
   }
   value.packets++;
   value.bytes += packet->pktHdr->caplen;
@@ -604,7 +705,7 @@ void SnoopFlowMgr::process_IpFlow(SnoopPacket* packet, SnoopIpFlowKey& key)
 
   packet->flowKey   = &key;
   packet->flowValue = &value;
-  emit ipFlowCaptured(packet);
+  emit ipCaptured(packet);
 }
 
 void SnoopFlowMgr::process_TcpFlow(SnoopPacket* packet, SnoopTcpFlowKey& key)
@@ -617,7 +718,7 @@ void SnoopFlowMgr::process_TcpFlow(SnoopPacket* packet, SnoopTcpFlowKey& key)
   {
     value.created = true;
     SnoopTcpFlowKey* key = (SnoopTcpFlowKey*)&it.key();
-    emit tcpFlowCreated(key);
+    emit tcpFlowCreated(key, &value);
   }
   value.packets++;
   value.bytes += packet->pktHdr->caplen;
@@ -625,7 +726,7 @@ void SnoopFlowMgr::process_TcpFlow(SnoopPacket* packet, SnoopTcpFlowKey& key)
 
   packet->flowKey   = &key;
   packet->flowValue = &value;
-  emit tcpFlowCaptured(packet);
+  emit tcpCaptured(packet);
 }
 
 void SnoopFlowMgr::process_UdpFlow(SnoopPacket* packet, SnoopUdpFlowKey& key)
@@ -638,7 +739,7 @@ void SnoopFlowMgr::process_UdpFlow(SnoopPacket* packet, SnoopUdpFlowKey& key)
   {
     value.created = true;
     SnoopUdpFlowKey* key = (SnoopUdpFlowKey*)&it.key();
-    emit udpFlowCreated(key);
+    emit udpFlowCreated(key, &value);
   }
   value.packets++;
   value.bytes += packet->pktHdr->caplen;
@@ -646,29 +747,52 @@ void SnoopFlowMgr::process_UdpFlow(SnoopPacket* packet, SnoopUdpFlowKey& key)
 
   packet->flowKey   = &key;
   packet->flowValue = &value;
-  emit udpFlowCaptured(packet);
+  emit udpCaptured(packet);
+}
+
+void SnoopFlowMgr::process_TupleFlow(SnoopPacket* packet, SnoopTupleFlowKey& key)
+{
+  Snoop_TupleFlow_Map::iterator it = tupleFlow_Map.find(key);
+  if (it == tupleFlow_Map.end())
+    it = add_TupleFlow(key, packet->pktHdr->ts, true);
+  SnoopFlowValue& value = it.value();
+  if (!value.created)
+  {
+    value.created = true;
+    SnoopTupleFlowKey* key = (SnoopTupleFlowKey*)&it.key();
+    emit tupleFlowCreated(key, &value);
+  }
+  value.packets++;
+  value.bytes += packet->pktHdr->caplen;
+  value.ts = packet->pktHdr->ts;
+
+  packet->flowKey   = &key;
+  packet->flowValue = &value;
+  emit tupleCaptured(packet);
 }
 
 void SnoopFlowMgr::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  checkIntervalInSec  = xml.getInt64("checkIntervalInSec", checkIntervalInSec);
-  macFlowTimeoutInSec = (long)xml.getInt("macFlowTimeoutInSec", (int)macFlowTimeoutInSec);
-  ipFlowTimeoutInSec  = (long)xml.getInt("ipFlowTimeoutInSec",  (int)ipFlowTimeoutInSec);
-  tcpFlowTimeoutInSec = (long)xml.getInt("tcpFlowTimeoutInSec", (int)tcpFlowTimeoutInSec);
-  udpFlowTimeoutInSec = (long)xml.getInt("udpFlowTimeoutInSec", (int)udpFlowTimeoutInSec);
+  checkInterval  = xml.getInt64("checkInterval", checkInterval);
+  macFlowTimeout = (long)xml.getInt("macFlowTimeout", (int)macFlowTimeout);
+  ipFlowTimeout  = (long)xml.getInt("ipFlowTimeout",  (int)ipFlowTimeout);
+  tcpFlowTimeout = (long)xml.getInt("tcpFlowTimeout", (int)tcpFlowTimeout);
+  udpFlowTimeout = (long)xml.getInt("udpFlowTimeout", (int)udpFlowTimeout);
+  tupleFlowTimeout = (long)xml.getInt("tupleFlowTimeout", (int)tupleFlowTimeout);
 }
 
 void SnoopFlowMgr::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  xml.setInt64("checkIntervalInSec", checkIntervalInSec);
-  xml.setInt("macFlowTimeoutInSec", (int)macFlowTimeoutInSec);
-  xml.setInt("ipFlowTimeoutInSec",  (int)ipFlowTimeoutInSec);
-  xml.setInt("tcpFlowTimeoutInSec", (int)tcpFlowTimeoutInSec);
-  xml.setInt("udpFlowTimeoutInSec", (int)udpFlowTimeoutInSec);
+  xml.setInt64("checkInterval", checkInterval);
+  xml.setInt("macFlowTimeout", (int)macFlowTimeout);
+  xml.setInt("ipFlowTimeout",  (int)ipFlowTimeout);
+  xml.setInt("tcpFlowTimeout", (int)tcpFlowTimeout);
+  xml.setInt("udpFlowTimeout", (int)udpFlowTimeout);
+  xml.setInt("tupleFlowTimeout", (int)tupleFlowTimeout);
 }
 
 #ifdef QT_GUI_LIB
@@ -676,21 +800,23 @@ void SnoopFlowMgr::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
 
-  VOptionable::addLineEdit(layout, "leCheckIntervalInSec",  "Check Interval(sec)",   QString::number(checkIntervalInSec));
-  VOptionable::addLineEdit(layout, "leMacFlowTimeoutInSec", "Mac Flow Timeout(sec)", QString::number(macFlowTimeoutInSec));
-  VOptionable::addLineEdit(layout, "leIpFlowTimeoutInSec",  "IP Flow Timeout(sec)",  QString::number(ipFlowTimeoutInSec));
-  VOptionable::addLineEdit(layout, "leTcpFlowTimeoutInSec", "TCP Flow Timeout(sec)", QString::number(tcpFlowTimeoutInSec));
-  VOptionable::addLineEdit(layout, "leUdpFlowTimeoutInSec", "UDP Flow Timeout(sec)", QString::number(udpFlowTimeoutInSec));
+  VOptionable::addLineEdit(layout, "leCheckInterval",    "Check Interval(sec)",     QString::number(checkInterval));
+  VOptionable::addLineEdit(layout, "leMacFlowTimeout",   "Mac Flow Timeout(sec)",   QString::number(macFlowTimeout));
+  VOptionable::addLineEdit(layout, "leIpFlowTimeout",    "IP Flow Timeout(sec)",    QString::number(ipFlowTimeout));
+  VOptionable::addLineEdit(layout, "leTcpFlowTimeout",   "TCP Flow Timeout(sec)",   QString::number(tcpFlowTimeout));
+  VOptionable::addLineEdit(layout, "leUdpFlowTimeout",   "UDP Flow Timeout(sec)",   QString::number(udpFlowTimeout));
+  VOptionable::addLineEdit(layout, "leTupleFlowTimeout", "Tuple Flow Timeout(sec)", QString::number(tupleFlowTimeout));
 }
 
 void SnoopFlowMgr::optionSaveDlg(QDialog* dialog)
 {
   SnoopProcess::optionSaveDlg(dialog);
 
-  checkIntervalInSec  = dialog->findChild<QLineEdit*>("leCheckIntervalInSec")->text().toLongLong();
-  macFlowTimeoutInSec = dialog->findChild<QLineEdit*>("leMacFlowTimeoutInSec")->text().toLong();
-  ipFlowTimeoutInSec  = dialog->findChild<QLineEdit*>("leIpFlowTimeoutInSec")->text().toLong();
-  tcpFlowTimeoutInSec = dialog->findChild<QLineEdit*>("leTcpFlowTimeoutInSec")->text().toLong();
-  udpFlowTimeoutInSec = dialog->findChild<QLineEdit*>("leUdpFlowTimeoutInSec")->text().toLong();
+  checkInterval    = dialog->findChild<QLineEdit*>("leCheckInterval")->text().toLongLong();
+  macFlowTimeout   = dialog->findChild<QLineEdit*>("leMacFlowTimeout")->text().toLong();
+  ipFlowTimeout    = dialog->findChild<QLineEdit*>("leIpFlowTimeout")->text().toLong();
+  tcpFlowTimeout   = dialog->findChild<QLineEdit*>("leTcpFlowTimeout")->text().toLong();
+  udpFlowTimeout   = dialog->findChild<QLineEdit*>("leUdpFlowTimeout")->text().toLong();
+  tupleFlowTimeout = dialog->findChild<QLineEdit*>("leTupleFlowTimeout")->text().toLong();
 }
 #endif // QT_GUI_LIB
