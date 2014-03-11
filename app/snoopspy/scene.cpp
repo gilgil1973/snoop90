@@ -390,11 +390,37 @@ void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
               {
                 _signalList.removeAll(name);
               }
+              {
+                int i = 0;
+                while (i < _signalList.count())
+                {
+                  QString name = _signalList.at(i);
+                  if (name.startsWith("__"))
+                  {
+                    _signalList.removeAt(i);
+                    continue;
+                  }
+                  i++;
+                }
+              }
 
               QStringList _slotList   = VGraph::slotList(endNode->object);
               foreach (QString name, removeSlotNames)
               {
                 _slotList.removeAll(name);
+              }
+              {
+                int i = 0;
+                while (i < _slotList.count())
+                {
+                  QString name = _slotList.at(i);
+                  if (name.startsWith("__"))
+                  {
+                    _slotList.removeAt(i);
+                    continue;
+                  }
+                  i++;
+                }
               }
 
               if (signalSlotForm == NULL) signalSlotForm = new SignalSlotForm((QWidget*)this->parent());
