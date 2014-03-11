@@ -63,18 +63,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-// Snoop_TupleFlow_Map
-// ----------------------------------------------------------------------------
-class Snoop_TupleFlow_Map : public QMap<SnoopTupleFlowKey, SnoopFlowValue>
-{
-public:
-  Snoop_TupleFlow_Map();
-  virtual ~Snoop_TupleFlow_Map();
-  void clear();
-  Snoop_TupleFlow_Map::iterator erase(SnoopTupleFlowKey& key);
-};
-
-// ----------------------------------------------------------------------------
 // SnoopFlowMgrRequesterItem
 // ----------------------------------------------------------------------------
 class SnoopFlowMgrRequesterItem
@@ -122,7 +110,6 @@ public:
   Snoop_IpFlow_Map    ipFlow_Map;
   Snoop_TcpFlow_Map   tcpFlow_Map;
   Snoop_UdpFlow_Map   udpFlow_Map;
-  Snoop_TupleFlow_Map tupleFlow_Map;
 
   void clearMaps();
   void deleteOldMaps(struct timeval ts);
@@ -132,7 +119,6 @@ public:
   SnoopFlowMgrRequesterItems ipFlow_Items;
   SnoopFlowMgrRequesterItems tcpFlow_Items;
   SnoopFlowMgrRequesterItems udpFlow_Items;
-  SnoopFlowMgrRequesterItems tupleFlow_Items;
 
   void clearItems();
 
@@ -171,58 +157,46 @@ public:
   Snoop_UdpFlow_Map::iterator add_UdpFlow(SnoopUdpFlowKey& key, struct timeval ts, bool created);
   Snoop_UdpFlow_Map::iterator del_UdpFlow(SnoopUdpFlowKey& key);
 
-  //
-  // TupleFlow
-  //
-  size_t requestMemory_TupleFlow(void* requester, size_t memSize);
-  Snoop_TupleFlow_Map::iterator add_TupleFlow(SnoopTupleFlowKey& key, struct timeval ts, bool created);
-  Snoop_TupleFlow_Map::iterator del_TupleFlow(SnoopTupleFlowKey& key);
-
 public slots:
   void process(SnoopPacket* packet);
+
+signals:
+  void processed(SnoopPacket* packet);
 
 protected:
   void process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key);
   void process_IpFlow(SnoopPacket* packet, SnoopIpFlowKey& key);
   void process_TcpFlow(SnoopPacket* packet, SnoopTcpFlowKey& key);
   void process_UdpFlow(SnoopPacket* packet, SnoopUdpFlowKey& key);
-  void process_TupleFlow(SnoopPacket* packet, SnoopTupleFlowKey& key);
 
 signals:
   //
   // MacFlow
   //
-  void macFlowCreated(SnoopMacFlowKey* key, SnoopFlowValue* value);
-  void macFlowDeleted(SnoopMacFlowKey* key, SnoopFlowValue* value);
-  void macCaptured(SnoopPacket* packet);
+  void __macFlowCreated(SnoopMacFlowKey* key, SnoopFlowValue* value);
+  void __macFlowDeleted(SnoopMacFlowKey* key, SnoopFlowValue* value);
+  void __macCaptured(SnoopPacket* packet);
 
   //
   // IpFlow
   //
-  void ipFlowCreated(SnoopIpFlowKey* key, SnoopFlowValue* value);
-  void ipFlowDeleted(SnoopIpFlowKey* key, SnoopFlowValue* value);
-  void ipCaptured(SnoopPacket* packet);
+  void __ipFlowCreated(SnoopIpFlowKey* key, SnoopFlowValue* value);
+  void __ipFlowDeleted(SnoopIpFlowKey* key, SnoopFlowValue* value);
+  void __ipCaptured(SnoopPacket* packet);
 
   //
   // TcpFlow
   //
-  void tcpFlowCreated(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void tcpFlowDeleted(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void tcpCaptured(SnoopPacket* packet);
+  void __tcpFlowCreated(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __tcpFlowDeleted(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __tcpCaptured(SnoopPacket* packet);
 
   //
   // UdpFlow
   //
-  void udpFlowCreated(SnoopUdpFlowKey* key, SnoopFlowValue* value);
-  void udpFlowDeleted(SnoopUdpFlowKey* key, SnoopFlowValue* value);
-  void udpCaptured(SnoopPacket* packet);
-
-  //
-  // TupleFlow
-  //
-  void tupleFlowCreated(SnoopTupleFlowKey* key, SnoopFlowValue* value);
-  void tupleFlowDeleted(SnoopTupleFlowKey* key, SnoopFlowValue* value);
-  void tupleCaptured(SnoopPacket* packet);
+  void __udpFlowCreated(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowDeleted(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpCaptured(SnoopPacket* packet);
 
 protected:
   long lastCheckTick;
@@ -233,7 +207,6 @@ public:
   long ipFlowTimeout;
   long tcpFlowTimeout;
   long udpFlowTimeout;
-  long tupleFlowTimeout;
 
 public:
   virtual void load(VXml xml);

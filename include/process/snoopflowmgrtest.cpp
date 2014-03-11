@@ -43,8 +43,10 @@ bool SnoopFlowMgrTest::doOpen()
   if (macFlowEnabled)
   {
     macFlowOffset = flowMgr->requestMemory_MacFlow(this, macFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(macFlowCreated(SnoopMacFlowKey*)), this, SLOT(macFlowCreate(SnoopMacFlowKey*)), true);
-    flowMgr->checkConnect(SIGNAL(macFlowDeleted(SnoopMacFlowKey*)), this, SLOT(macFlowDelete(SnoopMacFlowKey*)), true);
+    flowMgr->checkConnect(SIGNAL(__macFlowCreated(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowCreate(SnoopMacFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__macFlowDeleted(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowDelete(SnoopMacFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__macCaptured(SnoopPacket*)), this, SLOT(__macCaptured(SnoopPacket*)), true);
+
   }
 
   //
@@ -53,8 +55,9 @@ bool SnoopFlowMgrTest::doOpen()
   if (ipFlowEnabled)
   {
     ipFlowOffset = flowMgr->requestMemory_IpFlow(this, ipFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(ipFlowCreated(SnoopIpFlowKey*)), this, SLOT(ipFlowCreate(SnoopIpFlowKey*)), true);
-    flowMgr->checkConnect(SIGNAL(ipFlowDeleted(SnoopIpFlowKey*)), this, SLOT(ipFlowDelete(SnoopIpFlowKey*)), true);
+    flowMgr->checkConnect(SIGNAL(__ipFlowCreated(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowCreate(SnoopIpFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__ipFlowDeleted(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowDelete(SnoopIpFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__ipCaptured(SnoopPacket*)), this, SLOT(__ipCaptured(SnoopPacket*)), true);
   }
 
   //
@@ -63,8 +66,9 @@ bool SnoopFlowMgrTest::doOpen()
   if (tcpFlowEnabled)
   {
     tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, tcpFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(tcpFlowCreated(SnoopTcpFlowKey*)), this, SLOT(tcpFlowCreate(SnoopTcpFlowKey*)), true);
-    flowMgr->checkConnect(SIGNAL(tcpFlowDeleted(SnoopTcpFlowKey*)), this, SLOT(tcpFlowDelete(SnoopTcpFlowKey*)), true);
+    flowMgr->checkConnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__tcpCaptured(SnoopPacket*)), this, SLOT(__tcpCaptured(SnoopPacket*)), true);
   }
 
   //
@@ -73,8 +77,9 @@ bool SnoopFlowMgrTest::doOpen()
   if (udpFlowEnabled)
   {
     udpFlowOffset = flowMgr->requestMemory_UdpFlow(this, udpFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(udpFlowCreated(SnoopUdpFlowKey*)), this, SLOT(udpFlowCreate(SnoopUdpFlowKey*)), true);
-    flowMgr->checkConnect(SIGNAL(udpFlowDeleted(SnoopUdpFlowKey*)), this, SLOT(udpFlowDelete(SnoopUdpFlowKey*)), true);
+    flowMgr->checkConnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), true);
+    flowMgr->checkConnect(SIGNAL(__udpCaptured(SnoopPacket*)), this, SLOT(__udpCaptured(SnoopPacket*)), true);
   }
 
   return SnoopProcess::doOpen();
@@ -85,17 +90,19 @@ bool SnoopFlowMgrTest::doClose()
   return SnoopProcess::doClose();
 }
 
-void SnoopFlowMgrTest::macFlowCreate(SnoopMacFlowKey* key)
+void SnoopFlowMgrTest::__macFlowCreate(SnoopMacFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s > %s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
 }
 
-void SnoopFlowMgrTest::macFlowDelete(SnoopMacFlowKey* key)
+void SnoopFlowMgrTest::__macFlowDelete(SnoopMacFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s > %s", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()));
 }
 
-void SnoopFlowMgrTest::macFlowProcess(SnoopPacket* packet)
+void SnoopFlowMgrTest::__macCaptured(SnoopPacket* packet)
 {
   SnoopMacFlowKey* key = static_cast<SnoopMacFlowKey*>(packet->flowKey);
 
@@ -105,17 +112,19 @@ void SnoopFlowMgrTest::macFlowProcess(SnoopPacket* packet)
   LOG_DEBUG("%s > %s pkts=%u bytes=%u mem=%p", qPrintable(key->srcMac.str()), qPrintable(key->dstMac.str()), packets, bytes, mem);
 }
 
-void SnoopFlowMgrTest::ipFlowCreate(SnoopIpFlowKey* key)
+void SnoopFlowMgrTest::__ipFlowCreate(SnoopIpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s > %s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
 }
 
-void SnoopFlowMgrTest::ipFlowDelete(SnoopIpFlowKey* key)
+void SnoopFlowMgrTest::__ipFlowDelete(SnoopIpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s > %s", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()));
 }
 
-void SnoopFlowMgrTest::ipFlowProcess(SnoopPacket* packet)
+void SnoopFlowMgrTest::__ipCaptured(SnoopPacket* packet)
 {
   SnoopIpFlowKey* key = static_cast<SnoopIpFlowKey*>(packet->flowKey);
 
@@ -125,17 +134,19 @@ void SnoopFlowMgrTest::ipFlowProcess(SnoopPacket* packet)
   LOG_DEBUG("%s > %s pkts=%u bytes=%u mem=%p", qPrintable(key->srcIp.str()), qPrintable(key->dstIp.str()), packets, bytes, mem);
 }
 
-void SnoopFlowMgrTest::tcpFlowCreate(SnoopTcpFlowKey* key)
+void SnoopFlowMgrTest::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
-void SnoopFlowMgrTest::tcpFlowDelete(SnoopTcpFlowKey* key)
+void SnoopFlowMgrTest::__tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
-void SnoopFlowMgrTest::tcpFlowProcess(SnoopPacket* packet)
+void SnoopFlowMgrTest::__tcpCaptured(SnoopPacket* packet)
 {
   SnoopTcpFlowKey* key = static_cast<SnoopTcpFlowKey*>(packet->flowKey);
 
@@ -145,17 +156,19 @@ void SnoopFlowMgrTest::tcpFlowProcess(SnoopPacket* packet)
   LOG_DEBUG("%s:%d > %s:%d pkts=%u bytes=%u mem=%p", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort, packets, bytes, mem);
 }
 
-void SnoopFlowMgrTest::udpFlowCreate(SnoopUdpFlowKey* key)
+void SnoopFlowMgrTest::__udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
-void SnoopFlowMgrTest::udpFlowDelete(SnoopUdpFlowKey* key)
+void SnoopFlowMgrTest::__udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(value)
   LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort);
 }
 
-void SnoopFlowMgrTest::udpFlowProcess(SnoopPacket* packet)
+void SnoopFlowMgrTest::__udpCaptured(SnoopPacket* packet)
 {
   SnoopUdpFlowKey* key = static_cast<SnoopUdpFlowKey*>(packet->flowKey);
 

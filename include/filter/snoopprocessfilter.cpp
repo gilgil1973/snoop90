@@ -10,6 +10,12 @@ REGISTER_METACLASS(SnoopProcessFilter, SnoopFilter)
 // ----------------------------------------------------------------------------
 // SnoopProcessPolicyMap
 // ----------------------------------------------------------------------------
+void SnoopProcessPolicyMap::clear()
+{
+  QMap<QString,bool>::clear();
+  (*this)[""] = false;
+}
+
 void SnoopProcessPolicyMap::load(VXml xml)
 {
   clear();
@@ -42,8 +48,9 @@ void SnoopProcessPolicyMap::save(VXml xml)
 SnoopProcessFilter::SnoopProcessFilter(void* owner) : SnoopFilter(owner)
 {
   flowMgr         = NULL;
-  policyMap[""]   = false;
-  tupleFlowOffset = 0;
+  policyMap.clear();
+  tcpFlowOffset   = 0;
+  udpFlowOffset   = 0;
 #ifdef QT_GUI_LIB
   showStatus      = true;
   widget          = NULL;
@@ -69,9 +76,13 @@ bool SnoopProcessFilter::doOpen()
     return false;
   }
 
-  tupleFlowOffset = flowMgr->requestMemory_MacFlow(this, sizeof(SnoopProcessFilterItem));
-  flowMgr->checkConnect(SIGNAL(tupleFlowCreated(SnoopTupleFlowKey*,SnoopFlowValue*)), this, SLOT(tupleCreate(SnoopTupleFlowKey*,SnoopFlowValue*)), true);
-  flowMgr->checkConnect(SIGNAL(tupleFlowDeleted(SnoopTupleFlowKey*,SnoopFlowValue*)), this, SLOT(tupleDelete(SnoopTupleFlowKey*,SnoopFlowValue*)), true);
+  tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopProcessFilterItem));
+  flowMgr->checkConnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), true);
+  flowMgr->checkConnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), true);
+
+  udpFlowOffset = flowMgr->requestMemory_UdpFlow(this, sizeof(SnoopProcessFilterItem));
+  flowMgr->checkConnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), true);
+  flowMgr->checkConnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), true);
 
 #ifdef QT_GUI_LIB
   if (showStatus)
@@ -95,6 +106,7 @@ bool SnoopProcessFilter::doOpen()
       widget->filter = this;
     }
     widget->show();
+    widget->showPolicyMap();
   }
 #endif // QT_GUI_LIB
   return true;
@@ -180,48 +192,80 @@ bool SnoopProcessFilter::getACK(SnoopTupleFlowKey& tuple, bool& ack)
 */
 // ----------------------------------
 
-void SnoopProcessFilter::tupleCreate(SnoopTupleFlowKey* key, SnoopFlowValue* value)
+void SnoopProcessFilter::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
-  SnoopProcessFilterItem* item = (SnoopProcessFilterItem*)(value->totalMem + tupleFlowOffset);
+  SnoopProcessFilterItem* item = (SnoopProcessFilterItem*)(value->totalMem + tcpFlowOffset);
+  SnoopTupleFlowKey tuple;
+  tuple.proto = IPPROTO_TCP;
+  tuple.flow  = *key;
+  _checkProcess(&tuple, item);
+}
+
+void SnoopProcessFilter::__tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
+{
+  Q_UNUSED(key)
+  Q_UNUSED(value)
+}
+
+void SnoopProcessFilter::__udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+{
+  SnoopProcessFilterItem* item = (SnoopProcessFilterItem*)(value->totalMem + udpFlowOffset);
+  SnoopTupleFlowKey tuple;
+  tuple.proto = IPPROTO_UDP;
+  tuple.flow  = *key;
+  _checkProcess(&tuple, item);
+}
+
+void SnoopProcessFilter::__udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+{
+  Q_UNUSED(key)
+  Q_UNUSED(value)
+}
+
+void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFilterItem* item)
+{
   item->pid = 0;
   item->ack = false;
 
   QString processName;
-  if (!getProcessInfo(*key, item->pid, processName))
+  if (!getProcessInfo(*tuple, item->pid, processName))
   {
     LOG_ERROR("getProcessInfo %u (%s:%d > %s:%d) return false",
-      key->proto,
-      qPrintable(key->flow.srcIp.str()), key->flow.srcPort,
-      qPrintable(key->flow.dstIp.str()), key->flow.dstPort);
+      tuple->proto,
+      qPrintable(tuple->flow.srcIp.str()), tuple->flow.srcPort,
+      qPrintable(tuple->flow.dstIp.str()), tuple->flow.dstPort);
     return;
   }
 
   SnoopProcessPolicyMap::iterator pit = policyMap.find(processName);
   if (pit == policyMap.end())
   {
-    pit = policyMap.find(SnoopNetStat::UNKNOWN_PROCESS_NAME);
-    if (pit == policyMap.end())
-    {
-      LOG_ERROR("can not find policy for (%s)", qPrintable(processName));
-      return;
-    }
-    LOG_DEBUG("onNewProcess %s", qPrintable(processName)); // gilgil temp 2012.08.28
+    LOG_DEBUG("onNewProcess %s", qPrintable(processName));
+    pit = policyMap.insert(processName, false);
 #ifdef QT_GUI_LIB
-    // myModel->addPolicy(processName, false); // gilgil temp 2014.03.10
-    QCoreApplication::postEvent(widget, new QEvent(QEvent::User)); // gilgil temp 2014.03.10
+    QCoreApplication::postEvent(widget, new QShowPolicyMapEvent);
 #endif // QT_GUI_LIB
   }
+  bool ack = pit.value();
+  item->ack= ack;
 }
 
-void SnoopProcessFilter::tupleDelete(SnoopTupleFlowKey* key, SnoopFlowValue* value)
+void SnoopProcessFilter::check(SnoopPacket* packet)
 {
-  Q_UNUSED(key)
-  Q_UNUSED(value)
-}
+  SnoopProcessFilterItem* item;
 
-void SnoopProcessFilter::tupleCheck(SnoopPacket* packet)
-{
-  SnoopProcessFilterItem* item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + tupleFlowOffset);
+  if (packet->proto == IPPROTO_TCP)
+  {
+    item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + tcpFlowOffset);
+  } else
+  if (packet->proto == IPPROTO_UDP)
+  {
+    item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + udpFlowOffset);
+  } else
+  {
+    emit nak(packet);
+    return;
+  }
 
   if (item->ack)
     emit ack(packet);
@@ -248,16 +292,6 @@ void SnoopProcessFilter::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-// ----- gilgil temp 2014.03.10 -----
-/*
-bool SnoopProcessFilter::event(QEvent *)
-{
-  myModel->initialize();
-  return true;
-}
-*/
-// ----------------------------------
-
 void SnoopProcessFilter::optionAddWidget(QLayout* layout)
 {
   SnoopFilter::optionAddWidget(layout);

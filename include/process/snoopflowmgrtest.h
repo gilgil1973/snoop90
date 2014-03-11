@@ -51,30 +51,30 @@ public slots:
   //
   // MacFlow
   //
-  void macFlowCreate(SnoopMacFlowKey* key);
-  void macFlowDelete(SnoopMacFlowKey* key);
-  void macFlowProcess(SnoopPacket* packet);
+  void __macFlowCreate(SnoopMacFlowKey* key, SnoopFlowValue* value);
+  void __macFlowDelete(SnoopMacFlowKey* key, SnoopFlowValue* value);
+  void __macCaptured(SnoopPacket* packet);
 
   //
   // IpFlow
   //
-  void ipFlowCreate(SnoopIpFlowKey* key);
-  void ipFlowDelete(SnoopIpFlowKey* key);
-  void ipFlowProcess(SnoopPacket* packet);
+  void __ipFlowCreate(SnoopIpFlowKey* key, SnoopFlowValue* value);
+  void __ipFlowDelete(SnoopIpFlowKey* key, SnoopFlowValue* value);
+  void __ipCaptured(SnoopPacket* packet);
 
   //
   // TcpFlow
   //
-  void tcpFlowCreate(SnoopTcpFlowKey* key);
-  void tcpFlowDelete(SnoopTcpFlowKey* key);
-  void tcpFlowProcess(SnoopPacket* packet);
+  void __tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __tcpCaptured(SnoopPacket* packet);
 
   //
   // UdpFlow
   //
-  void udpFlowCreate(SnoopUdpFlowKey* key);
-  void udpFlowDelete(SnoopUdpFlowKey* key);
-  void udpFlowProcess(SnoopPacket* packet);
+  void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpCaptured(SnoopPacket* packet);
 
 public:
   virtual void load(VXml xml);

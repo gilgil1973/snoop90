@@ -4,7 +4,11 @@
 #ifdef QT_GUI_LIB
 
 #include <QWidget>
+#include <QEvent>
 
+// ----------------------------------------------------------------------------
+// SnoopProcessFilterWidget
+// ----------------------------------------------------------------------------
 namespace Ui {
   class SnoopProcessFilterWidget;
 }
@@ -24,8 +28,26 @@ public:
 protected:
   virtual bool event(QEvent* event);
 
+public:
+  void showPolicyMap();
+  void setPolicyMap();
+
+private slots:
+  void on_pbClear_clicked();
+  void on_treeWidget_clicked(const QModelIndex &index);
+
 private:
   Ui::SnoopProcessFilterWidget *ui;
+
+};
+
+// ----------------------------------------------------------------------------
+// QShowPolicyMapEvent
+// ----------------------------------------------------------------------------
+class QShowPolicyMapEvent : public QEvent
+{
+public:
+  QShowPolicyMapEvent();
 };
 
 #endif // QT_GUI_LIB

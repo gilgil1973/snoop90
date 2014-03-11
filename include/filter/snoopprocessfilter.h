@@ -32,6 +32,9 @@ public:
 class SnoopProcessPolicyMap : public QMap<QString /*processName*/, bool /*ack*/>, public VLockable, public VXmlable
 {
 public:
+  void clear();
+
+public:
   virtual void load(VXml xml);
   virtual void save(VXml xml);
 };
@@ -64,7 +67,9 @@ public:
   SnoopProcessPolicyMap policyMap;
 
 protected:
-    size_t tupleFlowOffset;
+    size_t tcpFlowOffset;
+    size_t udpFlowOffset;
+
 #ifdef QT_GUI_LIB
 public:
   bool showStatus;
@@ -74,11 +79,16 @@ protected:
 #endif // QT_GUI_LIB
 
 protected slots:
-  void tupleCreate(SnoopTupleFlowKey* key, SnoopFlowValue* value);
-  void tupleDelete(SnoopTupleFlowKey* key, SnoopFlowValue* value);
+  void __tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+
+protected:
+  void _checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFilterItem* item);
 
 public slots:
-  void tupleCheck(SnoopPacket* packet);
+  void check(SnoopPacket* packet);
 
 signals:
   void ack(SnoopPacket* packet);
