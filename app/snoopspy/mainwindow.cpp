@@ -209,7 +209,7 @@ void MainWindow::selectionChanged()
   if (IS_CLASS(item, Node*))
   {
     Node* node = dynamic_cast<Node*>(item);
-    LOG_DEBUG("%p scene=%p", node, node->scene()); // gilgil temp 2012.12.07
+    // LOG_DEBUG("%p scene=%p", node, node->scene()); // gilgil temp 2012.12.07
 
     selectObject = node->object;
     selectDoc.clear();
@@ -406,15 +406,15 @@ void MainWindow::on_actionDelete_triggered()
 
   foreach (QGraphicsItem *item, scene->selectedItems())
   {
-    LOG_DEBUG("count=%d", scene->items().count()); // gilgil tem 2012.06.27
+    // LOG_DEBUG("count=%d", scene->items().count()); // gilgil tem 2012.06.27
     // scene->removeItem(item);
     if (item->type() == Node::Type)
     {
       Node* node = (Node*)item;
       node->removeArrows();
-      LOG_DEBUG("count=%d", scene->items().count()); // gilgil tem 2012.06.27
+      // LOG_DEBUG("count=%d", scene->items().count()); // gilgil tem 2012.06.27
       delete node;
-      LOG_DEBUG("count=%d", scene->items().count()); // gilgil tem 2012.06.27
+      // LOG_DEBUG("count=%d", scene->items().count()); // gilgil tem 2012.06.27
     }
   }
 }
