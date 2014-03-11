@@ -153,6 +153,7 @@ bool SnoopRtm::loadFromSystem()
       if (activeRex.indexIn(s) == -1) continue;
 
       // ----- gilgil temp 2012.06.09 -----
+      /*
       LOG_DEBUG("dst=%s mask=%s gateway=%s intf=%s metric=%s",
         qPrintable(activeRex.cap(1)), // Network Destination
         qPrintable(activeRex.cap(2)), // Netmask
@@ -160,6 +161,7 @@ bool SnoopRtm::loadFromSystem()
         qPrintable(activeRex.cap(4)), // Interface
         qPrintable(activeRex.cap(5))  // Metric
       );
+      */
       // ----------------------------------
       entry.dst     = activeRex.cap(1);
       entry.mask    = activeRex.cap(2);
