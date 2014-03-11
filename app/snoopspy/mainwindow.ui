@@ -25,7 +25,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionNewFile"/>
     <addaction name="actionOpenFile"/>
@@ -36,20 +36,20 @@
    </widget>
    <widget class="QMenu" name="menuAction">
     <property name="title">
-     <string>Action</string>
+     <string>&amp;Action</string>
     </property>
     <addaction name="actionStart"/>
     <addaction name="actionStop"/>
    </widget>
    <widget class="QMenu" name="menuOption">
     <property name="title">
-     <string>Option</string>
+     <string>&amp;Option</string>
     </property>
     <addaction name="actionOption"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <widget class="QMenu" name="menuFilter">
      <property name="title">
@@ -69,7 +69,7 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionPointer"/>
     <addaction name="actionLinePointer"/>
@@ -77,10 +77,20 @@
     <addaction name="actionBringToFront"/>
     <addaction name="actionSendToBack"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionHttpProxy"/>
+    <addaction name="actionLogServer"/>
+    <addaction name="actionNetClient"/>
+    <addaction name="actionNetServer"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAction"/>
    <addaction name="menuOption"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -319,6 +329,42 @@
    </property>
    <property name="text">
     <string>WinDivert Filter</string>
+   </property>
+  </action>
+  <action name="actionHttpProxy">
+   <property name="icon">
+    <iconset resource="snoopspy.qrc">
+     <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
+   </property>
+   <property name="text">
+    <string>HttpProxy</string>
+   </property>
+  </action>
+  <action name="actionLogServer">
+   <property name="icon">
+    <iconset resource="snoopspy.qrc">
+     <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
+   </property>
+   <property name="text">
+    <string>LogServer</string>
+   </property>
+  </action>
+  <action name="actionNetClient">
+   <property name="icon">
+    <iconset resource="snoopspy.qrc">
+     <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
+   </property>
+   <property name="text">
+    <string>NetClient</string>
+   </property>
+  </action>
+  <action name="actionNetServer">
+   <property name="icon">
+    <iconset resource="snoopspy.qrc">
+     <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
+   </property>
+   <property name="text">
+    <string>NetServer</string>
    </property>
   </action>
  </widget>

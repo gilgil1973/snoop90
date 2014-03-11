@@ -490,17 +490,66 @@ void MainWindow::on_actionShowOption_triggered()
   if (optionable->optionDoAll(this)) selectionChanged();
 }
 
+
+void MainWindow::on_actionHttpProxy_triggered()
+{
+  QString url = "httpproxy.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
+void MainWindow::on_actionLogServer_triggered()
+{
+  QString url = "logserver.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
+void MainWindow::on_actionNetClient_triggered()
+{
+  QString url = "netclient.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
+void MainWindow::on_actionNetServer_triggered()
+{
+  QString url = "netserver.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
 void MainWindow::on_actionCapture_Filter_triggered()
 {
-  QDesktopServices::openUrl(QUrl("http://wiki.wireshark.org/CaptureFilters"));
+  QString url = "http://wiki.wireshark.org/CaptureFilters";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
 }
 
 void MainWindow::on_actionDisplay_Filter_triggered()
 {
-  QDesktopServices::openUrl(QUrl("http://wiki.wireshark.org/DisplayFilters"));
+  QString url = "http://wiki.wireshark.org/DisplayFilters";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
 }
 
 void MainWindow::on_actionWinDivert_Filter_triggered()
 {
-  QDesktopServices::openUrl(QUrl("http://reqrypt.org/windivert-doc.html#filter_language"));
+  QString url = "http://reqrypt.org/windivert-doc.html#filter_language";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
 }

@@ -127,6 +127,14 @@ private slots:
 
   void on_actionShowOption_triggered();
 
+  void on_actionHttpProxy_triggered();
+
+  void on_actionLogServer_triggered();
+
+  void on_actionNetClient_triggered();
+
+  void on_actionNetServer_triggered();
+
   void on_actionCapture_Filter_triggered();
 
   void on_actionDisplay_Filter_triggered();
