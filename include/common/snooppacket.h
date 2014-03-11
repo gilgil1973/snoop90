@@ -77,7 +77,7 @@ public:
   ///
   /// flow
   ///
-  void*           flowKey;  // SnoopMacFlowKey, ... // gilgil temp 2014.02.24
+  void*           flowKey;  // SnoopMacFlowKey, SnoopIpFlowKey, SnoopTcpFlowKey, SnoopUdpFlowKey, ...
   SnoopFlowValue* flowValue;
 
   ///
