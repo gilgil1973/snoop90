@@ -496,6 +496,13 @@ Snoop_UdpFlow_Map::iterator SnoopFlowMgr::del_UdpFlow(SnoopUdpFlowKey& key)
 
 void SnoopFlowMgr::process(SnoopPacket* packet)
 {
+  long now = packet->pktHdr->ts.tv_sec;
+  if (checkInterval != 0 && now - lastCheckTick >= checkInterval)
+  {
+    deleteOldMaps(packet->pktHdr->ts);
+    lastCheckTick = now;
+  }
+
   //
   // MacFlow
   //
@@ -557,13 +564,6 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
   }
 
   emit processed(packet);
-
-  long now = packet->pktHdr->ts.tv_sec;
-  if (checkInterval != 0 && now - lastCheckTick >= checkInterval)
-  {
-    deleteOldMaps(packet->pktHdr->ts);
-    lastCheckTick = now;
-  }
 }
 
 void SnoopFlowMgr::process_MacFlow(SnoopPacket* packet, SnoopMacFlowKey& key)
