@@ -36,10 +36,21 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
+; snoop
 Source: "..\bin\snoopspy.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
+; vdream
+Source: "..\..\..\vdream\vdream90\bin\getline.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\httpproxy.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\logserver.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\netc.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\netclient.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\nets.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\netserver.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\vlog.exe"; DestDir: "{app}"; Flags: ignoreversion
+; windivert
 Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
