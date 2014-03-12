@@ -51,15 +51,13 @@ Source: "..\..\..\vdream\vdream90\bin\nets.exe"; DestDir: "{app}"; Flags: ignore
 Source: "..\..\..\vdream\vdream90\bin\netserver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\vlog.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; certificate
-Source: "..\..\\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversion recursesubdirs createallsubdirs
-; windivert
-Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; openssl
 Source: "C:\OpenSSL-Win64\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\OpenSSL-Win64\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
-
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+; windivert
+Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -67,5 +65,5 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
+Filename: "{app}\certificate\_init_site.bat"
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
