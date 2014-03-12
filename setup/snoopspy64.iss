@@ -55,6 +55,10 @@ Source: "..\..\\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversi
 ; windivert
 Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
+; openssl
+Source: "C:\OpenSSL-Win64\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\OpenSSL-Win64\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
+
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
