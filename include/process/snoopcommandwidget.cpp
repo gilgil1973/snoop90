@@ -9,6 +9,7 @@ SnoopCommandWidget::SnoopCommandWidget(QWidget *parent) :
   ui(new Ui::SnoopCommandWidget)
 {
   ui->setupUi(this);
+  layout()->setContentsMargins(0, 0, 0, 0);
   initializeTreeWidget(ui->tvOpen);
   initializeTreeWidget(ui->tvClose);
 }
@@ -23,20 +24,21 @@ void SnoopCommandWidget::initializeTreeWidget(QTreeWidget* treeWidget)
   treeWidget->setIndentation(0);
   QStringList headerLables; headerLables << "Enabled" << "Command" << "Sync";
   treeWidget->setHeaderLabels(headerLables);
-  treeWidget->setColumnWidth(0, 50);
-  treeWidget->setColumnWidth(2, 50);
-  treeWidget->header()->setSectionResizeMode(0, QHeaderView::Interactive);
-  treeWidget->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(2, QHeaderView::Interactive);
+  treeWidget->setColumnWidth(ENABLED_IDX, 70);
+  treeWidget->setColumnWidth(SYNC_IDX, 70);
+  treeWidget->header()->setSectionResizeMode(ENABLED_IDX, QHeaderView::Fixed);
+  treeWidget->header()->setSectionResizeMode(COMMAND_IDX, QHeaderView::Stretch);
+  treeWidget->header()->setSectionResizeMode(SYNC_IDX,    QHeaderView::Fixed);
+  treeWidget->header()->setStretchLastSection(false);
+  treeWidget->setMinimumWidth(400);
 }
 
 void SnoopCommandWidget::addTreeWidgetItem(QTreeWidget* treeWidget)
 {
-  int count = treeWidget->topLevelItemCount();
-
   QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(treeWidget);
   SnoopCommandItem newItem;
   *treeWidgetItem << newItem;
+  int count = treeWidget->topLevelItemCount();
   treeWidget->insertTopLevelItem(count, treeWidgetItem);
 }
 
@@ -71,16 +73,16 @@ void SnoopCommandWidget::on_pbDelClose_clicked()
 
 void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem)
 {
-  item.enabled = treeWidgetItem.checkState(0) == Qt::Checked;
-  item.command = treeWidgetItem.text(1);
-  item.sync    = treeWidgetItem.checkState(2) == Qt::Checked;
+  item.enabled = treeWidgetItem.checkState(SnoopCommandWidget::ENABLED_IDX) == Qt::Checked;
+  item.command = treeWidgetItem.text(SnoopCommandWidget::COMMAND_IDX);
+  item.sync    = treeWidgetItem.checkState(SnoopCommandWidget::SYNC_IDX) == Qt::Checked;
 }
 
 void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item)
 {
-  treeWidgetItem.setCheckState(0, item.enabled ? Qt::Checked : Qt::Unchecked);
-  treeWidgetItem.setText(1, item.command);
-  treeWidgetItem.setCheckState(2, item.sync ? Qt::Checked : Qt::Unchecked);
+  treeWidgetItem.setCheckState(SnoopCommandWidget::ENABLED_IDX, item.enabled ? Qt::Checked : Qt::Unchecked);
+  treeWidgetItem.setText(SnoopCommandWidget::COMMAND_IDX, item.command);
+  treeWidgetItem.setCheckState(SnoopCommandWidget::SYNC_IDX, item.sync ? Qt::Checked : Qt::Unchecked);
   treeWidgetItem.setFlags(treeWidgetItem.flags() | Qt::ItemFlag::ItemIsEditable);
 }
 

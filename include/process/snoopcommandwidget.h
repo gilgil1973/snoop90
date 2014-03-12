@@ -24,6 +24,9 @@ protected:
   void delTreeWidgetItem(QTreeWidget* treeWidget);
 
 public:
+  static const int ENABLED_IDX = 0;
+  static const int COMMAND_IDX = 1;
+  static const int SYNC_IDX    = 2;
 
 public:
   Ui::SnoopCommandWidget *ui;
