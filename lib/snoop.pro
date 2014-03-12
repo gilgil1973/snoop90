@@ -37,6 +37,7 @@ SOURCES += \
     ../include/filter/snoopfilter.cpp \
     ../include/filter/snoopfilterfactory.cpp \
     ../include/filter/snoopprocessfilter.cpp \
+    ../include/filter/snoopprocessfilterwidget.cpp \
     ../include/parse/snooparp.cpp \
     ../include/parse/snoopeth.cpp \
     ../include/parse/snoopicmp.cpp \
@@ -49,7 +50,7 @@ SOURCES += \
     ../include/process/snoopcommand.cpp \
     ../include/process/snoopcommandwidget.cpp \
     ../include/process/snoopdatachange.cpp \
-    ../include/process/snoopdatachangewidget.cpp
+    ../include/process/snoopdatachangewidget.cpp \
     ../include/process/snoopdelay.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
@@ -57,8 +58,7 @@ SOURCES += \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
     ../include/process/snooptcpblock.cpp \
-    ../include/process/snoopwriteadapter.cpp \
-    ../include/filter/snoopprocessfilterwidget.cpp \
+    ../include/process/snoopwriteadapter.cpp
 
 HEADERS += \
     ../include/capture/snoopadapter.h \
@@ -84,6 +84,7 @@ HEADERS += \
     ../include/filter/snoopfilter.h \
     ../include/filter/snoopfilterfactory.h \
     ../include/filter/snoopprocessfilter.h \
+    ../include/filter/snoopprocessfilterwidget.h \
     ../include/libnet/config.h \
     ../include/libnet/libnet-asn1.h \
     ../include/libnet/libnet-functions.h \
@@ -103,7 +104,7 @@ HEADERS += \
     ../include/process/snoopcommand.h \
     ../include/process/snoopcommandwidget.h \
     ../include/process/snoopdatachange.h \
-    ../include/process/snoopdatachangewidget.h
+    ../include/process/snoopdatachangewidget.h \
     ../include/process/snoopdelay.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopflowmgr.h \
@@ -112,10 +113,9 @@ HEADERS += \
     ../include/process/snoopprocessfactory.h \
     ../include/process/snooptcpblock.h \
     ../include/process/snoopwriteadapter.h \
-    ../include/windivert/windivert.h \
-    ../include/filter/snoopprocessfilterwidget.h \
+    ../include/windivert/windivert.h
 
 FORMS += \
+    ../include/filter/snoopprocessfilterwidget.ui \
     ../include/process/snoopcommandwidget.ui \
-    ../include/process/snoopdatachangewidget.ui \
-    ../include/filter/snoopprocessfilterwidget.ui
+    ../include/process/snoopdatachangewidget.ui
