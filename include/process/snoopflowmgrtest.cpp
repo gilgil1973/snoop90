@@ -43,9 +43,9 @@ bool SnoopFlowMgrTest::doOpen()
   if (macFlowEnabled)
   {
     macFlowOffset = flowMgr->requestMemory_MacFlow(this, macFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(__macFlowCreated(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowCreate(SnoopMacFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__macFlowDeleted(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowDelete(SnoopMacFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__macCaptured(SnoopPacket*)), this, SLOT(__macCaptured(SnoopPacket*)), true);
+    flowMgr->connect(SIGNAL(__macFlowCreated(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowCreate(SnoopMacFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__macFlowDeleted(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowDelete(SnoopMacFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__macCaptured(SnoopPacket*)), this, SLOT(__macCaptured(SnoopPacket*)), Qt::DirectConnection);
 
   }
 
@@ -55,9 +55,9 @@ bool SnoopFlowMgrTest::doOpen()
   if (ipFlowEnabled)
   {
     ipFlowOffset = flowMgr->requestMemory_IpFlow(this, ipFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(__ipFlowCreated(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowCreate(SnoopIpFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__ipFlowDeleted(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowDelete(SnoopIpFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__ipCaptured(SnoopPacket*)), this, SLOT(__ipCaptured(SnoopPacket*)), true);
+    flowMgr->connect(SIGNAL(__ipFlowCreated(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowCreate(SnoopIpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__ipFlowDeleted(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowDelete(SnoopIpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__ipCaptured(SnoopPacket*)), this, SLOT(__ipCaptured(SnoopPacket*)), Qt::DirectConnection);
   }
 
   //
@@ -66,9 +66,9 @@ bool SnoopFlowMgrTest::doOpen()
   if (tcpFlowEnabled)
   {
     tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, tcpFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__tcpCaptured(SnoopPacket*)), this, SLOT(__tcpCaptured(SnoopPacket*)), true);
+    flowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__tcpCaptured(SnoopPacket*)), this, SLOT(__tcpCaptured(SnoopPacket*)), Qt::DirectConnection);
   }
 
   //
@@ -77,9 +77,9 @@ bool SnoopFlowMgrTest::doOpen()
   if (udpFlowEnabled)
   {
     udpFlowOffset = flowMgr->requestMemory_UdpFlow(this, udpFlowMemSize);
-    flowMgr->checkConnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), true);
-    flowMgr->checkConnect(SIGNAL(__udpCaptured(SnoopPacket*)), this, SLOT(__udpCaptured(SnoopPacket*)), true);
+    flowMgr->connect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__udpCaptured(SnoopPacket*)), this, SLOT(__udpCaptured(SnoopPacket*)), Qt::DirectConnection);
   }
 
   return SnoopProcess::doOpen();
@@ -87,6 +87,46 @@ bool SnoopFlowMgrTest::doOpen()
 
 bool SnoopFlowMgrTest::doClose()
 {
+  //
+  // MacFlow
+  //
+  if (macFlowEnabled)
+  {
+    flowMgr->disconnect(SIGNAL(__macFlowCreated(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowCreate(SnoopMacFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__macFlowDeleted(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowDelete(SnoopMacFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__macCaptured(SnoopPacket*)), this, SLOT(__macCaptured(SnoopPacket*)));
+  }
+
+  //
+  // IpFlow
+  //
+  if (ipFlowEnabled)
+  {
+    flowMgr->disconnect(SIGNAL(__ipFlowCreated(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowCreate(SnoopIpFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__ipFlowDeleted(SnoopIpFlowKey*,SnoopFlowValue*)), this, SLOT(__ipFlowDelete(SnoopIpFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__ipCaptured(SnoopPacket*)), this, SLOT(__ipCaptured(SnoopPacket*)));
+  }
+
+  //
+  // TcpFlow
+  //
+  if (tcpFlowEnabled)
+  {
+    flowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__tcpCaptured(SnoopPacket*)), this, SLOT(__tcpCaptured(SnoopPacket*)));
+  }
+
+  //
+  // UdpFlow
+  //
+  if (udpFlowEnabled)
+  {
+    flowMgr->disconnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__udpCaptured(SnoopPacket*)), this, SLOT(__udpCaptured(SnoopPacket*)));
+  }
+
   return SnoopProcess::doClose();
 }
 

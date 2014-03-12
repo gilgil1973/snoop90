@@ -126,7 +126,8 @@ protected:
   size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize);
 
 public:
-  void checkConnect(const char* signal, VObject* receiver, const char* slot, bool autoConnect);
+  void connect(const char* signal, VObject* receiver, const char* slot, Qt::ConnectionType type); // gilgil temp 2014.03.13
+  void disconnect(const char* signal, VObject* receiver, const char* slot);
 
 public:
   //

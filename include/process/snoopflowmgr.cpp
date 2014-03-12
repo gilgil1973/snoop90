@@ -347,7 +347,7 @@ size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& 
   return currentOffset;
 }
 
-void SnoopFlowMgr::checkConnect(const char* signal, VObject* receiver, const char* slot, bool autoConnect)
+void SnoopFlowMgr::connect(const char* signal, VObject* receiver, const char* slot, Qt::ConnectionType type)
 {
   VObjectConnection connection(signal, receiver, slot);
   if (this->connections.indexOf(connection) == -1)
@@ -355,10 +355,19 @@ void SnoopFlowMgr::checkConnect(const char* signal, VObject* receiver, const cha
     LOG_DEBUG("%s(%s) %s > %s(%s) %s must be connected",
       qPrintable(this->name),     qPrintable(this->className()),     signal,
       qPrintable(receiver->name), qPrintable(receiver->className()), slot);
-    if (autoConnect)
-    {
-      VObject::connect(this, signal, receiver, slot, Qt::DirectConnection);
-    }
+    VObject::connect(this, signal, receiver, slot, type);
+  }
+}
+
+void SnoopFlowMgr::disconnect(const char* signal, VObject* receiver, const char* slot)
+{
+  VObjectConnection connection(signal, receiver, slot);
+  if (this->connections.indexOf(connection) != -1)
+  {
+    LOG_DEBUG("%s(%s) %s > %s(%s) %s must be disconnected",
+      qPrintable(this->name),     qPrintable(this->className()),     signal,
+      qPrintable(receiver->name), qPrintable(receiver->className()), slot);
+    VObject::disconnect(this, signal, receiver, slot);
   }
 }
 

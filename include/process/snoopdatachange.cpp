@@ -12,6 +12,7 @@ SnoopDataChangeItem::SnoopDataChangeItem()
 {
   enabled = true;
   re      = false;
+  log     = true;
   from    = "";
   to      = "";
 }
@@ -20,6 +21,7 @@ void SnoopDataChangeItem::load(VXml xml)
 {
   enabled = xml.getBool("enabled", enabled);
   re      = xml.getBool("re", re);
+  log     = xml.getBool("log", log);
   from    = qPrintable(xml.getStr("from", from));
   to      = qPrintable(xml.getStr("to",   to));
 }
@@ -28,6 +30,7 @@ void SnoopDataChangeItem::save(VXml xml)
 {
   xml.setBool("enabled", enabled);
   xml.setBool("re", re);
+  xml.setBool("log", log);
   xml.setStr("from", qPrintable(from));
   xml.setStr("to",   qPrintable(to));
 }
@@ -64,9 +67,13 @@ void SnoopDataChangeItems::save(VXml xml)
 // ----------------------------------------------------------------------------
 SnoopDataChange::SnoopDataChange(void* owner) : SnoopProcess(owner)
 {
+  flowMgr   = NULL;
   tcpChange = true;
   udpChange = true;
   items.clear();
+
+  tcpFlowOffset = 0;
+  udpFlowOffset = 0;
 }
 
 SnoopDataChange::~SnoopDataChange()
@@ -74,39 +81,57 @@ SnoopDataChange::~SnoopDataChange()
   close();
 }
 
+bool SnoopDataChange::doOpen()
+{
+  if (flowMgr == NULL)
+  {
+    SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
+    return false;
+  }
+
+  tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopDataChangeFlowItem));
+  flowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+  flowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+
+  return true;
+}
+
+bool SnoopDataChange::doClose()
+{
+
+}
+
 void SnoopDataChange::change(SnoopPacket* packet)
 {
   bool _changed = false;
-  if (SnoopIp::parseAll(packet))
+  if (packet->ipHdr == NULL) return;
+  if (packet->tcpHdr != NULL)
   {
-    if (SnoopIp::isTcp(packet->ipHdr, &packet->tcpHdr))
+    if (packet->data != NULL)
     {
-      if (SnoopTcp::isData(packet->ipHdr, packet->tcpHdr, &packet->data, &packet->dataLen))
+      QByteArray ba(packet->data, packet->dataLen);
+      if (_change(ba))
       {
-        QByteArray ba(packet->data, packet->dataLen);
-        if (_change(ba))
-        {
-          memcpy(packet->data, ba.data(), (size_t)packet->dataLen);
-          packet->tcpChanged = true;
-          _changed = true;
-        }
-      }
-    } else
-    if (SnoopIp::isUdp(packet->ipHdr, &packet->udpHdr))
-    {
-      if (SnoopUdp::isData(packet->ipHdr, packet->udpHdr, &packet->data, &packet->dataLen))
-      {
-        QByteArray ba(packet->data, packet->dataLen);
-        if (_change(ba))
-        {
-          memcpy(packet->data, ba.data(), (size_t)packet->dataLen);
-          packet->udpChanged = true;
-          _changed = true;
-        }
+        memcpy(packet->data, ba.data(), (size_t)packet->dataLen);
+        packet->tcpChanged = true;
+        _changed = true;
       }
     }
+  } else
+  if (packet->udpHdr != NULL)
+  {
+    QByteArray ba(packet->data, packet->dataLen);
+    if (_change(ba))
+    {
+      memcpy(packet->data, ba.data(), (size_t)packet->dataLen);
+      packet->udpChanged = true;
+      _changed = true;
+    }
   }
-  if (_changed) emit changed(packet);
+  if (_changed)
+  {
+    emit changed(packet);
+  }
 }
 
 bool SnoopDataChange::_change(QByteArray& ba)
