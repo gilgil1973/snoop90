@@ -49,6 +49,7 @@ SOURCES += \
     ../include/process/snoopcommand.cpp \
     ../include/process/snoopcommandwidget.cpp \
     ../include/process/snoopdatachange.cpp \
+    ../include/process/snoopdatachangewidget.cpp
     ../include/process/snoopdelay.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
@@ -57,7 +58,7 @@ SOURCES += \
     ../include/process/snoopprocessfactory.cpp \
     ../include/process/snooptcpblock.cpp \
     ../include/process/snoopwriteadapter.cpp \
-    ../include/filter/snoopprocessfilterwidget.cpp
+    ../include/filter/snoopprocessfilterwidget.cpp \
 
 HEADERS += \
     ../include/capture/snoopadapter.h \
@@ -102,6 +103,7 @@ HEADERS += \
     ../include/process/snoopcommand.h \
     ../include/process/snoopcommandwidget.h \
     ../include/process/snoopdatachange.h \
+    ../include/process/snoopdatachangewidget.h
     ../include/process/snoopdelay.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopflowmgr.h \
@@ -111,8 +113,9 @@ HEADERS += \
     ../include/process/snooptcpblock.h \
     ../include/process/snoopwriteadapter.h \
     ../include/windivert/windivert.h \
-    ../include/filter/snoopprocessfilterwidget.h
+    ../include/filter/snoopprocessfilterwidget.h \
 
 FORMS += \
     ../include/process/snoopcommandwidget.ui \
+    ../include/process/snoopdatachangewidget.ui \
     ../include/filter/snoopprocessfilterwidget.ui
