@@ -11,6 +11,7 @@ REGISTER_METACLASS(SnoopDataChange, SnoopProcess)
 SnoopDataChangeItem::SnoopDataChangeItem()
 {
   enabled = true;
+  re      = false;
   from    = "";
   to      = "";
 }
@@ -18,6 +19,7 @@ SnoopDataChangeItem::SnoopDataChangeItem()
 void SnoopDataChangeItem::load(VXml xml)
 {
   enabled = xml.getBool("enabled", enabled);
+  re      = xml.getBool("re", re);
   from    = qPrintable(xml.getStr("from", from));
   to      = qPrintable(xml.getStr("to",   to));
 }
@@ -25,6 +27,7 @@ void SnoopDataChangeItem::load(VXml xml)
 void SnoopDataChangeItem::save(VXml xml)
 {
   xml.setBool("enabled", enabled);
+  xml.setBool("re", re);
   xml.setStr("from", qPrintable(from));
   xml.setStr("to",   qPrintable(to));
 }
@@ -142,113 +145,18 @@ void SnoopDataChange::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void SnoopDataChange::on_pbAdd_clicked()
-{
-  QPushButton* pbAdd = dynamic_cast<QPushButton*>(sender());
-  QDialog* dialog = dynamic_cast<QDialog*>(pbAdd->parent());
-  QTableWidget* tableWidget = dialog->findChild<QTableWidget*>("tableWidget");
-  int rowCount = tableWidget->rowCount();
-  tableWidget->setRowCount(tableWidget->rowCount() + 1);
-
-  SnoopDataChangeItem item; // default value
-  addItem(item, tableWidget, rowCount);
-}
-
-void SnoopDataChange::on_pbDel_clicked()
-{
-  QPushButton* pbAdd = dynamic_cast<QPushButton*>(sender());
-  QDialog* dialog = dynamic_cast<QDialog*>(pbAdd->parent());
-  QTableWidget* tableWidget = dialog->findChild<QTableWidget*>("tableWidget");
-  QList<QTableWidgetItem*> items = tableWidget->selectedItems();
-  if (items.count() == 0) return;
-  QTableWidgetItem* item = items.at(0);
-  if (item == NULL) return;
-  int row = item->row();
-  if (row == -1) return;
-  if (row != -1) tableWidget->removeRow(row);
-}
-
-void SnoopDataChange::addItem(SnoopDataChangeItem& item, QTableWidget* tableWidget, int row)
-{
-  QTableWidgetItem* itemEnabled = new QTableWidgetItem;
-  itemEnabled->setCheckState(item.enabled ? Qt::Checked : Qt::Unchecked);
-  tableWidget->setItem(row, 0, itemEnabled);
-
-  QTableWidgetItem* itemFrom = new QTableWidgetItem(QString(item.from));
-  tableWidget->setItem(row, 1, itemFrom);
-
-  QTableWidgetItem* itemTo = new QTableWidgetItem(QString(item.to));
-  tableWidget->setItem(row, 2, itemTo);
-
-  tableWidget->setRowHeight(row, 15);
-}
-
-void SnoopDataChange::loadFromItems(QTableWidget* tableWidget)
-{
-  tableWidget->verticalHeader()->setVisible(false);
-
-  tableWidget->setColumnCount(3);
-  tableWidget->setColumnWidth(0, 25);
-  tableWidget->setColumnWidth(1, 100);
-  tableWidget->setColumnWidth(2, 100);
-  QStringList headers; headers << "" << "From" << "To";
-  tableWidget->setHorizontalHeaderLabels(headers);
-
-  int count = items.count();
-  tableWidget->setRowCount(count);
-  for (int row = 0; row < count; row++)
-  {
-    SnoopDataChangeItem& item = (SnoopDataChangeItem&)items.at(row);
-    addItem(item, tableWidget, row);
-  }
-}
-
-void SnoopDataChange::saveToItems(QTableWidget* tableWidget)
-{
-  items.clear();
-
-  int count = tableWidget->rowCount();
-
-  for (int row = 0; row < count; row++)
-  {
-    SnoopDataChangeItem item;
-    item.enabled = tableWidget->item(row, 0)->checkState() == Qt::Checked;
-    item.from    = qPrintable(tableWidget->item(row, 1)->text());
-    item.to      = qPrintable(tableWidget->item(row, 2)->text());
-    items.push_back(item);
-  }
-}
-
+#include "snoopdatachangewidget.h"
+#include "ui_snoopdatachangewidget.h"
 void SnoopDataChange::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
 
   VOptionable::addCheckBox(layout, "chkTcpChange", "TCP Change", tcpChange);
   VOptionable::addCheckBox(layout, "chkUdpChange", "UDP Change", udpChange);
-
-  QTableWidget* tableWidget = new QTableWidget(layout->parentWidget());
-  tableWidget->setObjectName("tableWidget");
-  loadFromItems(tableWidget);
-
-  QPushButton* pbAdd = new QPushButton(layout->parentWidget());
-  pbAdd->setText("Add");
-  VObject::connect(pbAdd, SIGNAL(clicked()), this, SLOT(on_pbAdd_clicked()));
-
-  QPushButton* pbDel = new QPushButton(layout->parentWidget());
-  pbDel->setText("Delete");
-  VObject::connect(pbDel, SIGNAL(clicked()), this, SLOT(on_pbDel_clicked()));
-
-  QGridLayout* myLayout = new QGridLayout;
-  myLayout->setHorizontalSpacing(8);
-  myLayout->addWidget(tableWidget, 0, 0, 10, 8);
-  myLayout->addWidget(pbAdd, 0, 8);
-  myLayout->addWidget(pbDel, 1, 8);
-  layout->addItem(myLayout);
-}
-
-bool SnoopDataChange::optionShowDlg(QDialog* dialog)
-{
-  return VOptionable::optionShowDlg(dialog);
+  SnoopDataChangeWidget* widget = new SnoopDataChangeWidget(layout->parentWidget());
+  widget->setObjectName("snoopDataChangeWidget");
+  *(widget->ui->treeWidget) << items;
+  layout->addWidget(widget);
 }
 
 void SnoopDataChange::optionSaveDlg(QDialog* dialog)
@@ -257,6 +165,8 @@ void SnoopDataChange::optionSaveDlg(QDialog* dialog)
 
   tcpChange = dialog->findChild<QCheckBox*>("chkTcpChange")->checkState() == Qt::Checked;
   udpChange = dialog->findChild<QCheckBox*>("chkUdpChange")->checkState() == Qt::Checked;
-  saveToItems(dialog->findChild<QTableWidget*>("tableWidget"));
+  SnoopDataChangeWidget* widget = dialog->findChild<SnoopDataChangeWidget*>("snoopDataChangeWidget");
+  LOG_ASSERT(widget != NULL);
+  items << *(widget->ui->treeWidget);
 }
 #endif // QT_GUI_LIB
