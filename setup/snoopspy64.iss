@@ -50,6 +50,8 @@ Source: "..\..\..\vdream\vdream90\bin\netclient.exe"; DestDir: "{app}"; Flags: i
 Source: "..\..\..\vdream\vdream90\bin\nets.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\netserver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\vlog.exe"; DestDir: "{app}"; Flags: ignoreversion
+; certificate
+Source: "..\..\\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; windivert
 Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\windivert\1.1.2-rc\mingw\amd64\WinDivert64.sys"; DestDir: "{app}"; Flags: ignoreversion
