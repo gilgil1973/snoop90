@@ -37,7 +37,8 @@ bool SnoopBpFilter::doOpen()
     SET_ERROR(SnoopError, qformat("error in pcap_compile(%s)", pcap_geterr(m_pcap)), VERR_IN_PCAP_COMPILE);
     return false;
   }
-  return true;
+
+  return SnoopFilter::doOpen();
 }
 
 bool SnoopBpFilter::doClose()
@@ -55,7 +56,7 @@ bool SnoopBpFilter::doClose()
     m_code = NULL;
   }
 
-  return true;
+  return SnoopFilter::doClose();
 }
 
 bool SnoopBpFilter::check(char* pktData, int pktLen)

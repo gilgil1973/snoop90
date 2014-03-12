@@ -11,6 +11,16 @@ SnoopFilter::~SnoopFilter()
 {
 }
 
+bool SnoopFilter::doOpen()
+{
+  return true;
+}
+
+bool SnoopFilter::doClose()
+{
+  return true;
+}
+
 #ifdef QT_GUI_LIB
 void SnoopFilter::optionAddWidget(QLayout *layout)
 {

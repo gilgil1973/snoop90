@@ -24,6 +24,10 @@ public:
   SnoopFilter(void* owner = NULL);
   virtual ~SnoopFilter();
 
+protected:
+  virtual bool doOpen();
+  virtual bool doClose();
+
 #ifdef QT_GUI_LIB
 public: // for VOptionable
   virtual void optionAddWidget(QLayout* layout);
