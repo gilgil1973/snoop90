@@ -36,10 +36,26 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
+; snoop
 Source: "..\bin\snoopspy.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
+; vdream
+Source: "..\..\..\vdream\vdream90\bin\getline.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\httpproxy.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\logserver.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\netc.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\netclient.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\nets.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\netserver.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\vlog.exe"; DestDir: "{app}"; Flags: ignoreversion
+; certificate
+Source: "..\..\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversion recursesubdirs createallsubdirs
+; openssl
+Source: "C:\OpenSSL-Win32\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\OpenSSL-Win32\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
+; windivert
 Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert32.sys"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -50,5 +66,5 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
+Filename: "{app}\certificate\_init_site.bat"
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
