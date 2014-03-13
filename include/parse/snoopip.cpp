@@ -10,7 +10,7 @@ bool SnoopIp::is(IP_HDR* ipHdr, UINT8 protocol, void** transportHdr)
   if (ipHdr->ip_p != protocol)
     return false;
   if (transportHdr != NULL)
-    *transportHdr = (void*)((char*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
+    *transportHdr = (void*)((BYTE*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
   return true;
 }
 
@@ -19,7 +19,7 @@ bool SnoopIp::isTcp(IP_HDR* ipHdr, TCP_HDR** tcpHdr)
   if (ipHdr->ip_p != IPPROTO_TCP)
     return false;
   if (tcpHdr != NULL)
-    *tcpHdr = (TCP_HDR*)((char*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
+    *tcpHdr = (TCP_HDR*)((BYTE*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
   return true;
 }
 
@@ -28,7 +28,7 @@ bool SnoopIp::isUdp(IP_HDR* ipHdr, UDP_HDR** udpHdr)
   if (ipHdr->ip_p != IPPROTO_UDP)
     return false;
   if (udpHdr != NULL)
-    *udpHdr = (UDP_HDR*)((char*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
+    *udpHdr = (UDP_HDR*)((BYTE*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
   return true;
 }
 
@@ -37,7 +37,7 @@ bool SnoopIp::isIcmp(IP_HDR* ipHdr, ICMP_HDR** icmpHdr)
   if (ipHdr->ip_p != IPPROTO_ICMP)
     return false;
   if (icmpHdr != NULL)
-    *icmpHdr = (ICMP_HDR*)((char*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
+    *icmpHdr = (ICMP_HDR*)((BYTE*)(ipHdr) + ipHdr->ip_hl * sizeof(UINT32));
   return true;
 }
 

@@ -5,7 +5,7 @@
 // ----------------------------------------------------------------------------
 // SnoopIcmp
 // ----------------------------------------------------------------------------
-bool SnoopIcmp::isData(IP_HDR* ipHdr, ICMP_HDR* icmpHdr, char** icmpData, int* icmpDataLen)
+bool SnoopIcmp::isData(IP_HDR* ipHdr, ICMP_HDR* icmpHdr, BYTE** icmpData, int* icmpDataLen)
 {
   Q_UNUSED(ipHdr)
   Q_UNUSED(icmpHdr)
@@ -16,7 +16,7 @@ bool SnoopIcmp::isData(IP_HDR* ipHdr, ICMP_HDR* icmpHdr, char** icmpData, int* i
   int _icmpDataLen;
 
   if (icmpData != NULL)
-    *icmpData = (char*)(icmpHdr) + sizeof(ICMP_HDR);
+    *icmpData = (BYTE*)(icmpHdr) + sizeof(ICMP_HDR);
     icmpHdr->dun.
   _icmpDataLen = ntohs(icmpHdr-> uh_ulen) - sizeof(ICMP_HDR);
   if (icmpDataLen != NULL)

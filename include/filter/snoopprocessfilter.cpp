@@ -115,6 +115,12 @@ bool SnoopProcessFilter::doOpen()
 
 bool SnoopProcessFilter::doClose()
 {
+  if (flowMgr == NULL)
+  {
+    SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
+    return false;
+  }
+
   flowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
   flowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
 

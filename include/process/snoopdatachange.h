@@ -20,7 +20,8 @@
 // ----------------------------------------------------------------------------
 class SnoopDataChangeFlowItem
 {
-  int seqValueChanged;
+public:
+  quint32 seqValueChanged;
 };
 
 // ----------------------------------------------------------------------------
@@ -85,7 +86,10 @@ public:
 
 protected:
     size_t tcpFlowOffset;
-    size_t udpFlowOffset;
+
+protected slots:
+  void __tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
 
 public:
   virtual void load(VXml xml);

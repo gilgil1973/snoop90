@@ -37,7 +37,7 @@ public:
   /// packet
   ///
   PKT_HDR*  pktHdr;
-  u_char*   pktData;
+  BYTE*     pktData;
 
   ///
   /// datalink layer
@@ -63,7 +63,7 @@ public:
   ///
   /// data
   ///
-  char*     data;
+  BYTE*     data;
   int       dataLen;
 
   ///

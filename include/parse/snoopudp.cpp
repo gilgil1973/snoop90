@@ -5,14 +5,14 @@
 // ----------------------------------------------------------------------------
 // SnoopUdp
 // ----------------------------------------------------------------------------
-bool SnoopUdp::isData(IP_HDR* ipHdr, UDP_HDR* udpHdr, char** udpData, int* udpDataLen)
+bool SnoopUdp::isData(IP_HDR* ipHdr, UDP_HDR* udpHdr, BYTE** udpData, int* udpDataLen)
 {
   Q_UNUSED(ipHdr)
 
   int _udpDataLen;
 
   if (udpData != NULL)
-    *udpData = (char*)(udpHdr) + sizeof(UDP_HDR);
+    *udpData = (BYTE*)(udpHdr) + sizeof(UDP_HDR);
   _udpDataLen = ntohs(udpHdr->uh_ulen) - sizeof(UDP_HDR);
   if (udpDataLen != NULL)
     *udpDataLen = _udpDataLen;

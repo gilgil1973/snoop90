@@ -59,7 +59,7 @@ bool SnoopBpFilter::doClose()
   return SnoopFilter::doClose();
 }
 
-bool SnoopBpFilter::check(char* pktData, int pktLen)
+bool SnoopBpFilter::_check(BYTE* pktData, UINT pktLen)
 {
   if (m_state != VState::Opened)
   {
@@ -73,7 +73,7 @@ bool SnoopBpFilter::check(char* pktData, int pktLen)
 
 void SnoopBpFilter::check(SnoopPacket* packet)
 {
-  bool res = check((char*)packet->pktData, packet->pktHdr->caplen);
+  bool res = _check(packet->pktData, packet->pktHdr->caplen);
   if (res)
   {
     emit ack(packet);

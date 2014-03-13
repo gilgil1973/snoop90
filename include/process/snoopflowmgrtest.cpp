@@ -87,6 +87,12 @@ bool SnoopFlowMgrTest::doOpen()
 
 bool SnoopFlowMgrTest::doClose()
 {
+  if (flowMgr == NULL)
+  {
+    SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
+    return false;
+  }
+
   //
   // MacFlow
   //

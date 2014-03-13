@@ -22,8 +22,8 @@ typedef struct
 {
   UINT8 kind;
   UINT8 len;
-  char* value;
-  char* desc;
+  BYTE* value;
+  BYTE* desc;
 } SnoopTcpOption;
 #pragma pack(pop)
 
@@ -35,8 +35,8 @@ typedef std::list<SnoopTcpOption> SnoopTcpOptionList; // gilgil temp 2011.10.27
 class SnoopTcp
 {
 public:
-  static bool   isData  (IP_HDR* ipHdr, TCP_HDR* tcpHdr, char** tcpData = NULL, int* tcpDataLen = NULL);
-  static bool   isOption(TCP_HDR* tcpHdr, char** tcpOption = NULL, int* tcpOptionLen = NULL);
+  static bool   isData  (IP_HDR* ipHdr, TCP_HDR* tcpHdr, BYTE** tcpData = NULL, int* tcpDataLen = NULL);
+  static bool   isOption(TCP_HDR* tcpHdr, BYTE** tcpOption = NULL, int* tcpOptionLen = NULL);
   static UINT16 checksum(IP_HDR* ipHdr, TCP_HDR* tcpHdr);
 
 public:

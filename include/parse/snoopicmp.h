@@ -19,7 +19,7 @@
 class SnoopIcmp
 {
 public:
-  static bool   isData(IP_HDR* ipHdr, ICMP_HDR* icmpHdr, char** icmpData = NULL, int* icmpDataLen = NULL);
+  static bool   isData(IP_HDR* ipHdr, ICMP_HDR* icmpHdr, BYTE** icmpData = NULL, int* icmpDataLen = NULL);
   static UINT16 checksum(IP_HDR* ipHdr, ICMP_HDR* icmpHdr);
 
 public:

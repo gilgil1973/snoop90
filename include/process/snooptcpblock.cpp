@@ -63,7 +63,7 @@ int SnoopTcpBlock::sendForwardBlock(SnoopCapture* capture, SnoopPacket* packet, 
 	ETH_HDR* ethHdr = (ETH_HDR*) &buf[0];
 	IP_HDR*  ipHdr  = (IP_HDR*)  &buf[sizeof(ETH_HDR)];
 	TCP_HDR* tcpHdr = (TCP_HDR*) &buf[sizeof(ETH_HDR) + sizeof(IP_HDR)];
-	char*    data   = (char*)    &buf[sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR)];
+  BYTE*    data   = (BYTE*)    &buf[sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR)];
 
   //
   // Ethernet Header

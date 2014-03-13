@@ -19,7 +19,7 @@
 class SnoopUdp
 {
 public:
-  static bool   isData(IP_HDR* ipHdr, UDP_HDR* udpHdr, char** udpData = NULL, int* udpDataLen = NULL);
+  static bool   isData(IP_HDR* ipHdr, UDP_HDR* udpHdr, BYTE** udpData = NULL, int* udpDataLen = NULL);
   static UINT16 checksum(IP_HDR* ipHdr, UDP_HDR* udpHdr);
 
 public:

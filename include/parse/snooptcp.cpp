@@ -5,10 +5,10 @@
 // ----------------------------------------------------------------------------
 // SnoopTcp
 // ----------------------------------------------------------------------------
-bool SnoopTcp::isData(IP_HDR* ipHdr, TCP_HDR* tcpHdr, char** tcpData, int* tcpDataLen)
+bool SnoopTcp::isData(IP_HDR* ipHdr, TCP_HDR* tcpHdr, BYTE** tcpData, int* tcpDataLen)
 {
   int   tcpHdrLen   = tcpHdr->th_off * sizeof(UINT32);
-  char* _tcpData    = (char*)(tcpHdr) + tcpHdrLen;
+  BYTE* _tcpData    = (BYTE*)(tcpHdr) + tcpHdrLen;
   int   _tcpDataLen = ntohs(ipHdr->ip_len) - sizeof(IP_HDR) - tcpHdrLen;
   
   if (_tcpDataLen > 0)
@@ -22,12 +22,12 @@ bool SnoopTcp::isData(IP_HDR* ipHdr, TCP_HDR* tcpHdr, char** tcpData, int* tcpDa
   return false;
 }
 
-bool SnoopTcp::isOption(TCP_HDR* tcpHdr, char** tcpOption, int* tcpOptionLen)
+bool SnoopTcp::isOption(TCP_HDR* tcpHdr, BYTE** tcpOption, int* tcpOptionLen)
 {
   int tcpHdrLen = tcpHdr->th_off * sizeof(UINT32);
   int _tcpOptionLen = tcpHdrLen - sizeof(TCP_HDR);
   if (tcpOption != NULL)
-    *tcpOption = (char*)tcpHdr + sizeof(TCP_HDR);
+    *tcpOption = (BYTE*)tcpHdr + sizeof(TCP_HDR);
   if (tcpOptionLen != NULL)
     *tcpOptionLen = _tcpOptionLen;
   return _tcpOptionLen > 0;
@@ -125,7 +125,7 @@ int SnoopTcp::getOption(
     snoopTCPOption.len = len;
 
     if (tcpOptionLen < len - 2) goto _error;
-    snoopTCPOption.value = (char*)p;
+    snoopTCPOption.value = (BYTE*)p;
     p += len - 2; // p++; tcpOptionLen--; // remove warning
   }
 
@@ -168,7 +168,7 @@ int SnoopTcp::getOption(
      default : desc = "UNKNOWN";                             break;
   }
 
-  snoopTCPOption.desc = desc;
+  snoopTCPOption.desc = (BYTE*)desc;
 
   return (int)(p - (UINT8*)tcpOption);
 _error:

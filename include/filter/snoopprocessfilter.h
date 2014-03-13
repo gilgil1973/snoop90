@@ -70,6 +70,12 @@ protected:
     size_t tcpFlowOffset;
     size_t udpFlowOffset;
 
+protected slots:
+  void __tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+
 #ifdef QT_GUI_LIB
 public:
   bool showStatus;
@@ -77,12 +83,6 @@ public:
 protected:
   SnoopProcessFilterWidget* widget;
 #endif // QT_GUI_LIB
-
-protected slots:
-  void __tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
-  void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
 
 protected:
   void _checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFilterItem* item);
