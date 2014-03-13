@@ -113,25 +113,71 @@ void SnoopDataChange::change(SnoopPacket* packet)
 {
   bool _changed = false;
   if (packet->ipHdr == NULL) return;
-  if (packet->tcpHdr != NULL)
+
+  if (packet->proto == IPPROTO_TCP)
   {
+    SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
+    // LOG_DEBUG("%p %d", flowItem, flowItem->seqDiff); // gilgil temp 2014.03.13
+
+    if (flowItem->seqDiff != 0)
+    {
+      UINT32 oldSeq = ntohl(packet->tcpHdr->th_seq);
+      UINT32 newSeq = oldSeq + flowItem->seqDiff;
+      packet->tcpHdr->th_seq = htonl(newSeq);
+      packet->ipChanged = true; // gilgil temp 2014.03.13
+      packet->tcpChanged = true; // gilgil temp 2014.03.13
+    }
+    if (flowItem->ackDiff != 0)
+    {
+      UINT32 oldAck = ntohl(packet->tcpHdr->th_ack);
+      UINT32 newAck = oldAck + flowItem->ackDiff;
+      packet->tcpHdr->th_ack = htonl(newAck);
+      packet->ipChanged = true; // gilgil temp 2014.03.13
+      packet->tcpChanged = true; // gilgil temp 2014.03.13
+    }
+
     if (packet->data != NULL)
     {
-      QByteArray ba(packet->data, packet->dataLen);
+      BYTE* data = packet->data;
+      int len  = packet->dataLen;
+      QByteArray ba((const char*)data, (uint)len);
       if (_change(ba))
       {
-        memcpy(packet->data, ba.data(), (size_t)packet->dataLen);
+        int newLen = ba.size();
+        int diff   = newLen - len;
+        INT16 diff16 = (INT16)diff;
+        memcpy(data, ba.constData(), newLen);
+
+        if (newLen != len)
+        {
+          packet->pktHdr->caplen += (UINT32)diff;
+          packet->ipHdr->ip_len = htons(ntohs(packet->ipHdr->ip_len) + (UINT16)diff16);
+          flowItem->seqDiff += diff;
+
+          SnoopTcpFlowKey* flowKey = (SnoopTcpFlowKey*)packet->flowKey;
+          SnoopTcpFlowKey rflowKey = flowKey->reverse();
+          Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rflowKey);
+          if (it != flowMgr->tcpFlow_Map.end())
+          {
+            SnoopFlowValue rvalue = it.value();
+            SnoopDataChangeFlowItem* rflowItem = (SnoopDataChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
+            rflowItem->ackDiff -= diff;
+          }
+          packet->ipChanged = true; // gilgil temp 2014.03.13
+        }
         packet->tcpChanged = true;
         _changed = true;
       }
     }
   } else
-  if (packet->udpHdr != NULL)
+  if (packet->proto != IPPROTO_UDP)
   {
-    QByteArray ba(packet->data, packet->dataLen);
+    BYTE* data = packet->data;
+    int len  = packet->dataLen;
+    QByteArray ba((const char*)data, (uint)len);
     if (_change(ba))
     {
-      memcpy(packet->data, ba.data(), (size_t)packet->dataLen);
+      memcpy(data, ba.constData(), (size_t)ba.size());
       packet->udpChanged = true;
       _changed = true;
     }
@@ -153,7 +199,10 @@ bool SnoopDataChange::_change(QByteArray& ba)
     ba.replace(item.from, item.to);
     if (ba != _old)
     {
-      LOG_DEBUG("changed %s > %s", qPrintable(item.from), qPrintable(item.to));
+      if (item.log)
+      {
+        LOG_INFO("changed %s > %s", qPrintable(item.from), qPrintable(item.to));
+      }
       _old = ba;
       res = true;
     }
@@ -163,17 +212,25 @@ bool SnoopDataChange::_change(QByteArray& ba)
 
 void SnoopDataChange::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
-  Q_UNUSED(key)
-  LOG_DEBUG(""); // gilgil temp 2014.03.13
   SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(value->totalMem + tcpFlowOffset);
-  flowItem->seqValueChanged = 0;
+  flowItem->seqDiff = 0;
+  flowItem->ackDiff = 0;
+  // LOG_DEBUG("%p %d", flowItem, flowItem->seqDiff); // gilgil temp 2014.03.13
+  SnoopTcpFlowKey rkey = key->reverse();
+  Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rkey);
+  if (it != flowMgr->tcpFlow_Map.end())
+  {
+    SnoopFlowValue& rvalue = it.value();
+    SnoopDataChangeFlowItem* rflowItem = (SnoopDataChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
+    flowItem->ackDiff = -rflowItem->seqDiff;
+  }
 }
 
 void SnoopDataChange::__tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
   Q_UNUSED(key)
   Q_UNUSED(value)
-  LOG_DEBUG(""); // gilgil temp 2014.03.13
+  // LOG_DEBUG(""); // gilgil temp 2014.03.13
 }
 
 void SnoopDataChange::load(VXml xml)

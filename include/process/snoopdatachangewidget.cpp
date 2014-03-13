@@ -9,12 +9,14 @@ SnoopDataChangeWidget::SnoopDataChangeWidget(QWidget *parent) :
   ui->setupUi(this);
 
   layout()->setContentsMargins(0, 0, 0, 0);
-  QStringList headerLables; headerLables << "Enabled" << "RegExp" << "From" << "To";
+  QStringList headerLables; headerLables << "Enabled" << "RegExp" << "Log" << "From" << "To";
   ui->treeWidget->setHeaderLabels(headerLables);
   ui->treeWidget->setColumnWidth(ENABLED_IDX, 70);
   ui->treeWidget->setColumnWidth(RE_IDX,      70);
+  ui->treeWidget->setColumnWidth(LOG_IDX,     70);
   ui->treeWidget->header()->setSectionResizeMode(ENABLED_IDX, QHeaderView::Fixed);
   ui->treeWidget->header()->setSectionResizeMode(RE_IDX,      QHeaderView::Fixed);
+  ui->treeWidget->header()->setSectionResizeMode(LOG_IDX,     QHeaderView::Fixed);
   ui->treeWidget->header()->setSectionResizeMode(FROM_IDX,    QHeaderView::Stretch);
   ui->treeWidget->header()->setSectionResizeMode(TO_IDX,      QHeaderView::Stretch);
   ui->treeWidget->header()->setStretchLastSection(false);
@@ -48,6 +50,7 @@ void operator << (SnoopDataChangeItem& item, QTreeWidgetItem& treeWidgetItem)
 {
   item.enabled = treeWidgetItem.checkState(SnoopDataChangeWidget::ENABLED_IDX) == Qt::Checked;
   item.re      = treeWidgetItem.checkState(SnoopDataChangeWidget::RE_IDX)      == Qt::Checked;
+  item.log     = treeWidgetItem.checkState(SnoopDataChangeWidget::LOG_IDX)     == Qt::Checked;
   item.from    = qPrintable(treeWidgetItem.text(SnoopDataChangeWidget::FROM_IDX));
   item.to      = qPrintable(treeWidgetItem.text(SnoopDataChangeWidget::TO_IDX));
 }
@@ -56,6 +59,7 @@ void operator << (QTreeWidgetItem& treeWidgetItem, SnoopDataChangeItem& item)
 {
   treeWidgetItem.setCheckState(SnoopDataChangeWidget::ENABLED_IDX, item.enabled ? Qt::Checked : Qt::Unchecked);
   treeWidgetItem.setCheckState(SnoopDataChangeWidget::RE_IDX,      item.re      ? Qt::Checked : Qt::Unchecked);
+  treeWidgetItem.setCheckState(SnoopDataChangeWidget::LOG_IDX,     item.log     ? Qt::Checked : Qt::Unchecked);
   treeWidgetItem.setText(SnoopDataChangeWidget::FROM_IDX, item.from);
   treeWidgetItem.setText(SnoopDataChangeWidget::TO_IDX,   item.to);
   treeWidgetItem.setFlags(treeWidgetItem.flags() | Qt::ItemFlag::ItemIsEditable);

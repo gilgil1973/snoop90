@@ -21,7 +21,8 @@
 class SnoopDataChangeFlowItem
 {
 public:
-  quint32 seqValueChanged;
+  int seqDiff;
+  int ackDiff;
 };
 
 // ----------------------------------------------------------------------------

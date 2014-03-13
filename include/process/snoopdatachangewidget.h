@@ -19,8 +19,9 @@ public:
 public:
   static const int ENABLED_IDX = 0;
   static const int RE_IDX      = 1;
-  static const int FROM_IDX    = 2;
-  static const int TO_IDX      = 3;
+  static const int LOG_IDX     = 2;
+  static const int FROM_IDX    = 3;
+  static const int TO_IDX      = 4;
 
 public:
   Ui::SnoopDataChangeWidget *ui;
