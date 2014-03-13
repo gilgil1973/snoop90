@@ -24,11 +24,11 @@ public:
   SnoopBlock(void* owner = NULL);
   virtual ~SnoopBlock();
 
+public:
+  bool drop;
+
 public slots:
   void block(SnoopPacket* packet);
-
-public:
-  bool          drop;
 
 public:
   virtual void load(VXml xml);
