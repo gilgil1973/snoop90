@@ -6,63 +6,6 @@
 REGISTER_METACLASS(SnoopDataChange, SnoopProcess)
 
 // ----------------------------------------------------------------------------
-// SnoopDataChangeItem
-// ----------------------------------------------------------------------------
-SnoopDataChangeItem::SnoopDataChangeItem()
-{
-  enabled = true;
-  re      = false;
-  log     = true;
-  from    = "";
-  to      = "";
-}
-
-void SnoopDataChangeItem::load(VXml xml)
-{
-  enabled = xml.getBool("enabled", enabled);
-  re      = xml.getBool("re", re);
-  log     = xml.getBool("log", log);
-  from    = qPrintable(xml.getStr("from", from));
-  to      = qPrintable(xml.getStr("to",   to));
-}
-
-void SnoopDataChangeItem::save(VXml xml)
-{
-  xml.setBool("enabled", enabled);
-  xml.setBool("re", re);
-  xml.setBool("log", log);
-  xml.setStr("from", qPrintable(from));
-  xml.setStr("to",   qPrintable(to));
-}
-
-// ----------------------------------------------------------------------------
-// SnoopDataChangeItems
-// ----------------------------------------------------------------------------
-void SnoopDataChangeItems::load(VXml xml)
-{
-  clear();
-  {
-    xml_foreach (childXml, xml.childs())
-    {
-      SnoopDataChangeItem item;
-      item.load(childXml);
-      push_back(item);
-    }
-  }
-}
-
-void SnoopDataChangeItems::save(VXml xml)
-{
-  xml.clearChild();
-  for (SnoopDataChangeItems::iterator it = begin(); it != end(); it++)
-  {
-    SnoopDataChangeItem& item = *it;
-    VXml childXml = xml.addChild("item");
-    item.save(childXml);
-  }
-}
-
-// ----------------------------------------------------------------------------
 // SnoopDataChange
 // ----------------------------------------------------------------------------
 SnoopDataChange::SnoopDataChange(void* owner) : SnoopProcess(owner)
@@ -70,7 +13,7 @@ SnoopDataChange::SnoopDataChange(void* owner) : SnoopProcess(owner)
   flowMgr   = NULL;
   tcpChange = true;
   udpChange = true;
-  items.clear();
+  changeItems.clear();
 
   tcpFlowOffset = 0;
 }
@@ -141,7 +84,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
       BYTE* data = packet->data;
       int len  = packet->dataLen;
       QByteArray ba((const char*)data, (uint)len);
-      if (_change(ba))
+      if (changeItems.change(ba))
       {
         int newLen = ba.size();
         int diff   = newLen - len;
@@ -170,12 +113,12 @@ void SnoopDataChange::change(SnoopPacket* packet)
       }
     }
   } else
-  if (packet->proto != IPPROTO_UDP)
+  if (packet->proto == IPPROTO_UDP)
   {
     BYTE* data = packet->data;
     int len  = packet->dataLen;
     QByteArray ba((const char*)data, (uint)len);
-    if (_change(ba))
+    if (changeItems.change(ba))
     {
       memcpy(data, ba.constData(), (size_t)ba.size());
       packet->udpChanged = true;
@@ -188,27 +131,8 @@ void SnoopDataChange::change(SnoopPacket* packet)
   }
 }
 
-bool SnoopDataChange::_change(QByteArray& ba)
-{
-  bool res = false;
-  QByteArray _old = ba;
-  for (int i = 0; i < items.count(); i++)
-  {
-    SnoopDataChangeItem& item = (SnoopDataChangeItem&)items.at(i);
-    if (!item.enabled) continue;
-    ba.replace(item.from, item.to);
-    if (ba != _old)
-    {
-      if (item.log)
-      {
-        LOG_INFO("changed %s > %s", qPrintable(item.from), qPrintable(item.to));
-      }
-      _old = ba;
-      res = true;
-    }
-  }
-  return res;
-}
+
+
 
 void SnoopDataChange::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
@@ -241,7 +165,7 @@ void SnoopDataChange::load(VXml xml)
   if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
   tcpChange = xml.getBool("tcpChange", tcpChange);
   udpChange = xml.getBool("udpChange", udpChange);
-  items.load(xml.gotoChild("items"));
+  changeItems.load(xml.gotoChild("changeItems"));
 }
 
 void SnoopDataChange::save(VXml xml)
@@ -252,12 +176,10 @@ void SnoopDataChange::save(VXml xml)
   xml.setStr("flowMgr", flowMgrName);
   xml.setBool("tcpChange", tcpChange);
   xml.setBool("udpChange", udpChange);
-  items.save(xml.gotoChild("items"));
+  changeItems.save(xml.gotoChild("changeItems"));
 }
 
 #ifdef QT_GUI_LIB
-#include "snoopdatachangewidget.h"
-#include "ui_snoopdatachangewidget.h"
 void SnoopDataChange::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
@@ -266,10 +188,7 @@ void SnoopDataChange::optionAddWidget(QLayout* layout)
   VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1, flowMgr == NULL ? "" : flowMgr->name);
   VOptionable::addCheckBox(layout, "chkTcpChange", "TCP Change", tcpChange);
   VOptionable::addCheckBox(layout, "chkUdpChange", "UDP Change", udpChange);
-  SnoopDataChangeWidget* widget = new SnoopDataChangeWidget(layout->parentWidget());
-  widget->setObjectName("snoopDataChangeWidget");
-  *(widget->ui->treeWidget) << items;
-  layout->addWidget(widget);
+  changeItems.optionAddWidget(layout);
 }
 
 void SnoopDataChange::optionSaveDlg(QDialog* dialog)
@@ -279,8 +198,6 @@ void SnoopDataChange::optionSaveDlg(QDialog* dialog)
   flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
   tcpChange = dialog->findChild<QCheckBox*>("chkTcpChange")->checkState() == Qt::Checked;
   udpChange = dialog->findChild<QCheckBox*>("chkUdpChange")->checkState() == Qt::Checked;
-  SnoopDataChangeWidget* widget = dialog->findChild<SnoopDataChangeWidget*>("snoopDataChangeWidget");
-  LOG_ASSERT(widget != NULL);
-  items << *(widget->ui->treeWidget);
+  changeItems.optionSaveDlg(dialog);
 }
 #endif // QT_GUI_LIB

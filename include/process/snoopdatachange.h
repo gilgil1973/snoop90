@@ -13,7 +13,7 @@
 
 #include <SnoopProcess>
 #include <SnoopFlowMgr>
-#include <QRegExp>
+#include <VDataChange>
 
 // ----------------------------------------------------------------------------
 // SnoopDataChangeFlowItem
@@ -23,36 +23,6 @@ class SnoopDataChangeFlowItem
 public:
   int seqDiff;
   int ackDiff;
-};
-
-// ----------------------------------------------------------------------------
-// SnoopDataChangeItem
-// ----------------------------------------------------------------------------
-class SnoopDataChangeItem : public VXmlable
-{
-public:
-  bool       enabled;
-  bool       re;
-  bool       log;
-  QByteArray from;
-  QByteArray to;
-
-public:
-  SnoopDataChangeItem();
-
-public:
-  virtual void load(VXml xml);
-  virtual void save(VXml xml);
-};
-
-// ----------------------------------------------------------------------------
-// SnoopDataChangeItems
-// ----------------------------------------------------------------------------
-class SnoopDataChangeItems : public QList<SnoopDataChangeItem>, public VXmlable
-{
-public:
-  virtual void load(VXml xml);
-  virtual void save(VXml xml);
 };
 
 // ----------------------------------------------------------------------------
@@ -76,14 +46,11 @@ signals:
 public slots:
   void change(SnoopPacket* packet);
 
-protected:
-  bool _change(QByteArray& ba);
-
 public:
   SnoopFlowMgr*        flowMgr;
   bool                 tcpChange;
   bool                 udpChange;
-  SnoopDataChangeItems items;
+  VDataChangeItems     changeItems;
 
 protected:
     size_t tcpFlowOffset;
