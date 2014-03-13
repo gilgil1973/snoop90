@@ -21,6 +21,14 @@ bool SnoopMacFlowKey::operator < (const SnoopMacFlowKey& rhs) const
   return false;
 }
 
+SnoopMacFlowKey SnoopMacFlowKey::reverse()
+{
+  SnoopMacFlowKey res;
+  res.srcMac = this->dstMac;
+  res.dstMac = this->srcMac;
+  return res;
+}
+
 // ----------------------------------------------------------------------------
 // SnoopMacSessionKey
 // ----------------------------------------------------------------------------
@@ -51,6 +59,14 @@ bool SnoopIpFlowKey::operator < (const SnoopIpFlowKey& rhs) const
   return false;
 }
 
+SnoopIpFlowKey SnoopIpFlowKey::reverse()
+{
+  SnoopIpFlowKey res;
+  res.srcIp = this->dstIp;
+  res.dstIp = this->srcIp;
+  return res;
+}
+
 // ----------------------------------------------------------------------------
 // SnoopIpSessionKey
 // ----------------------------------------------------------------------------
@@ -79,6 +95,14 @@ bool SnoopPortFlowKey::operator < (const SnoopPortFlowKey& rhs) const
   if (this->srcPort > rhs.srcPort) return false;
   if (this->dstPort < rhs.dstPort) return true;
   return false;
+}
+
+SnoopPortFlowKey SnoopPortFlowKey::reverse()
+{
+  SnoopPortFlowKey res;
+  res.srcPort = this->dstPort;
+  res.dstPort = this->srcPort;
+  return res;
 }
 
 // ----------------------------------------------------------------------------
@@ -118,6 +142,16 @@ bool SnoopTransportFlowKey::operator < (const SnoopTransportFlowKey& rhs) const
   return false;
 }
 
+SnoopTransportFlowKey SnoopTransportFlowKey::reverse()
+{
+  SnoopTransportFlowKey res;
+  res.srcIp   = this->dstIp;
+  res.srcPort = this->dstPort;
+  res.dstIp   = this->srcIp;
+  res.dstPort = this->srcPort;
+  return res;
+}
+
 // ----------------------------------------------------------------------------
 // SnoopTransportSessionKey
 // ----------------------------------------------------------------------------
@@ -141,4 +175,12 @@ bool SnoopTupleFlowKey::operator < (const SnoopTupleFlowKey& rhs) const
   if (this->proto < rhs.proto) return true;
   if (this->proto > rhs.proto) return false;
   return this->flow < rhs.flow;
+}
+
+SnoopTupleFlowKey SnoopTupleFlowKey::reverse()
+{
+  SnoopTupleFlowKey res;
+  res.proto = this->proto;
+  res.flow  = this->flow.reverse();
+  return res;
 }

@@ -34,6 +34,7 @@ public:
   Mac dstMac;
 
   bool operator < (const SnoopMacFlowKey& rhs) const;
+  SnoopMacFlowKey reverse();
 };
 
 // ----------------------------------------------------------------------------
@@ -69,6 +70,7 @@ public:
   Ip dstIp;
 
   bool operator < (const SnoopIpFlowKey& rhs) const;
+  SnoopIpFlowKey reverse();
 };
 
 // ----------------------------------------------------------------------------
@@ -104,6 +106,7 @@ public:
   UINT16 dstPort;
 
   bool operator < (const SnoopPortFlowKey& rhs) const;
+  SnoopPortFlowKey reverse();
 };
 
 // ----------------------------------------------------------------------------
@@ -145,6 +148,7 @@ public:
   UINT16 dstPort;
 
   bool operator < (const SnoopTransportFlowKey& rhs) const;
+  SnoopTransportFlowKey reverse();
 };
 
 typedef SnoopTransportFlowKey SnoopTcpFlowKey;
@@ -177,6 +181,7 @@ public:
   SnoopTransportFlowKey flow;
 
   bool operator < (const SnoopTupleFlowKey& rhs) const;
+  SnoopTupleFlowKey reverse();
 };
 
 #endif // __SNOOP_TYPE_KEY_H__
