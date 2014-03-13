@@ -76,11 +76,11 @@ bool SnoopProcessFilter::doOpen()
     return false;
   }
 
-  tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopProcessFilterItem));
+  tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopProcessFilterFlowItem));
   flowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
   flowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
 
-  udpFlowOffset = flowMgr->requestMemory_UdpFlow(this, sizeof(SnoopProcessFilterItem));
+  udpFlowOffset = flowMgr->requestMemory_UdpFlow(this, sizeof(SnoopProcessFilterFlowItem));
   flowMgr->connect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
   flowMgr->connect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
 
@@ -124,7 +124,7 @@ bool SnoopProcessFilter::doClose()
   flowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
   flowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
 
-  udpFlowOffset = flowMgr->requestMemory_UdpFlow(this, sizeof(SnoopProcessFilterItem));
+  udpFlowOffset = flowMgr->requestMemory_UdpFlow(this, sizeof(SnoopProcessFilterFlowItem));
   flowMgr->disconnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)));
   flowMgr->disconnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)));
 
@@ -167,7 +167,7 @@ bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleFlowKey& tuple, /*out*/
 
 void SnoopProcessFilter::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
-  SnoopProcessFilterItem* item = (SnoopProcessFilterItem*)(value->totalMem + tcpFlowOffset);
+  SnoopProcessFilterFlowItem* item = (SnoopProcessFilterFlowItem*)(value->totalMem + tcpFlowOffset);
   SnoopTupleFlowKey tuple;
   tuple.proto = IPPROTO_TCP;
   tuple.flow  = *key;
@@ -183,7 +183,7 @@ void SnoopProcessFilter::__tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* v
 
 void SnoopProcessFilter::__udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
-  SnoopProcessFilterItem* item = (SnoopProcessFilterItem*)(value->totalMem + udpFlowOffset);
+  SnoopProcessFilterFlowItem* item = (SnoopProcessFilterFlowItem*)(value->totalMem + udpFlowOffset);
   SnoopTupleFlowKey tuple;
   tuple.proto = IPPROTO_UDP;
   tuple.flow  = *key;
@@ -197,13 +197,13 @@ void SnoopProcessFilter::__udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* v
   Q_UNUSED(value)
 }
 
-void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFilterItem* item)
+void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFilterFlowItem* flowItem)
 {
-  item->pid = 0;
-  item->ack = false;
+  flowItem->pid = 0;
+  flowItem->ack = false;
 
   QString processName;
-  if (!getProcessInfo(*tuple, item->pid, processName))
+  if (!getProcessInfo(*tuple, flowItem->pid, processName))
   {
     LOG_ERROR("getProcessInfo %u (%s:%d > %s:%d) return false",
       tuple->proto,
@@ -224,12 +224,12 @@ void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFil
   }
 
   bool ack = pit.value();
-  item->ack= ack;
+  flowItem->ack= ack;
 }
 
 void SnoopProcessFilter::check(SnoopPacket* packet)
 {
-  SnoopProcessFilterItem* item;
+  SnoopProcessFilterFlowItem* flowItem;
 
   if (packet->proto == IPPROTO_TCP)
   {
@@ -238,7 +238,7 @@ void SnoopProcessFilter::check(SnoopPacket* packet)
       LOG_ERROR("packet->flowValue is null");
       return;
     }
-    item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + tcpFlowOffset);
+    flowItem  = (SnoopProcessFilterFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
   } else
   if (packet->proto == IPPROTO_UDP)
   {
@@ -247,14 +247,14 @@ void SnoopProcessFilter::check(SnoopPacket* packet)
       LOG_ERROR("packet->flowValue is null");
       return;
     }
-    item  = (SnoopProcessFilterItem*)(packet->flowValue->totalMem + udpFlowOffset);
+    flowItem  = (SnoopProcessFilterFlowItem*)(packet->flowValue->totalMem + udpFlowOffset);
   } else
   {
     emit nak(packet);
     return;
   }
 
-  if (item->ack)
+  if (flowItem->ack)
     emit ack(packet);
   else
     emit nak(packet);

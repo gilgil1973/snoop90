@@ -17,9 +17,9 @@
 #include <SnoopFlowMgr>
 
 // ----------------------------------------------------------------------------
-// SnoopProcessFilterItem
+// SnoopProcessFilterFlowItem
 // ----------------------------------------------------------------------------
-class SnoopProcessFilterItem
+class SnoopProcessFilterFlowItem
 {
 public:
   quint32 pid;
@@ -85,7 +85,7 @@ protected:
 #endif // QT_GUI_LIB
 
 protected:
-  void _checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFilterItem* item);
+  void _checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFilterFlowItem* flowItem);
 
 public slots:
   void check(SnoopPacket* packet);
