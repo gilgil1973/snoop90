@@ -384,6 +384,7 @@ Snoop_MacFlow_Map::iterator SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key, stru
   value.ts      = ts;
   value.created = created;
   value.totalMem = new BYTE[macFlow_Items.totalMemSize];
+  memset(value.totalMem, 0, macFlow_Items.totalMemSize);
   Snoop_MacFlow_Map::iterator it = macFlow_Map.insert(key, value);
   if (created)
   {
@@ -417,6 +418,7 @@ Snoop_IpFlow_Map::iterator SnoopFlowMgr::add_IpFlow(SnoopIpFlowKey& key, struct 
   value.ts      = ts;
   value.created = created;
   value.totalMem = new BYTE[ipFlow_Items.totalMemSize];
+  memset(value.totalMem, 0, ipFlow_Items.totalMemSize);
   Snoop_IpFlow_Map::iterator it = ipFlow_Map.insert(key, value);
   if (created)
   {
@@ -450,6 +452,7 @@ Snoop_TcpFlow_Map::iterator SnoopFlowMgr::add_TcpFlow(SnoopTcpFlowKey& key, stru
   value.ts      = ts;
   value.created = created;
   value.totalMem = new BYTE[tcpFlow_Items.totalMemSize];
+  memset(value.totalMem, 0, tcpFlow_Items.totalMemSize);
   Snoop_TcpFlow_Map::iterator it = tcpFlow_Map.insert(key, value);
   if (created)
   {
@@ -483,6 +486,7 @@ Snoop_UdpFlow_Map::iterator SnoopFlowMgr::add_UdpFlow(SnoopUdpFlowKey& key, stru
   value.ts      = ts;
   value.created = created;
   value.totalMem = new BYTE[udpFlow_Items.totalMemSize];
+  memset(value.totalMem, 0, udpFlow_Items.totalMemSize);
   Snoop_UdpFlow_Map::iterator it = udpFlow_Map.insert(key, value);
   if (created)
   {
