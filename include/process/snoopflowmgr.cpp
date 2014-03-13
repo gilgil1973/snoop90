@@ -137,28 +137,28 @@ Snoop_TcpFlow_Map::iterator Snoop_UdpFlow_Map::erase(SnoopUdpFlowKey& key)
 }
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrRequesterItem
+// SnoopFlowRequestItem
 // ----------------------------------------------------------------------------
-SnoopFlowMgrRequesterItem::SnoopFlowMgrRequesterItem()
+SnoopFlowRequestItem::SnoopFlowRequestItem()
 {
-  requester = NULL;
-  offset    = 0;
-  memSize   = 0;
+  id      = NULL;
+  offset  = 0;
+  memSize = 0;
 };
 
-SnoopFlowMgrRequesterItem::~SnoopFlowMgrRequesterItem()
+SnoopFlowRequestItem::~SnoopFlowRequestItem()
 {
 }
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrRequesterItems
+// SnoopFlowRequestItems
 // ----------------------------------------------------------------------------
-SnoopFlowMgrRequesterItems::SnoopFlowMgrRequesterItems()
+SnoopFlowRequestItems::SnoopFlowRequestItems()
 {
   totalMemSize = 0;
 }
 
-SnoopFlowMgrRequesterItems::~SnoopFlowMgrRequesterItems()
+SnoopFlowRequestItems::~SnoopFlowRequestItems()
 {
   // gilgil temp 2014.02.21
 }
@@ -325,21 +325,21 @@ void SnoopFlowMgr::clearItems()
   udpFlow_Items.clear();
 }
 
-size_t SnoopFlowMgr::requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize)
+size_t SnoopFlowMgr::requestMemory(void* id, SnoopFlowRequestItems& items, size_t memSize)
 {
   size_t currentOffset = 0;
   int _count = items.count();
   for (int i = 0; i < _count; i++)
   {
-    const SnoopFlowMgrRequesterItem& item = items.at(i);
-    if (item.requester == requester) return currentOffset;
+    const SnoopFlowRequestItem& item = items.at(i);
+    if (item.id == id) return currentOffset;
     currentOffset += item.memSize;
   }
 
-  SnoopFlowMgrRequesterItem item;
-  item.requester = requester;
-  item.offset    = currentOffset;
-  item.memSize   = memSize;
+  SnoopFlowRequestItem item;
+  item.id      = id;
+  item.offset  = currentOffset;
+  item.memSize = memSize;
 
   items.push_back(item);
   items.totalMemSize += memSize;
@@ -371,9 +371,9 @@ void SnoopFlowMgr::disconnect(const char* signal, VObject* receiver, const char*
   }
 }
 
-size_t SnoopFlowMgr::requestMemory_MacFlow(void* requester, size_t memSize)
+size_t SnoopFlowMgr::requestMemory_MacFlow(void* id, size_t memSize)
 {
-  return requestMemory(requester, macFlow_Items, memSize);
+  return requestMemory(id, macFlow_Items, memSize);
 }
 
 Snoop_MacFlow_Map::iterator SnoopFlowMgr::add_MacFlow(SnoopMacFlowKey& key, struct timeval ts, bool created)
@@ -404,9 +404,9 @@ Snoop_MacFlow_Map::iterator SnoopFlowMgr::del_MacFlow(SnoopMacFlowKey& key)
   return macFlow_Map.erase(key);
 }
 
-size_t SnoopFlowMgr::requestMemory_IpFlow(void* requester, size_t memSize)
+size_t SnoopFlowMgr::requestMemory_IpFlow(void* id, size_t memSize)
 {
-  return requestMemory(requester, ipFlow_Items, memSize);
+  return requestMemory(id, ipFlow_Items, memSize);
 }
 
 Snoop_IpFlow_Map::iterator SnoopFlowMgr::add_IpFlow(SnoopIpFlowKey& key, struct timeval ts, bool created)
@@ -437,9 +437,9 @@ Snoop_IpFlow_Map::iterator SnoopFlowMgr::del_IpFlow(SnoopIpFlowKey& key)
   return ipFlow_Map.erase(key);
 }
 
-size_t SnoopFlowMgr::requestMemory_TcpFlow(void* requester, size_t memSize)
+size_t SnoopFlowMgr::requestMemory_TcpFlow(void* id, size_t memSize)
 {
-  return requestMemory(requester, tcpFlow_Items, memSize);
+  return requestMemory(id, tcpFlow_Items, memSize);
 }
 
 Snoop_TcpFlow_Map::iterator SnoopFlowMgr::add_TcpFlow(SnoopTcpFlowKey& key, struct timeval ts, bool created)
@@ -470,9 +470,9 @@ Snoop_TcpFlow_Map::iterator SnoopFlowMgr::del_TcpFlow(SnoopTcpFlowKey& key)
   return tcpFlow_Map.erase(key);
 }
 
-size_t SnoopFlowMgr::requestMemory_UdpFlow(void* requester, size_t memSize)
+size_t SnoopFlowMgr::requestMemory_UdpFlow(void* id, size_t memSize)
 {
-  return requestMemory(requester, udpFlow_Items, memSize);
+  return requestMemory(id, udpFlow_Items, memSize);
 }
 
 Snoop_UdpFlow_Map::iterator SnoopFlowMgr::add_UdpFlow(SnoopUdpFlowKey& key, struct timeval ts, bool created)

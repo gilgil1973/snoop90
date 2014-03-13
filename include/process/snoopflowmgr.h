@@ -63,28 +63,28 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrRequesterItem
+// SnoopFlowRequestItem
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrRequesterItem
+class SnoopFlowRequestItem
 {
 public:
-  SnoopFlowMgrRequesterItem();
-  virtual ~SnoopFlowMgrRequesterItem();
+  SnoopFlowRequestItem();
+  virtual ~SnoopFlowRequestItem();
 
 public:
-  void*  requester;
+  void*  id;
   size_t offset;
   size_t memSize;
 };
 
 // ----------------------------------------------------------------------------
-// SnoopFlowMgrRequesterItems
+// SnoopFlowRequestItems
 // ----------------------------------------------------------------------------
-class SnoopFlowMgrRequesterItems : public QList<SnoopFlowMgrRequesterItem>
+class SnoopFlowRequestItems : public QList<SnoopFlowRequestItem>
 {
 public:
-  SnoopFlowMgrRequesterItems();
-  virtual ~SnoopFlowMgrRequesterItems();
+  SnoopFlowRequestItems();
+  virtual ~SnoopFlowRequestItems();
 
 public:
   size_t totalMemSize;
@@ -115,15 +115,15 @@ public:
   void deleteOldMaps(struct timeval ts);
 
 public:
-  SnoopFlowMgrRequesterItems macFlow_Items;
-  SnoopFlowMgrRequesterItems ipFlow_Items;
-  SnoopFlowMgrRequesterItems tcpFlow_Items;
-  SnoopFlowMgrRequesterItems udpFlow_Items;
+  SnoopFlowRequestItems macFlow_Items;
+  SnoopFlowRequestItems ipFlow_Items;
+  SnoopFlowRequestItems tcpFlow_Items;
+  SnoopFlowRequestItems udpFlow_Items;
 
   void clearItems();
 
 protected:
-  size_t requestMemory(void* requester, SnoopFlowMgrRequesterItems& items, size_t memSize);
+  size_t requestMemory(void* id, SnoopFlowRequestItems& items, size_t memSize);
 
 public:
   void connect(const char* signal, VObject* receiver, const char* slot, Qt::ConnectionType type); // gilgil temp 2014.03.13
@@ -133,28 +133,28 @@ public:
   //
   // MacFlow
   //
-  size_t requestMemory_MacFlow(void* requester, size_t memSize);
+  size_t requestMemory_MacFlow(void* id, size_t memSize);
   Snoop_MacFlow_Map::iterator add_MacFlow(SnoopMacFlowKey& key, struct timeval ts, bool created);
   Snoop_MacFlow_Map::iterator del_MacFlow(SnoopMacFlowKey& key);
 
   //
   // IpFlow
   //
-  size_t requestMemory_IpFlow(void* requester, size_t memSize);
+  size_t requestMemory_IpFlow(void* id, size_t memSize);
   Snoop_IpFlow_Map::iterator add_IpFlow(SnoopIpFlowKey& key, struct timeval ts, bool created);
   Snoop_IpFlow_Map::iterator del_IpFlow(SnoopIpFlowKey& key);
 
   //
   // TcpFlow
   //
-  size_t requestMemory_TcpFlow(void* requester, size_t memSize);
+  size_t requestMemory_TcpFlow(void* id, size_t memSize);
   Snoop_TcpFlow_Map::iterator add_TcpFlow(SnoopTcpFlowKey& key, struct timeval ts, bool created);
   Snoop_TcpFlow_Map::iterator del_TcpFlow(SnoopTcpFlowKey& key);
 
   //
   // UdpFlow
   //
-  size_t requestMemory_UdpFlow(void* requester, size_t memSize);
+  size_t requestMemory_UdpFlow(void* id, size_t memSize);
   Snoop_UdpFlow_Map::iterator add_UdpFlow(SnoopUdpFlowKey& key, struct timeval ts, bool created);
   Snoop_UdpFlow_Map::iterator del_UdpFlow(SnoopUdpFlowKey& key);
 

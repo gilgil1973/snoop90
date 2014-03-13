@@ -31,7 +31,13 @@ bool SnoopDataChange::doOpen()
     return false;
   }
 
-  tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopDataChangeFlowItem));
+  // ----- by gilgil 2014.03.13 -----
+  // All SnoopDataChange objects should share SnoopDataChangeFlowItem contents.
+  // So id parameter value set into the same value.
+  // tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopDataChangeFlowItem));
+  tcpFlowOffset = flowMgr->requestMemory_TcpFlow("SnoopDataChange", sizeof(SnoopDataChangeFlowItem)); // gilgil temp 2014.03.13
+  // --------------------------------
+
   flowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
   flowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
 
@@ -60,7 +66,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
   if (packet->proto == IPPROTO_TCP)
   {
     SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
-    // LOG_DEBUG("%p %d", flowItem, flowItem->seqDiff); // gilgil temp 2014.03.13
+    // LOG_DEBUG("flowItem=%p seqDiff=%d ackDiff=%d", flowItem, flowItem->seqDiff, flowItem->ackDiff); // gilgil temp 2014.03.13
 
     if (flowItem->seqDiff != 0)
     {
@@ -105,6 +111,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
             SnoopFlowValue rvalue = it.value();
             SnoopDataChangeFlowItem* rflowItem = (SnoopDataChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
             rflowItem->ackDiff -= diff;
+            LOG_DEBUG("rflowItem=%p seqDiff=%d ackDiff=%d", rflowItem, rflowItem->seqDiff, rflowItem->ackDiff); // gilgil temp 2014.03.13
           }
           packet->ipChanged = true; // gilgil temp 2014.03.13
         }
@@ -131,15 +138,12 @@ void SnoopDataChange::change(SnoopPacket* packet)
   }
 }
 
-
-
-
 void SnoopDataChange::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
   SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(value->totalMem + tcpFlowOffset);
   flowItem->seqDiff = 0;
   flowItem->ackDiff = 0;
-  // LOG_DEBUG("%p %d", flowItem, flowItem->seqDiff); // gilgil temp 2014.03.13
+  LOG_DEBUG("flowItem=%p seqDiff=%d", flowItem, flowItem->seqDiff); // gilgil temp 2014.03.13
   SnoopTcpFlowKey rkey = key->reverse();
   Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rkey);
   if (it != flowMgr->tcpFlow_Map.end())
