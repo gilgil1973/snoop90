@@ -5,6 +5,7 @@
 
 #include <QWidget>
 #include <QTreeWidget>
+#include <SnoopCommand>
 
 namespace Ui {
   class SnoopCommandWidget;
@@ -17,6 +18,10 @@ class SnoopCommandWidget : public QWidget
 public:
   explicit SnoopCommandWidget(QWidget *parent = 0);
   ~SnoopCommandWidget();
+
+public:
+  SnoopCommandItems openCommands;
+  SnoopCommandItems closeCommands;
 
 protected:
   void initializeTreeWidget(QTreeWidget* treeWidget);
@@ -37,8 +42,6 @@ private slots:
   void on_pbDelClose_clicked();
 };
 
-class SnoopCommandItem;
-class SnoopCommandItems;
 void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem);
 void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item);
 void operator << (SnoopCommandItems& items, QTreeWidget& treeWidget);

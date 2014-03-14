@@ -156,8 +156,8 @@ void SnoopCommand::optionAddWidget(QLayout* layout)
 
   SnoopCommandWidget* widget = new SnoopCommandWidget(layout->parentWidget());
   widget->setObjectName("snoopCommandWidget");
-  *(widget->ui->tvOpen)  << openCommands;
-  *(widget->ui->tvClose) << closeCommands;
+  widget->openCommands = openCommands;
+  widget->closeCommands = closeCommands;
   layout->addWidget(widget);
 }
 

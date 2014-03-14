@@ -47,10 +47,10 @@ public slots:
   void change(SnoopPacket* packet);
 
 public:
-  SnoopFlowMgr*        flowMgr;
-  bool                 tcpChange;
-  bool                 udpChange;
-  VDataChangeItems     changeItems;
+  SnoopFlowMgr*  flowMgr;
+  bool           tcpChange;
+  bool           udpChange;
+  VDataChange    dataChange;
 
 protected:
     size_t tcpFlowOffset;

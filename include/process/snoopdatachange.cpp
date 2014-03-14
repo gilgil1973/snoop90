@@ -13,7 +13,7 @@ SnoopDataChange::SnoopDataChange(void* owner) : SnoopProcess(owner)
   flowMgr   = NULL;
   tcpChange = true;
   udpChange = true;
-  changeItems.clear();
+  dataChange.clear();
 
   tcpFlowOffset = 0;
 }
@@ -30,6 +30,8 @@ bool SnoopDataChange::doOpen()
     SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
     return false;
   }
+
+  if (dataChange.prepare(error)) return false;
 
   // ----- by gilgil 2014.03.13 -----
   // All SnoopDataChange objects should share SnoopDataChangeFlowItem contents.
@@ -90,7 +92,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
       BYTE* data = packet->data;
       int len  = packet->dataLen;
       QByteArray ba((const char*)data, (uint)len);
-      if (changeItems.change(ba))
+      if (dataChange.change(ba))
       {
         int newLen = ba.size();
         int diff   = newLen - len;
@@ -125,7 +127,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
     BYTE* data = packet->data;
     int len  = packet->dataLen;
     QByteArray ba((const char*)data, (uint)len);
-    if (changeItems.change(ba))
+    if (dataChange.change(ba))
     {
       memcpy(data, ba.constData(), (size_t)ba.size());
       packet->udpChanged = true;
@@ -169,7 +171,7 @@ void SnoopDataChange::load(VXml xml)
   if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
   tcpChange = xml.getBool("tcpChange", tcpChange);
   udpChange = xml.getBool("udpChange", udpChange);
-  changeItems.load(xml.gotoChild("changeItems"));
+  dataChange.load(xml.gotoChild("dataChange"));
 }
 
 void SnoopDataChange::save(VXml xml)
@@ -180,7 +182,7 @@ void SnoopDataChange::save(VXml xml)
   xml.setStr("flowMgr", flowMgrName);
   xml.setBool("tcpChange", tcpChange);
   xml.setBool("udpChange", udpChange);
-  changeItems.save(xml.gotoChild("changeItems"));
+  dataChange.save(xml.gotoChild("dataChange"));
 }
 
 #ifdef QT_GUI_LIB
@@ -192,7 +194,7 @@ void SnoopDataChange::optionAddWidget(QLayout* layout)
   VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1, flowMgr == NULL ? "" : flowMgr->name);
   VOptionable::addCheckBox(layout, "chkTcpChange", "TCP Change", tcpChange);
   VOptionable::addCheckBox(layout, "chkUdpChange", "UDP Change", udpChange);
-  changeItems.optionAddWidget(layout);
+  dataChange.optionAddWidget(layout);
 }
 
 void SnoopDataChange::optionSaveDlg(QDialog* dialog)
@@ -202,6 +204,6 @@ void SnoopDataChange::optionSaveDlg(QDialog* dialog)
   flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
   tcpChange = dialog->findChild<QCheckBox*>("chkTcpChange")->checkState() == Qt::Checked;
   udpChange = dialog->findChild<QCheckBox*>("chkUdpChange")->checkState() == Qt::Checked;
-  changeItems.optionSaveDlg(dialog);
+  dataChange.optionSaveDlg(dialog);
 }
 #endif // QT_GUI_LIB

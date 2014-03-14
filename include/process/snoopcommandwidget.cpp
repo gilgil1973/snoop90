@@ -12,6 +12,9 @@ SnoopCommandWidget::SnoopCommandWidget(QWidget *parent) :
   layout()->setContentsMargins(0, 0, 0, 0);
   initializeTreeWidget(ui->tvOpen);
   initializeTreeWidget(ui->tvClose);
+
+  *(ui->tvOpen)  << openCommands;
+  *(ui->tvClose) << closeCommands;
 }
 
 SnoopCommandWidget::~SnoopCommandWidget()
