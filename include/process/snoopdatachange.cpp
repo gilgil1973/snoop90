@@ -31,7 +31,7 @@ bool SnoopDataChange::doOpen()
     return false;
   }
 
-  if (dataChange.prepare(error)) return false;
+  if (!dataChange.prepare(error)) return false;
 
   // ----- by gilgil 2014.03.13 -----
   // All SnoopDataChange objects should share SnoopDataChangeFlowItem contents.
@@ -68,7 +68,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
   if (packet->proto == IPPROTO_TCP)
   {
     SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
-    // LOG_DEBUG("flowItem=%p seqDiff=%d ackDiff=%d", flowItem, flowItem->seqDiff, flowItem->ackDiff); // gilgil temp 2014.03.13
+    LOG_DEBUG("flowItem=%p seqDiff=%d ackDiff=%d", flowItem, flowItem->seqDiff, flowItem->ackDiff); // gilgil temp 2014.03.13
 
     if (flowItem->seqDiff != 0)
     {
