@@ -164,6 +164,10 @@ bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff)
       UINT16 newLen16 = oldLen16 + (UINT16)diff16;
 
       packet->pktHdr->caplen += (UINT32)diff16;
+      if (packet->pktHdr->caplen > 1514)
+      {
+        LOG_WARN("packet->pktHdr->caplen is %u", packet->pktHdr->caplen);
+      }
       packet->ipHdr->ip_len   = htons(newLen16);
       packet->ipHdr->ip_sum   = htons(SnoopIp::recalculateChecksum(ntohs(packet->ipHdr->ip_sum), oldLen16, newLen16));
       //packet->ipHdr->ip_sum   = htons(SnoopIp::checksum(packet->ipHdr));
