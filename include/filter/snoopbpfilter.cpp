@@ -63,7 +63,7 @@ bool SnoopBpFilter::_check(BYTE* pktData, UINT pktLen)
 {
   if (m_state != VState::Opened)
   {
-    SET_ERROR(VError, qformat("not opened state(%s %s)", qPrintable(className())), VERR_NOT_OPENED_STATE);
+    SET_ERROR(VError, qformat("not opened state(%s %s)", qPrintable(name), qPrintable(className())), VERR_NOT_OPENED_STATE);
     return false;
   }
   LOG_ASSERT(m_pcap != NULL && m_code != NULL);
