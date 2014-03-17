@@ -57,7 +57,7 @@ UINT16 SnoopUdp::checksum(IP_HDR* ipHdr, UDP_HDR* udpHdr)
   dst = ntohl(ipHdr->ip_dst);
   sum += ((dst & 0xFFFF0000) >> 16) + (dst & 0x0000FFFF);
 
-  // Add extra onformation
+  // Add extra information
   sum += (UINT32)udpHdrDataLen + IPPROTO_UDP;
 
   // Recalculate sum
