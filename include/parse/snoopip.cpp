@@ -88,6 +88,23 @@ UINT16 SnoopIp::recalculateChecksum(UINT16 oldChecksum, UINT16 oldValue, UINT16 
   return (UINT16)(sum + (sum >> 16));
 }
 
+UINT16 SnoopIp::recalculateChecksum(UINT16 oldChecksum, UINT32 oldValue, UINT32 newValue)
+{
+  UINT16 oldValue16;
+  UINT16 newValue16;
+  UINT16 sum;
+
+  oldValue16 = (oldValue & 0xffff0000) >> 16;
+  newValue16 = (oldValue & 0xffff0000) >> 16;
+  sum        = recalculateChecksum(oldChecksum, oldValue16, newValue16);
+
+  oldValue16 = oldValue & 0x0000ffff;
+  newValue16 = newValue & 0x0000ffff;
+  sum        = recalculateChecksum(sum, oldValue16, newValue16);
+
+  return sum;
+}
+
 bool SnoopIp::parse(SnoopPacket* packet)
 {
   if (!SnoopEth::isIp(packet->ethHdr, &packet->ipHdr)) return false;

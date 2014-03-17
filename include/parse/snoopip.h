@@ -25,6 +25,7 @@ public:
   static bool   isIcmp(IP_HDR* ipHdr, ICMP_HDR** icmpHdr);
   static UINT16 checksum(IP_HDR* ipHdr);
   static UINT16 recalculateChecksum(UINT16 oldChecksum, UINT16 oldValue, UINT16 newValue);
+  static UINT16 recalculateChecksum(UINT16 oldChecksum, UINT32 oldValue, UINT32 newValue);
 
 public:
   static bool parse(SnoopPacket* packet);
