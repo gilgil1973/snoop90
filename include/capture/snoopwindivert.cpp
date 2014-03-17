@@ -320,10 +320,10 @@ SnoopCaptureType SnoopWinDivert::captureType()
   return SnoopCaptureType::InPath;
 }
 
-int SnoopWinDivert::relay(SnoopPacket* packet)
+bool SnoopWinDivert::relay(SnoopPacket* packet)
 {
-  if (SnoopCapture::relay(packet) == VERR_FAIL) return VERR_FAIL;
-  return write(packet);
+  if (!SnoopCapture::relay(packet)) return false;
+  return write(packet) != VERR_FAIL;
 }
 
 void SnoopWinDivert::load(VXml xml)

@@ -113,10 +113,15 @@ int SnoopCapture::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
   return -1;
 }
 
-int SnoopCapture::relay(SnoopPacket* packet)
+bool SnoopCapture::relay(SnoopPacket* packet)
 {
-  if (captureType() != SnoopCaptureType::InPath) return VERR_FAIL;
-  if (packet->drop) return VERR_FAIL;
+  if (captureType() != SnoopCaptureType::InPath) return false;
+  if (packet->drop) return false;
+
+  return true;
+
+  // ----- issue14_remove_changed_in_snoop_packet -----
+  /*
 
   //
   // TCP checksum
@@ -148,6 +153,8 @@ int SnoopCapture::relay(SnoopPacket* packet)
   }
 
   return packet->pktHdr->caplen;
+  */
+  // --------------------------------------------------
 }
 
 void SnoopCapture::run()

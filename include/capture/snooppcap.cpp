@@ -105,11 +105,11 @@ int SnoopPcap::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
   return VERR_FAIL;
 }
 
-int SnoopPcap::relay(SnoopPacket* packet)
+bool SnoopPcap::relay(SnoopPacket* packet)
 {
   Q_UNUSED(packet)
   SET_ERROR(SnoopError, "relay not supported", VERR_NOT_SUPPORTED);
-  return VERR_FAIL;
+  return false;
 }
 
 // ----- gilgil temp 2009.08.30 -----

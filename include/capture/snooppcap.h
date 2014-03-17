@@ -38,7 +38,7 @@ public:
 public:
   virtual SnoopCaptureType captureType() { return SnoopCaptureType::OutOfPath; }
   virtual int              dataLink()    { return m_dataLink; }
-  virtual int              relay(SnoopPacket* packet);
+  virtual bool             relay(SnoopPacket* packet);
 
   //
   // Properties

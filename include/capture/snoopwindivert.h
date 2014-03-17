@@ -39,7 +39,7 @@ public:
 public:
   virtual SnoopCaptureType captureType();
   virtual int              dataLink()    { return DLT_EN10MB; } // gilgil temp 2013.11.29
-  virtual int              relay(SnoopPacket* packet);
+  virtual bool             relay(SnoopPacket* packet);
 
 public:
   QString      filter;
