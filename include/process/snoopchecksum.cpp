@@ -30,21 +30,18 @@ void SnoopChecksum::calculate(SnoopPacket* packet)
     {
       LOG_ASSERT(packet->tcpHdr != NULL);
       packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
-      packet->tcpChanged = false;
       break;
     }
     case IPPROTO_UDP:
     {
       LOG_ASSERT(packet->udpHdr != NULL);
       packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
-      packet->udpChanged = false;
       break;
     }
   }
   if (ipChecksum)
   {
     packet->ipHdr->ip_sum = htons(SnoopIp::checksum(packet->ipHdr));
-    packet->ipChanged = false;
   }
   emit calculated(packet);
 }
