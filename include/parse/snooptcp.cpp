@@ -35,7 +35,7 @@ bool SnoopTcp::isOption(TCP_HDR* tcpHdr, BYTE** tcpOption, int* tcpOptionLen)
 
 //
 // All tcpHdr field except tcpHdr.th_sum
-// Add data buffer
+// All data buffer(padding)
 // Added ipHdr.ip_src, ipHdr.ip_dst, tcpHdrDataLen and IPPROTO_TCP
 //
 UINT16 SnoopTcp::checksum(IP_HDR* ipHdr, TCP_HDR* tcpHdr)
