@@ -21,6 +21,7 @@ bool SnoopUdp::isData(IP_HDR* ipHdr, UDP_HDR* udpHdr, BYTE** udpData, int* udpDa
 
 //
 // All udpHdr field except udpHdr.uh_sum
+// Add data buffer
 // Added ipHdr.ip_src, ipHdr.ip_dst, udpHdrDataLen and IPPROTO_UDP
 //
 UINT16 SnoopUdp::checksum(IP_HDR* ipHdr, UDP_HDR* udpHdr)
@@ -62,7 +63,9 @@ UINT16 SnoopUdp::checksum(IP_HDR* ipHdr, UDP_HDR* udpHdr)
 
   // Recalculate sum
   while ((sum >> 16) > 0)
+  {
     sum = (sum & 0xFFFF) + (sum >> 16);
+  }
   sum = ~sum;
 
   return (UINT16)sum;

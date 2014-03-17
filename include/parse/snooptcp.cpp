@@ -35,6 +35,7 @@ bool SnoopTcp::isOption(TCP_HDR* tcpHdr, BYTE** tcpOption, int* tcpOptionLen)
 
 //
 // All tcpHdr field except tcpHdr.th_sum
+// Add data buffer
 // Added ipHdr.ip_src, ipHdr.ip_dst, tcpHdrDataLen and IPPROTO_TCP
 //
 UINT16 SnoopTcp::checksum(IP_HDR* ipHdr, TCP_HDR* tcpHdr)
@@ -49,7 +50,7 @@ UINT16 SnoopTcp::checksum(IP_HDR* ipHdr, TCP_HDR* tcpHdr)
   sum = 0;
 
   // Add tcpHdr and data buffer as array of UIN16
-  p = (UINT16*)(tcpHdr);
+  p = (UINT16*)tcpHdr;
   for (i = 0; i < tcpHdrDataLen / 2; i++)
   {
     sum += htons(*p);
