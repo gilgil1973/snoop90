@@ -67,72 +67,78 @@ void SnoopDataChange::change(SnoopPacket* packet)
 
   if (packet->proto == IPPROTO_TCP)
   {
-    //
-    // check modified seq and ack
-    //
-    SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
-    //LOG_DEBUG("flowItem=%p seqDiff=%d ackDiff=%d", flowItem, flowItem->seqDiff, flowItem->ackDiff); // gilgil temp 2014.03.13
-
-    if (flowItem->seqDiff != 0)
+    if (tcpChange)
     {
-      UINT32 oldSeq = ntohl(packet->tcpHdr->th_seq);
-      UINT32 newSeq = oldSeq + flowItem->seqDiff;
-      packet->tcpHdr->th_seq = htonl(newSeq);
-      packet->tcpHdr->th_sum = htons(SnoopIp::recalculateChecksum(ntohs(packet->tcpHdr->th_sum), oldSeq, newSeq));
-    }
+      //
+      // check modified seq and ack
+      //
+      SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
+      //LOG_DEBUG("flowItem=%p seqDiff=%d ackDiff=%d", flowItem, flowItem->seqDiff, flowItem->ackDiff); // gilgil temp 2014.03.13
 
-    if (flowItem->ackDiff != 0)
-    {
-      UINT32 oldAck = ntohl(packet->tcpHdr->th_ack);
-      UINT32 newAck = oldAck + flowItem->ackDiff;
-      packet->tcpHdr->th_ack = htonl(newAck);
-      packet->tcpHdr->th_sum = htons(SnoopIp::recalculateChecksum(ntohs(packet->tcpHdr->th_sum), oldAck, newAck));
-    }
-
-    //
-    // check data change
-    //
-    INT16 diff = 0;
-    _changed = _change(packet, &diff);
-    if (_changed)
-    {
-      if (diff != 0)
+      if (flowItem->seqDiff != 0)
       {
-        flowItem->seqDiff += diff;
-
-        //
-        // change other flow ack value
-        //
-        SnoopTcpFlowKey* flowKey = (SnoopTcpFlowKey*)packet->flowKey;
-        SnoopTcpFlowKey rflowKey = flowKey->reverse();
-        Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rflowKey);
-        if (it != flowMgr->tcpFlow_Map.end())
-        {
-          SnoopFlowValue rvalue = it.value();
-          SnoopDataChangeFlowItem* rflowItem = (SnoopDataChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
-          rflowItem->ackDiff -= diff;
-          // LOG_DEBUG("rflowItem=%p seqDiff=%d ackDiff=%d", rflowItem, rflowItem->seqDiff, rflowItem->ackDiff); // gilgil temp 2014.03.13
-        }
+        UINT32 oldSeq = ntohl(packet->tcpHdr->th_seq);
+        UINT32 newSeq = oldSeq + flowItem->seqDiff;
+        packet->tcpHdr->th_seq = htonl(newSeq);
+        packet->tcpHdr->th_sum = htons(SnoopIp::recalculateChecksum(ntohs(packet->tcpHdr->th_sum), oldSeq, newSeq));
       }
-      packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
+
+      if (flowItem->ackDiff != 0)
+      {
+        UINT32 oldAck = ntohl(packet->tcpHdr->th_ack);
+        UINT32 newAck = oldAck + flowItem->ackDiff;
+        packet->tcpHdr->th_ack = htonl(newAck);
+        packet->tcpHdr->th_sum = htons(SnoopIp::recalculateChecksum(ntohs(packet->tcpHdr->th_sum), oldAck, newAck));
+      }
+
+      //
+      // check data change
+      //
+      INT16 diff = 0;
+      _changed = _change(packet, &diff);
+      if (_changed)
+      {
+        if (diff != 0)
+        {
+          flowItem->seqDiff += diff;
+
+          //
+          // change other flow ack value
+          //
+          SnoopTcpFlowKey* flowKey = (SnoopTcpFlowKey*)packet->flowKey;
+          SnoopTcpFlowKey rflowKey = flowKey->reverse();
+          Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rflowKey);
+          if (it != flowMgr->tcpFlow_Map.end())
+          {
+            SnoopFlowValue rvalue = it.value();
+            SnoopDataChangeFlowItem* rflowItem = (SnoopDataChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
+            rflowItem->ackDiff -= diff;
+            // LOG_DEBUG("rflowItem=%p seqDiff=%d ackDiff=%d", rflowItem, rflowItem->seqDiff, rflowItem->ackDiff); // gilgil temp 2014.03.13
+          }
+        }
+        packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
+      }
     }
   } else
   if (packet->proto == IPPROTO_UDP)
   {
-    //
-    // check data change
-    //
-    INT16 diff = 0;
-    _changed = _change(packet, &diff);
-    if (_changed)
+    if (udpChange)
     {
-      if (diff != 0)
+      //
+      // check data change
+      //
+      INT16 diff = 0;
+      _changed = _change(packet, &diff);
+      if (_changed)
       {
-        UINT16 oldLen = ntohs(packet->udpHdr->uh_ulen);
-        UINT16 newLen = oldLen + diff;
-        packet->udpHdr->uh_ulen = htons(newLen);
+        if (diff != 0)
+        {
+          UINT16 oldLen = ntohs(packet->udpHdr->uh_ulen);
+          UINT16 newLen = oldLen + diff;
+          packet->udpHdr->uh_ulen = htons(newLen);
+        }
+        packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
       }
-      packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
     }
   }
 
