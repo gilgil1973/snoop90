@@ -1,7 +1,4 @@
 #include <SnoopDataChange>
-//#include <SnoopIp>
-//#include <SnoopTcp>
-//#include <SnoopUdp>
 
 REGISTER_METACLASS(SnoopDataChange, SnoopProcess)
 
