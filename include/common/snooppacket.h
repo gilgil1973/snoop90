@@ -70,9 +70,9 @@ public:
   /// control
   ///
   bool      drop;
-  bool      ipChanged;
-  bool      tcpChanged;
-  bool      udpChanged;
+  // bool      ipChanged;  // issue14_remove_changed_in_snoop_packet
+  // bool      tcpChanged; // issue14_remove_changed_in_snoop_packet
+  // bool      udpChanged; // issue14_remove_changed_in_snoop_packet
 
   ///
   /// flow
