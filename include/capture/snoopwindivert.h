@@ -49,7 +49,7 @@ public:
   UINT64       queueLen;
   UINT64       queueTime;
   UINT8        tos;
-  bool         autoCorrectChecksum;
+  bool         correctChecksum;
 
 public:
   HANDLE       handle;

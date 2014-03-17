@@ -104,14 +104,14 @@ public:
 // ----------------------------------------------------------------------------
 SnoopWinDivert::SnoopWinDivert(void* owner) : SnoopCapture(owner)
 {
-  filter              = "true";
-  priority            = 0;
-  layer               = WINDIVERT_LAYER_NETWORK;
-  flags               = 0; //WINDIVERT_FLAG_SNIFF; // gilgil temp 2013.12.06
-  queueLen            = 8192;
-  queueTime           = 1024;
-  tos                 = 0;
-  autoCorrectChecksum = true;
+  filter          = "true";
+  priority        = 0;
+  layer           = WINDIVERT_LAYER_NETWORK;
+  flags           = 0; //WINDIVERT_FLAG_SNIFF; // gilgil temp 2013.12.06
+  queueLen        = 8192;
+  queueTime       = 1024;
+  tos             = 0;
+  correctChecksum = true;
 
   handle    = 0;
 }
@@ -257,7 +257,7 @@ int SnoopWinDivert::read(SnoopPacket* packet)
     if (packet->ipHdr != NULL) packet->ipHdr->ip_tos = tos;
   }
 
-  if (autoCorrectChecksum)
+  if (correctChecksum)
   {
     if (!parsed)
     {
@@ -330,14 +330,14 @@ void SnoopWinDivert::load(VXml xml)
 {
   SnoopCapture::load(xml);
 
-  filter              = xml.getStr("filter", filter);
-  priority            = (UINT16)xml.getInt("priority", (int)priority);
-  layer               = (DIVERT_LAYER)xml.getInt("layer", (int)layer);
-  flags               = (UINT64)xml.getInt("flags", (int)flags);
-  queueLen            = (UINT64)xml.getInt("queueLen", (int)queueLen);
-  queueTime           = (UINT64)xml.getInt("queueTime", (int)queueTime);
-  tos                 = (UINT8) xml.getInt("tos", (int)tos);
-  autoCorrectChecksum = xml.getBool("autoCorrectChecksum", autoCorrectChecksum);
+  filter          = xml.getStr("filter", filter);
+  priority        = (UINT16)xml.getInt("priority", (int)priority);
+  layer           = (DIVERT_LAYER)xml.getInt("layer", (int)layer);
+  flags           = (UINT64)xml.getInt("flags", (int)flags);
+  queueLen        = (UINT64)xml.getInt("queueLen", (int)queueLen);
+  queueTime       = (UINT64)xml.getInt("queueTime", (int)queueTime);
+  tos             = (UINT8) xml.getInt("tos", (int)tos);
+  correctChecksum = xml.getBool("correctChecksum", correctChecksum);
 }
 
 void SnoopWinDivert::save(VXml xml)
@@ -351,7 +351,7 @@ void SnoopWinDivert::save(VXml xml)
   xml.setInt("queueLen", (int)queueLen);
   xml.setInt("queueTime", (int)queueTime);
   xml.setInt("tos", (int)tos);
-  xml.setBool("autoCorrectChecksum", autoCorrectChecksum);
+  xml.setBool("correctChecksum", correctChecksum);
 }
 
 #ifdef QT_GUI_LIB
@@ -359,15 +359,15 @@ void SnoopWinDivert::optionAddWidget(QLayout* layout)
 {
   SnoopCapture::optionAddWidget(layout);
 
-  VOptionable::addLineEdit(layout, "leFilter",               "Filter",                filter);
-  VOptionable::addLineEdit(layout, "lePriority",             "Priority",              QString::number(priority));
-  VOptionable::addLineEdit(layout, "leLayer",                "Layer",                 QString::number(layer));
-  VOptionable::addCheckBox(layout, "chkFlagSniff",           "Flag Sniff(OutOfPath)", flags & WINDIVERT_FLAG_SNIFF);
-  VOptionable::addCheckBox(layout, "chkFlagDrop",            "Flag Drop",             flags & WINDIVERT_FLAG_DROP);
-  VOptionable::addCheckBox(layout, "chkFlagNoChecksum",      "Flag No Checksum",      flags & WINDIVERT_FLAG_NO_CHECKSUM);
-  VOptionable::addLineEdit(layout, "leQueueLen",             "Queue Len",             QString::number(queueLen));
-  VOptionable::addLineEdit(layout, "leQueueTime",            "Queue Time",            QString::number(queueTime));
-  VOptionable::addCheckBox(layout, "chkAutoCorrectChecksum", "Auto Correct Checksum", autoCorrectChecksum);
+  VOptionable::addLineEdit(layout, "leFilter",           "Filter",                filter);
+  VOptionable::addLineEdit(layout, "lePriority",         "Priority",              QString::number(priority));
+  VOptionable::addLineEdit(layout, "leLayer",            "Layer",                 QString::number(layer));
+  VOptionable::addCheckBox(layout, "chkFlagSniff",       "Flag Sniff(OutOfPath)", flags & WINDIVERT_FLAG_SNIFF);
+  VOptionable::addCheckBox(layout, "chkFlagDrop",        "Flag Drop",             flags & WINDIVERT_FLAG_DROP);
+  VOptionable::addCheckBox(layout, "chkFlagNoChecksum",  "Flag No Checksum",      flags & WINDIVERT_FLAG_NO_CHECKSUM);
+  VOptionable::addLineEdit(layout, "leQueueLen",         "Queue Len",             QString::number(queueLen));
+  VOptionable::addLineEdit(layout, "leQueueTime",        "Queue Time",            QString::number(queueTime));
+  VOptionable::addCheckBox(layout, "chkCorrectChecksum", "Correct Checksum",      correctChecksum);
 }
 
 void SnoopWinDivert::optionSaveDlg(QDialog* dialog)
@@ -384,6 +384,6 @@ void SnoopWinDivert::optionSaveDlg(QDialog* dialog)
   if (dialog->findChild<QCheckBox*>("chkFlagNoChecksum")->checkState() == Qt::Checked) flags |= WINDIVERT_FLAG_NO_CHECKSUM;
   queueLen  = dialog->findChild<QLineEdit*>("leQueueLen")->text().toULongLong();
   queueTime = dialog->findChild<QLineEdit*>("leQueueTime")->text().toULongLong();
-  autoCorrectChecksum = dialog->findChild<QCheckBox*>("chkAutoCorrectChecksum")->checkState() == Qt::Checked;
+  correctChecksum = dialog->findChild<QCheckBox*>("chkCorrectChecksum")->checkState() == Qt::Checked;
 }
 #endif // QT_GUI_LIB
