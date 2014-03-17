@@ -1,4 +1,7 @@
 #include <SnoopDataChange>
+#include <SnoopIp>
+#include <SnoopTcp>
+#include <SnoopUdp>
 
 REGISTER_METACLASS(SnoopDataChange, SnoopProcess)
 
@@ -64,6 +67,9 @@ void SnoopDataChange::change(SnoopPacket* packet)
 
   if (packet->proto == IPPROTO_TCP)
   {
+    //
+    // check modified seq and ack
+    //
     SnoopDataChangeFlowItem* flowItem = (SnoopDataChangeFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
     //LOG_DEBUG("flowItem=%p seqDiff=%d ackDiff=%d", flowItem, flowItem->seqDiff, flowItem->ackDiff); // gilgil temp 2014.03.13
 
@@ -72,69 +78,100 @@ void SnoopDataChange::change(SnoopPacket* packet)
       UINT32 oldSeq = ntohl(packet->tcpHdr->th_seq);
       UINT32 newSeq = oldSeq + flowItem->seqDiff;
       packet->tcpHdr->th_seq = htonl(newSeq);
-      packet->ipChanged = true; // gilgil temp 2014.03.13
-      packet->tcpChanged = true; // gilgil temp 2014.03.13
+      packet->tcpHdr->th_sum = htons(SnoopIp::recalculateChecksum(ntohs(packet->tcpHdr->th_sum), oldSeq, newSeq));
     }
+
     if (flowItem->ackDiff != 0)
     {
       UINT32 oldAck = ntohl(packet->tcpHdr->th_ack);
       UINT32 newAck = oldAck + flowItem->ackDiff;
       packet->tcpHdr->th_ack = htonl(newAck);
-      packet->ipChanged = true; // gilgil temp 2014.03.13
-      packet->tcpChanged = true; // gilgil temp 2014.03.13
+      packet->tcpHdr->th_sum = htons(SnoopIp::recalculateChecksum(ntohs(packet->tcpHdr->th_sum), oldAck, newAck));
     }
 
-    if (packet->data != NULL)
+    //
+    // check data change
+    //
+    INT16 diff = 0;
+    _changed = _change(packet, &diff);
+    if (_changed)
     {
-      BYTE* data = packet->data;
-      int len  = packet->dataLen;
-      QByteArray ba((const char*)data, (uint)len);
-      if (dataChange.change(ba))
+      if (diff != 0)
       {
-        int newLen = ba.size();
-        int diff   = newLen - len;
-        INT16 diff16 = (INT16)diff;
-        memcpy(data, ba.constData(), newLen);
+        flowItem->seqDiff += diff;
 
-        if (newLen != len)
+        //
+        // change other flow ack value
+        //
+        SnoopTcpFlowKey* flowKey = (SnoopTcpFlowKey*)packet->flowKey;
+        SnoopTcpFlowKey rflowKey = flowKey->reverse();
+        Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rflowKey);
+        if (it != flowMgr->tcpFlow_Map.end())
         {
-          packet->pktHdr->caplen += (UINT32)diff;
-          packet->ipHdr->ip_len = htons(ntohs(packet->ipHdr->ip_len) + (UINT16)diff16);
-          flowItem->seqDiff += diff;
-
-          SnoopTcpFlowKey* flowKey = (SnoopTcpFlowKey*)packet->flowKey;
-          SnoopTcpFlowKey rflowKey = flowKey->reverse();
-          Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rflowKey);
-          if (it != flowMgr->tcpFlow_Map.end())
-          {
-            SnoopFlowValue rvalue = it.value();
-            SnoopDataChangeFlowItem* rflowItem = (SnoopDataChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
-            rflowItem->ackDiff -= diff;
-            // LOG_DEBUG("rflowItem=%p seqDiff=%d ackDiff=%d", rflowItem, rflowItem->seqDiff, rflowItem->ackDiff); // gilgil temp 2014.03.13
-          }
-          packet->ipChanged = true; // gilgil temp 2014.03.13
+          SnoopFlowValue rvalue = it.value();
+          SnoopDataChangeFlowItem* rflowItem = (SnoopDataChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
+          rflowItem->ackDiff -= diff;
+          // LOG_DEBUG("rflowItem=%p seqDiff=%d ackDiff=%d", rflowItem, rflowItem->seqDiff, rflowItem->ackDiff); // gilgil temp 2014.03.13
         }
-        packet->tcpChanged = true;
-        _changed = true;
       }
+      packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
     }
   } else
   if (packet->proto == IPPROTO_UDP)
   {
-    BYTE* data = packet->data;
-    int len  = packet->dataLen;
-    QByteArray ba((const char*)data, (uint)len);
-    if (dataChange.change(ba))
+    //
+    // check data change
+    //
+    INT16 diff = 0;
+    _changed = _change(packet, &diff);
+    if (_changed)
     {
-      memcpy(data, ba.constData(), (size_t)ba.size());
-      packet->udpChanged = true;
-      _changed = true;
+      if (diff != 0)
+      {
+        UINT16 oldLen = ntohs(packet->udpHdr->uh_ulen);
+        UINT16 newLen = oldLen + diff;
+        packet->udpHdr->uh_ulen = htons(newLen);
+      }
+      packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
     }
   }
+
   if (_changed)
   {
     emit changed(packet);
   }
+}
+
+bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff)
+{
+  BYTE* data = packet->data;
+  int   len  = packet->dataLen;
+  if (data == NULL || len == 0) return false;
+
+  bool _changed = false;
+
+  QByteArray ba((const char*)data, (uint)len);
+  if (dataChange.change(ba))
+  {
+    _changed   = true;
+    int newLen = (UINT16)ba.size();
+    memcpy(data, ba.constData(), (size_t)ba.size());
+
+    if (newLen != len)
+    {
+      INT16  diff16   = newLen- len;
+      UINT16 oldLen16 = ntohs(packet->ipHdr->ip_len);
+      UINT16 newLen16 = oldLen16 + (UINT16)diff16;
+
+      packet->pktHdr->caplen += (UINT32)diff16;
+      packet->ipHdr->ip_len   = htons(newLen16);
+      packet->ipHdr->ip_sum   = htons(SnoopIp::recalculateChecksum(ntohs(packet->ipHdr->ip_sum), oldLen16, newLen16));
+      //packet->ipHdr->ip_sum   = htons(SnoopIp::checksum(packet->ipHdr));
+
+      *diff = diff16;
+    }
+  }
+  return _changed;
 }
 
 void SnoopDataChange::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)

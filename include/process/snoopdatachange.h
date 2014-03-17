@@ -21,8 +21,8 @@
 class SnoopDataChangeFlowItem
 {
 public:
-  int seqDiff;
-  int ackDiff;
+  INT32 seqDiff;
+  INT32 ackDiff;
 };
 
 // ----------------------------------------------------------------------------
@@ -45,6 +45,9 @@ signals:
 
 public slots:
   void change(SnoopPacket* packet);
+
+protected:
+  bool _change(SnoopPacket* packet, INT16* diff);
 
 public:
   SnoopFlowMgr*  flowMgr;
