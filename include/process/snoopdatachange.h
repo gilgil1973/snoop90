@@ -42,12 +42,13 @@ protected:
 
 signals:
   void changed(SnoopPacket* packet);
+  void found(SnoopPacket* packet);
 
 public slots:
   void change(SnoopPacket* packet);
 
 protected:
-  bool _change(SnoopPacket* packet, INT16* diff);
+  bool _change(SnoopPacket* packet, INT16* diff, bool* found);
 
 public:
   SnoopFlowMgr*  flowMgr;

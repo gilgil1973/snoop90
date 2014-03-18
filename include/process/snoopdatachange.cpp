@@ -63,6 +63,7 @@ bool SnoopDataChange::doClose()
 void SnoopDataChange::change(SnoopPacket* packet)
 {
   bool _changed = false;
+  bool _found   = false;
   if (packet->ipHdr == NULL) return;
 
   if (packet->proto == IPPROTO_TCP)
@@ -95,7 +96,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
       // check data change
       //
       INT16 diff = 0;
-      _changed = _change(packet, &diff);
+      _changed = _change(packet, &diff, &_found);
       if (_changed)
       {
         if (diff != 0)
@@ -128,7 +129,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
       // check data change
       //
       INT16 diff = 0;
-      _changed = _change(packet, &diff);
+      _changed = _change(packet, &diff, &_found);
       if (_changed)
       {
         if (diff != 0)
@@ -142,13 +143,18 @@ void SnoopDataChange::change(SnoopPacket* packet)
     }
   }
 
+  if (_found)
+  {
+    emit found(packet);
+  }
+
   if (_changed)
   {
     emit changed(packet);
   }
 }
 
-bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff)
+bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff, bool* found)
 {
   BYTE* data = packet->data;
   int   len  = packet->dataLen;
@@ -157,7 +163,7 @@ bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff)
   bool _changed = false;
 
   QByteArray ba((const char*)data, (uint)len);
-  if (dataChange.change(ba))
+  if (dataChange.change(ba, found))
   {
     _changed   = true;
     int newLen = (UINT16)ba.size();
