@@ -59,6 +59,23 @@ bool SnoopCommandItem::execute()
   return true;
 }
 
+#ifdef QT_GUI_LIB
+void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem)
+{
+  item.enabled = treeWidgetItem.checkState(SnoopCommandItem::ENABLED_IDX) == Qt::Checked;
+  item.command = treeWidgetItem.text(SnoopCommandItem::COMMAND_IDX);
+  item.sync    = treeWidgetItem.checkState(SnoopCommandItem::SYNC_IDX) == Qt::Checked;
+}
+
+void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item)
+{
+  treeWidgetItem.setCheckState(SnoopCommandItem::ENABLED_IDX, item.enabled ? Qt::Checked : Qt::Unchecked);
+  treeWidgetItem.setText(SnoopCommandItem::COMMAND_IDX, item.command);
+  treeWidgetItem.setCheckState(SnoopCommandItem::SYNC_IDX, item.sync ? Qt::Checked : Qt::Unchecked);
+  treeWidgetItem.setFlags(treeWidgetItem.flags() | Qt::ItemFlag::ItemIsEditable);
+}
+#endif // QT_GUI_LIB
+
 // ----------------------------------------------------------------------------
 // SnoopCommandItems
 // ----------------------------------------------------------------------------
@@ -92,6 +109,35 @@ void SnoopCommandItems::save(VXml xml)
     item.save(xml.gotoChild("command" + QString::number(i)));
   }
 }
+
+#ifdef QT_GUI_LIB
+void operator << (SnoopCommandItems& items, QTreeWidget& treeWidget)
+{
+  items.clear();
+  int count = treeWidget.topLevelItemCount();
+  for (int i = 0; i < count; i++)
+  {
+    QTreeWidgetItem* treeWidgetItem = treeWidget.topLevelItem(i);
+    SnoopCommandItem newItem;
+    newItem << *treeWidgetItem;
+    items.push_back(newItem);
+  }
+}
+
+void operator << (QTreeWidget& treeWidget, SnoopCommandItems& items)
+{
+  treeWidget.clear();
+  QList<QTreeWidgetItem*> treeWidgetItems;
+  for (int i = 0; i < items.count(); i++)
+  {
+    SnoopCommandItem& item = (SnoopCommandItem&)items.at(i);
+    QTreeWidgetItem* newWidgetItem = new QTreeWidgetItem(&treeWidget);
+    *newWidgetItem << item;
+    treeWidgetItems.push_back(newWidgetItem);
+  }
+  treeWidget.insertTopLevelItems(0, treeWidgetItems);
+}
+#endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
 // SnoopCommand
@@ -156,8 +202,8 @@ void SnoopCommand::optionAddWidget(QLayout* layout)
 
   SnoopCommandWidget* widget = new SnoopCommandWidget(layout->parentWidget());
   widget->setObjectName("snoopCommandWidget");
-  widget->openCommands = openCommands;
-  widget->closeCommands = closeCommands;
+  *(widget->ui->tvOpen)  << openCommands;
+  *(widget->ui->tvClose) << closeCommands;
   layout->addWidget(widget);
 }
 

@@ -63,8 +63,11 @@ bool SnoopDataChange::doClose()
 void SnoopDataChange::change(SnoopPacket* packet)
 {
   bool _changed = false;
-  bool _found   = false;
-  if (packet->ipHdr == NULL) return;
+  if (packet->ipHdr == NULL)
+  {
+    emit unchanged(packet);
+    return;
+  }
 
   if (packet->proto == IPPROTO_TCP)
   {
@@ -96,7 +99,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
       // check data change
       //
       INT16 diff = 0;
-      _changed = _change(packet, &diff, &_found);
+      _changed = _change(packet, &diff);
       if (_changed)
       {
         if (diff != 0)
@@ -129,7 +132,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
       // check data change
       //
       INT16 diff = 0;
-      _changed = _change(packet, &diff, &_found);
+      _changed = _change(packet, &diff);
       if (_changed)
       {
         if (diff != 0)
@@ -143,14 +146,6 @@ void SnoopDataChange::change(SnoopPacket* packet)
     }
   }
 
-  if (_found)
-  {
-    emit found(packet);
-  } else
-  {
-    emit unfound(packet);
-  }
-
   if (_changed)
   {
     emit changed(packet);
@@ -160,7 +155,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
   }
 }
 
-bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff, bool* found)
+bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff)
 {
   BYTE* data = packet->data;
   int   len  = packet->dataLen;
@@ -169,7 +164,7 @@ bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff, bool* found)
   bool _changed = false;
 
   QByteArray ba((const char*)data, (uint)len);
-  if (dataChange.change(ba, found))
+  if (dataChange.change(ba))
   {
     _changed   = true;
     int newLen = (UINT16)ba.size();
@@ -188,7 +183,6 @@ bool SnoopDataChange::_change(SnoopPacket* packet, INT16* diff, bool* found)
       }
       packet->ipHdr->ip_len   = htons(newLen16);
       packet->ipHdr->ip_sum   = htons(SnoopIp::recalculateChecksum(ntohs(packet->ipHdr->ip_sum), oldLen16, newLen16));
-      //packet->ipHdr->ip_sum   = htons(SnoopIp::checksum(packet->ipHdr));
 
       *diff = diff16;
     }

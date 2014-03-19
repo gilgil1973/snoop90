@@ -12,6 +12,9 @@
 #define __SNOOP_COMMAND_H__
 
 #include <SnoopProcess>
+#ifdef QT_GUI_LIB
+#include <QTreeWidget>
+#endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
 // SnoopCommandItem
@@ -36,7 +39,19 @@ public:
 public:
   virtual void load(VXml xml);
   virtual void save(VXml xml);
+
+#ifdef QT_GUI_LIB
+public:
+  static const int ENABLED_IDX = 0;
+  static const int COMMAND_IDX = 1;
+  static const int SYNC_IDX    = 2;
+  #endif // QT_GUI_LIB
 };
+
+#ifdef QT_GUI_LIB
+void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem);
+void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item);
+#endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
 // SnoopCommandItems
@@ -50,6 +65,11 @@ public:
   virtual void load(VXml xml);
   virtual void save(VXml xml);
 };
+
+#ifdef QT_GUI_LIB
+void operator << (SnoopCommandItems& items, QTreeWidget& treeWidget);
+void operator << (QTreeWidget& treeWidget, SnoopCommandItems& items);
+#endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
 // SnoopCommand
