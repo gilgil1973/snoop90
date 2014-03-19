@@ -52,6 +52,7 @@ SOURCES += \
     ../include/process/snoopdatachange.cpp \
     ../include/process/snoopdatafind.cpp \	
     ../include/process/snoopdelay.cpp \
+    ../include/process/snoopdnschange.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
     ../include/process/snoopflowmgrtest.cpp \
@@ -107,6 +108,7 @@ HEADERS += \
     ../include/process/snoopdatachange.h \
     ../include/process/snoopdatafind.h \
     ../include/process/snoopdelay.h \
+    ../include/process/snoopdnschange.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopflowmgr.h \
     ../include/process/snoopflowmgrtest.h \
