@@ -68,6 +68,7 @@ public:
   virtual void save(VXml xml);
 
 #ifdef QT_GUI_LIB
+public:
   virtual void optionAddWidget(QLayout* layout);
   virtual void optionSaveDlg(QDialog* dialog);
 #endif // QT_GUI_LIB
