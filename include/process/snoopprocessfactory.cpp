@@ -4,6 +4,7 @@
 #include <SnoopChecksum>
 #include <SnoopCommand>
 #include <SnoopDataChange>
+#include <SnoopDataFind>
 #include <SnoopDelay>
 #include <SnoopFlowMgr>
 #include <SnoopFlowMgrTest>
@@ -21,6 +22,7 @@ void SnoopProcessFactory::explicitLink()
   SnoopChecksum     checksum;
   SnoopCommand      command;
   SnoopDataChange   dataChange;
+  SnoopDataFind     dataFind;
   SnoopDelay        delay;
   SnoopDump         dump;
   SnoopFlowMgr      flowMgr;

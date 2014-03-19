@@ -50,6 +50,7 @@ SOURCES += \
     ../include/process/snoopcommand.cpp \
     ../include/process/snoopcommandwidget.cpp \
     ../include/process/snoopdatachange.cpp \
+    ../include/process/snoopdatafind.cpp \	
     ../include/process/snoopdelay.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
@@ -104,6 +105,7 @@ HEADERS += \
     ../include/process/snoopcommand.h \
     ../include/process/snoopcommandwidget.h \
     ../include/process/snoopdatachange.h \
+    ../include/process/snoopdatafind.h \
     ../include/process/snoopdelay.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopflowmgr.h \

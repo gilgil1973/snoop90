@@ -62,13 +62,13 @@ bool SnoopDataChange::doClose()
 
 void SnoopDataChange::change(SnoopPacket* packet)
 {
-  bool _changed = false;
   if (packet->ipHdr == NULL)
   {
     emit unchanged(packet);
     return;
   }
 
+  bool _changed = false;
   if (packet->proto == IPPROTO_TCP)
   {
     if (tcpChange)

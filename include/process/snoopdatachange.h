@@ -51,10 +51,10 @@ protected:
   bool _change(SnoopPacket* packet, INT16* diff);
 
 public:
-  SnoopFlowMgr*  flowMgr;
-  bool           tcpChange;
-  bool           udpChange;
-  VDataChange    dataChange;
+  SnoopFlowMgr* flowMgr;
+  bool          tcpChange;
+  bool          udpChange;
+  VDataChange   dataChange;
 
 protected:
     size_t tcpFlowOffset;
