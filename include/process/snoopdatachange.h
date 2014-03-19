@@ -42,7 +42,9 @@ protected:
 
 signals:
   void changed(SnoopPacket* packet);
+  void unchanged(SnoopPacket* packet);
   void found(SnoopPacket* packet);
+  void unfound(SnoopPacket* packet);
 
 public slots:
   void change(SnoopPacket* packet);

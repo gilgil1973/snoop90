@@ -146,11 +146,17 @@ void SnoopDataChange::change(SnoopPacket* packet)
   if (_found)
   {
     emit found(packet);
+  } else
+  {
+    emit unfound(packet);
   }
 
   if (_changed)
   {
     emit changed(packet);
+  } else
+  {
+    emit unchanged(packet);
   }
 }
 
