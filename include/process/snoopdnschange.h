@@ -13,6 +13,7 @@
 
 #include <SnoopProcess>
 #include <SnoopCapture>
+#include <SnoopDns>
 #include <VDataFind>
 
 // ----------------------------------------------------------------------------

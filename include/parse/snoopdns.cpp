@@ -209,10 +209,10 @@ bool SnoopDns::decode(BYTE* udpData, int dataLen, int* offset)
   this->dnsHdr.num_addi_rr = ntohs(*_num_addi_rr);
   *offset += sizeof(UINT16);
 
-  if (questions.decode(udpData, dataLen, dnsHdr.num_q, offset)) return false;
-  if (answers.decode(udpData, dataLen, dnsHdr.num_answ_rr, offset)) return false;
-  if (authorities.decode(udpData, dataLen, dnsHdr.num_auth_rr, offset)) return false;
-  if (additionals.decode(udpData, dataLen, dnsHdr.num_addi_rr, offset)) return false;
+  if (!questions.decode(udpData, dataLen, dnsHdr.num_q, offset)) return false;
+  if (!answers.decode(udpData, dataLen, dnsHdr.num_answ_rr, offset)) return false;
+  if (!authorities.decode(udpData, dataLen, dnsHdr.num_auth_rr, offset)) return false;
+  if (!additionals.decode(udpData, dataLen, dnsHdr.num_addi_rr, offset)) return false;
 
   return true;
 }
@@ -241,5 +241,18 @@ QByteArray SnoopDns::encodeName(QString name)
 
 QString SnoopDns::decodeName(BYTE* udpData, int dataLen, int* offset)
 {
-
+  BYTE* p = (BYTE*)(udpData + *offset);
+  QByteArray res;
+  while (true)
+  {
+    if (p - udpData > dataLen) return false;
+    BYTE count = *p++;
+    if (count == 0) break;
+    if (p - udpData + count > dataLen) return false;
+    QByteArray label((const char*)p, (int)count);
+    res += label;
+    p += count;
+  }
+  *offset = p - udpData;
+  return res;
 }

@@ -227,13 +227,17 @@ void SnoopDnsChange::check(SnoopPacket* packet)
     LOG_WARN("packet->data is null");
     return;
   }
-  if (packet->dataLen < sizeof(DNS_HDR))
+
+  SnoopDns dns;
+
+  int offset = 0;
+  if (!dns.decode(packet->data, packet->dataLen, &offset))
   {
-    LOG_WARN("packet->dataLen(%d) is small than %d", packet->dataLen, sizeof(DNS_HDR));
+    LOG_DEBUG("dns decode return false");
     return;
   }
 
-  DNS_HDR* dnsHdr = (DNS_HDR*)packet->data;
+  DNS_HDR* dnsHdr = &dns.dnsHdr;
   LOG_DEBUG("id=0x%02x flags=0x%02x num_q=%u num_answ_rr=%u num_auth_rr=%u num_addi_rr=%u",
     ntohs(dnsHdr->id),
     ntohs(dnsHdr->flags),
