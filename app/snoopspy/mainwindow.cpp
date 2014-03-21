@@ -490,7 +490,6 @@ void MainWindow::on_actionShowOption_triggered()
   if (optionable->optionDoAll(this)) selectionChanged();
 }
 
-
 void MainWindow::on_actionHttpProxy_triggered()
 {
   QString url = "httpproxy.exe";

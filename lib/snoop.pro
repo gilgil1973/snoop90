@@ -40,6 +40,7 @@ SOURCES += \
     ../include/filter/snoopprocessfilterwidget.cpp \
     ../include/parse/snooparp.cpp \
     ../include/parse/snoopeth.cpp \
+    ../include/parse/snoopdns.cpp \
     ../include/parse/snoopicmp.cpp \
     ../include/parse/snoopip.cpp \
     ../include/parse/snooptcp.cpp \
@@ -52,6 +53,7 @@ SOURCES += \
     ../include/process/snoopdatachange.cpp \
     ../include/process/snoopdatafind.cpp \	
     ../include/process/snoopdelay.cpp \
+    ../include/process/snoopdnschange.cpp \
     ../include/process/snoopdump.cpp \
     ../include/process/snoopflowmgr.cpp \
     ../include/process/snoopflowmgrtest.cpp \
@@ -95,6 +97,7 @@ HEADERS += \
     ../include/libnet/libnet-types.h \
     ../include/parse/snooparp.h \
     ../include/parse/snoopeth.h \
+    ../include/parse/snoopdns.h \
     ../include/parse/snoopicmp.h \
     ../include/parse/snoopip.h \
     ../include/parse/snooptcp.h \
@@ -107,6 +110,7 @@ HEADERS += \
     ../include/process/snoopdatachange.h \
     ../include/process/snoopdatafind.h \
     ../include/process/snoopdelay.h \
+    ../include/process/snoopdnschange.h \
     ../include/process/snoopdump.h \
     ../include/process/snoopflowmgr.h \
     ../include/process/snoopflowmgrtest.h \
