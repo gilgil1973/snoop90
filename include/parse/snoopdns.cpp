@@ -69,7 +69,10 @@ QByteArray SnoopDnsResourceRecord::encode()
 {
   QByteArray res;
 
-  res = SnoopDns::encodeName(this->name);
+  //res = SnoopDns::encodeName(this->name);
+  res.append((char)0xC0); // gilgil temp 2014.03.22
+  res.append((char)0x0C);
+
 
   UINT16 _type = htons(this->type);
   res.append((const char*)&_type, sizeof(UINT16));
@@ -151,7 +154,10 @@ bool SnoopDnsResourceRecords::decode(BYTE* udpData, int dataLen, int count, int*
 QByteArray SnoopDns::encode()
 {
   QByteArray res;
+  res.append((const char*)&dnsHdr, sizeof(DNS_HDR));
 
+  // ----- gilgil temp 2014.03.22 -----
+  /*
   UINT16 _id = htons(dnsHdr.id);
   res.append((const char*)&_id, sizeof(UINT16));
 
@@ -169,6 +175,8 @@ QByteArray SnoopDns::encode()
 
   UINT16 _num_addi_rr = htons(dnsHdr.num_addi_rr);
   res.append((const char*)&_num_addi_rr, sizeof(UINT16));
+  */
+  // ----------------------------------
 
   res += questions.encode();
   res += answers.encode();
@@ -203,13 +211,14 @@ QByteArray SnoopDns::encodeName(QString name)
   }
 
   QByteArray res;
-  for (int i = 0; i < count - 2; i++)
+  for (int i = 0; i < count; i++)
   {
     QString label = labels.at(i);
+    BYTE size = label.size();
+    res.append((const char*)&size, sizeof(BYTE));
     res += label;
-    res += ".";
   }
-  res += labels.at(count - 1);
+  res.append((char)0x00);
 
   return res;
 }
