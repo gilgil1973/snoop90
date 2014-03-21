@@ -264,7 +264,7 @@ void SnoopDnsChange::check(SnoopPacket* packet)
     SnoopDnsChangeItem& changeItem = (SnoopDnsChangeItem&)changeItems.at(i);
     if (!changeItem.enabled) continue;
     int index = changeItem.rx.indexIn(questionName);
-    if (index == -1) continue;
+    if (index != 0) continue;
 
     SnoopDns response;
     response.dnsHdr.id = dns.dnsHdr.id;
@@ -315,7 +315,7 @@ void SnoopDnsChange::check(SnoopPacket* packet)
 
     udpHdr->uh_sport = packet->udpHdr->uh_dport;
     udpHdr->uh_dport = packet->udpHdr->uh_sport;
-    udpHdr->uh_ulen  = htons(sizeof(UDP_HDR) + responseMsg.size());
+    udpHdr->uh_ulen  = htons(sizeof(UDP_HDR) + (UINT16)responseMsg.size());
 
     memcpy(udpData, responseMsg.data(), responseMsg.size());
 
