@@ -245,6 +245,7 @@ void SnoopDnsChange::check(SnoopPacket* packet)
     ntohs(dnsHdr->num_answ_rr),
     ntohs(dnsHdr->num_auth_rr),
     ntohs(dnsHdr->num_addi_rr));
+  LOG_DEBUG("%s", qPrintable(dns.questions.at(0).name));
 
    // gilgil temp 2014.03.19
 }

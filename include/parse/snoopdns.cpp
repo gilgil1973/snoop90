@@ -24,17 +24,17 @@ bool SnoopDnsQuestion::decode(BYTE* udpData, int dataLen, int* offset)
   this->name = SnoopDns::decodeName(udpData, dataLen, offset);
   if (this->name == "") return false;
 
-  if (*offset >= dataLen) return false;
+  if (*offset + sizeof(UINT16) > dataLen) return false;
   UINT16* _type = (UINT16*)(udpData + *offset);
   this->type = ntohs(*_type);
   *offset += sizeof(UINT16);
 
-  if (*offset >= dataLen) return false;
+  if (*offset + sizeof(UINT16) > dataLen) return false;
   UINT16* __class = (UINT16*)(udpData + *offset);
   this->_class = ntohs(*__class);
   *offset += sizeof(UINT16);
 
-  if (*offset >= dataLen) return false;
+  if (*offset > dataLen) return false;
   return true;
 }
 
@@ -93,29 +93,30 @@ bool SnoopDnsResourceRecord::decode(BYTE* udpData, int dataLen, int* offset)
   this->name = SnoopDns::decodeName(udpData, dataLen, offset);
   if (this->name == "") return false;
 
-  if (*offset >= dataLen) return false;
+  if (*offset + sizeof(UINT16) > dataLen) return false;
   UINT16* _type = (UINT16*)(udpData + *offset);
   this->type = ntohs(*_type);
   *offset += sizeof(UINT16);
 
-  if (*offset >= dataLen) return false;
+  if (*offset  + sizeof(UINT16) > dataLen) return false;
   UINT16* __class = (UINT16*)(udpData + *offset);
   this->_class = ntohs(*__class);
   *offset += sizeof(UINT16);
 
-  if (*offset >= dataLen) return false;
+  if (*offset  + sizeof(UINT32) > dataLen) return false;
   UINT32* _ttl = (UINT32*)(udpData + *offset);
   this->ttl = ntohl(*_ttl);
   *offset += sizeof(UINT32);
 
-  if (*offset >= dataLen) return false;
+  if (*offset  + sizeof(UINT16) > dataLen) return false;
   UINT16* _dataLength = (UINT16*)(udpData + *offset);
   this->dataLength= ntohs(*_dataLength);
-  *offset += sizeof(UINT32);
+  *offset += sizeof(UINT16);
 
-  if (*offset >= dataLen) return false;
+  if (*offset + this->dataLength > dataLen) return false;
   const char* data = (const char*)(udpData + *offset);
-  this->data = QByteArray::fromRawData(data, dataLen - *offset);
+  this->data = QByteArray::fromRawData(data, this->dataLength);
+  *offset += this->dataLength;
 
   return true;
 }
@@ -179,40 +180,14 @@ QByteArray SnoopDns::encode()
 
 bool SnoopDns::decode(BYTE* udpData, int dataLen, int* offset)
 {
-  if (*offset >= dataLen) return false;
-  UINT16* _id = (UINT16*)(udpData + *offset);
-  this->dnsHdr.id = ntohs(*_id);
-  *offset += sizeof(UINT16);
+  if (*offset + sizeof(DNS_HDR) > dataLen) return false;
+  memcpy(&this->dnsHdr, udpData, sizeof(DNS_HDR));
+  *offset += sizeof(DNS_HDR);
 
-  if (*offset >= dataLen) return false;
-  UINT16* _flags = (UINT16*)(udpData + *offset);
-  this->dnsHdr.flags = ntohs(*_flags);
-  *offset += sizeof(UINT16);
-
-  if (*offset >= dataLen) return false;
-  UINT16* _num_q = (UINT16*)(udpData + *offset);
-  this->dnsHdr.num_q = ntohs(*_num_q);
-  *offset += sizeof(UINT16);
-
-  if (*offset >= dataLen) return false;
-  UINT16* _num_answ_rr = (UINT16*)(udpData + *offset);
-  this->dnsHdr.num_answ_rr = ntohs(*_num_answ_rr);
-  *offset += sizeof(UINT16);
-
-  if (*offset >= dataLen) return false;
-  UINT16* _num_auth_rr = (UINT16*)(udpData + *offset);
-  this->dnsHdr.num_auth_rr = ntohs(*_num_auth_rr);
-  *offset += sizeof(UINT16);
-
-  if (*offset >= dataLen) return false;
-  UINT16* _num_addi_rr = (UINT16*)(udpData + *offset);
-  this->dnsHdr.num_addi_rr = ntohs(*_num_addi_rr);
-  *offset += sizeof(UINT16);
-
-  if (!questions.decode(udpData, dataLen, dnsHdr.num_q, offset)) return false;
-  if (!answers.decode(udpData, dataLen, dnsHdr.num_answ_rr, offset)) return false;
-  if (!authorities.decode(udpData, dataLen, dnsHdr.num_auth_rr, offset)) return false;
-  if (!additionals.decode(udpData, dataLen, dnsHdr.num_addi_rr, offset)) return false;
+  if (!questions.decode(udpData,   dataLen, ntohs(dnsHdr.num_q),       offset)) return false;
+  if (!answers.decode(udpData,     dataLen, ntohs(dnsHdr.num_answ_rr), offset)) return false;
+  if (!authorities.decode(udpData, dataLen, ntohs(dnsHdr.num_auth_rr), offset)) return false;
+  if (!additionals.decode(udpData, dataLen, ntohs(dnsHdr.num_addi_rr), offset)) return false;
 
   return true;
 }
@@ -242,16 +217,35 @@ QByteArray SnoopDns::encodeName(QString name)
 QString SnoopDns::decodeName(BYTE* udpData, int dataLen, int* offset)
 {
   BYTE* p = (BYTE*)(udpData + *offset);
-  QByteArray res;
+  QString res;
+  bool first = true;
   while (true)
   {
     if (p - udpData > dataLen) return false;
     BYTE count = *p++;
     if (count == 0) break;
+
+    if (count == 0xC0)
+    {
+      if (p - udpData > dataLen) return false;
+      int tempOffset = *p++;
+      res = decodeName(udpData, dataLen, &tempOffset);
+      *offset += 2;
+      return res;
+    }
     if (p - udpData + count > dataLen) return false;
     QByteArray label((const char*)p, (int)count);
-    res += label;
     p += count;
+
+    if (first)
+    {
+      res += label;
+      first = false;
+    } else
+    {
+      res += ".";
+      res += label;
+    }
   }
   *offset = p - udpData;
   return res;
