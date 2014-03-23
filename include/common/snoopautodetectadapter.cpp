@@ -40,7 +40,7 @@ int SnoopAutoDetectAdapter::detect(QString& host)
 // ----------------------------------------------------------------------------
 // SnoopAutoDetectAdapter
 // ----------------------------------------------------------------------------
-int SnoopAutoDetectAdapter::detect(QString& host)
+int SnoopAutoDetectAdapter::detect(QString host)
 {
   Ip ip = host;
   SnoopRtmEntry* entry = SnoopRtm::instance().getBestEntry(ip);
@@ -241,3 +241,13 @@ void SnoopAutoDetectAdapter::recv(SnoopPacket* packet)
 
 #endif // SNOOP_AUTO_DETECT_USE_ADAPTER
 
+#ifdef GTEST
+#include <gtest/gtest.h>
+
+TEST( SnoopAudoDetectAdapter, test )
+{
+  SnoopAutoDetectAdapter& ada = SnoopAutoDetectAdapter::instance();
+  int adapterIndex = ada.detect("8.8.8.8");
+  EXPECT_TRUE( adapterIndex != snoop::INVALID_ADAPTER_INDEX);
+}
+#endif // GTEST

@@ -33,7 +33,7 @@ private: // singleton
   virtual ~SnoopAutoDetectAdapter() {}
 
 public:
-  virtual int detect(QString& host);
+  virtual int detect(QString host);
 
 public:
   static SnoopAutoDetectAdapter& instance()
