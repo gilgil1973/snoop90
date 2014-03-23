@@ -46,7 +46,6 @@ bool SnoopFlowMgrTest::doOpen()
     flowMgr->connect(SIGNAL(__macFlowCreated(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowCreate(SnoopMacFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
     flowMgr->connect(SIGNAL(__macFlowDeleted(SnoopMacFlowKey*,SnoopFlowValue*)), this, SLOT(__macFlowDelete(SnoopMacFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
     flowMgr->connect(SIGNAL(__macCaptured(SnoopPacket*)), this, SLOT(__macCaptured(SnoopPacket*)), Qt::DirectConnection);
-
   }
 
   //
@@ -90,7 +89,7 @@ bool SnoopFlowMgrTest::doClose()
   if (flowMgr == NULL)
   {
     SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
-    return false;
+    return true;
   }
 
   //

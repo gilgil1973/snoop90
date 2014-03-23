@@ -9,6 +9,7 @@ SnoopFilter::SnoopFilter(void* owner) : VObject(owner)
 
 SnoopFilter::~SnoopFilter()
 {
+  close();
 }
 
 bool SnoopFilter::doOpen()
