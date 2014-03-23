@@ -148,7 +148,7 @@ bool SnoopRtm::loadFromSystem()
         /* (2) Netmask             */ "([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)[ ]+"\
         /* (3) Gateway             */ "([^ ]+)[ ]*"\
         /* (4) Interface           */ "([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)[ ]+"\
-        /* (5)Metric              */ "([0-9]+)");
+        /* (5) Metric              */ "([0-9]+)");
 
       if (activeRex.indexIn(s) == -1) continue;
 
@@ -179,12 +179,14 @@ bool SnoopRtm::loadFromSystem()
       if (persistentRex.indexIn(s) == -1) continue;
 
       // ----- gilgil temp 2012.06.09 -----
+      /*
       LOG_DEBUG("dst=%s mask=%s gateway=%s metric=%s",
         qPrintable(persistentRex.cap(1)), // Network Destination
         qPrintable(persistentRex.cap(2)), // Netmask
         qPrintable(persistentRex.cap(3)), // Gateway
         qPrintable(persistentRex.cap(4))  // Metric
       );
+      */
       // ----------------------------------
       entry.dst     = persistentRex.cap(1);
       entry.mask    = persistentRex.cap(2);
