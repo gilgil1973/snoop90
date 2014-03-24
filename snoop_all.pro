@@ -6,5 +6,5 @@ SUBDIRS += \
   app/rtmrecover/rtmrecover.pro \
   app/snooptest/snooptest.pro \
   app/snoopspy/snoopspy.pro \
-  // app/unittest/unittest.pro \  
+#  app/unittest/unittest.pro \  
   app/sscon/sscon.pro
