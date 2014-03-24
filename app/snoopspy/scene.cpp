@@ -9,10 +9,10 @@ Scene::Scene(QObject *parent) : QGraphicsScene(parent)
   line           = NULL;
 
   // categoryNames.push_back("VMyObject"); // gilgil temp 2012.08.02
-  // categoryNames.push_back("VNet"); // gilgil temp 2012.08.02
   categoryNames.push_back("SnoopCapture");
   categoryNames.push_back("SnoopFilter");
   categoryNames.push_back("SnoopProcess");
+  categoryNames.push_back("VNet")
 
   removePrefixNames.push_back("VMy");
   removePrefixNames.push_back("Snoop");
