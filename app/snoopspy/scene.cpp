@@ -12,10 +12,11 @@ Scene::Scene(QObject *parent) : QGraphicsScene(parent)
   categoryNames.push_back("SnoopCapture");
   categoryNames.push_back("SnoopFilter");
   categoryNames.push_back("SnoopProcess");
-  categoryNames.push_back("VNet")
+  categoryNames.push_back("VNet");
 
   removePrefixNames.push_back("VMy");
   removePrefixNames.push_back("Snoop");
+  removePrefixNames.push_back("V");
 
   removeSignalNames.push_back("destroyed(QObject*)");
   removeSignalNames.push_back("destroyed()");
