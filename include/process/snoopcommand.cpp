@@ -60,19 +60,19 @@ bool SnoopCommandItem::execute(VError& error)
 }
 
 #ifdef QT_GUI_LIB
-void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem)
-{
-  item.enabled = treeWidgetItem.checkState(SnoopCommandItem::ENABLED_IDX) == Qt::Checked;
-  item.command = treeWidgetItem.text(SnoopCommandItem::COMMAND_IDX);
-  item.sync    = treeWidgetItem.checkState(SnoopCommandItem::SYNC_IDX) == Qt::Checked;
-}
-
 void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item)
 {
   treeWidgetItem.setCheckState(SnoopCommandItem::ENABLED_IDX, item.enabled ? Qt::Checked : Qt::Unchecked);
   treeWidgetItem.setText(SnoopCommandItem::COMMAND_IDX, item.command);
   treeWidgetItem.setCheckState(SnoopCommandItem::SYNC_IDX, item.sync ? Qt::Checked : Qt::Unchecked);
   treeWidgetItem.setFlags(treeWidgetItem.flags() | Qt::ItemFlag::ItemIsEditable);
+}
+
+void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem)
+{
+  item.enabled = treeWidgetItem.checkState(SnoopCommandItem::ENABLED_IDX) == Qt::Checked;
+  item.command = treeWidgetItem.text(SnoopCommandItem::COMMAND_IDX);
+  item.sync    = treeWidgetItem.checkState(SnoopCommandItem::SYNC_IDX) == Qt::Checked;
 }
 #endif // QT_GUI_LIB
 
@@ -111,19 +111,6 @@ void SnoopCommandItems::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-void operator << (SnoopCommandItems& items, QTreeWidget& treeWidget)
-{
-  items.clear();
-  int count = treeWidget.topLevelItemCount();
-  for (int i = 0; i < count; i++)
-  {
-    QTreeWidgetItem* treeWidgetItem = treeWidget.topLevelItem(i);
-    SnoopCommandItem newItem;
-    newItem << *treeWidgetItem;
-    items.push_back(newItem);
-  }
-}
-
 void operator << (QTreeWidget& treeWidget, SnoopCommandItems& items)
 {
   treeWidget.clear();
@@ -136,6 +123,19 @@ void operator << (QTreeWidget& treeWidget, SnoopCommandItems& items)
     treeWidgetItems.push_back(newWidgetItem);
   }
   treeWidget.insertTopLevelItems(0, treeWidgetItems);
+}
+
+void operator << (SnoopCommandItems& items, QTreeWidget& treeWidget)
+{
+  items.clear();
+  int count = treeWidget.topLevelItemCount();
+  for (int i = 0; i < count; i++)
+  {
+    QTreeWidgetItem* treeWidgetItem = treeWidget.topLevelItem(i);
+    SnoopCommandItem newItem;
+    newItem << *treeWidgetItem;
+    items.push_back(newItem);
+  }
 }
 #endif // QT_GUI_LIB
 

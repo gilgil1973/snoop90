@@ -49,8 +49,8 @@ public:
 };
 
 #ifdef QT_GUI_LIB
-void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem);
 void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item);
+void operator << (SnoopCommandItem& item, QTreeWidgetItem& treeWidgetItem);
 #endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
@@ -67,8 +67,8 @@ public:
 };
 
 #ifdef QT_GUI_LIB
-void operator << (SnoopCommandItems& items, QTreeWidget& treeWidget);
 void operator << (QTreeWidget& treeWidget, SnoopCommandItems& items);
+void operator << (SnoopCommandItems& items, QTreeWidget& treeWidget);
 #endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
