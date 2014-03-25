@@ -12,10 +12,10 @@
 #define __SNOOP_FLOW_CHANGE_H__
 
 #include <SnoopProcess>
+#include <SnoopCapture>
 #include <SnoopFlowMgr>
 #ifdef QT_GUI_LIB
 #include <QTreeWidget>
-#include <QHeaderView>
 #include <VListWidget>
 #endif // QT_GUI_LIB
 
@@ -70,7 +70,7 @@ public:
 
 public:
   bool prepare(VError& error);
-  bool check(SnoopTransportFlowKey& flowKey);
+  bool check(SnoopTransportFlowKey& flowKey, Protocol protocol);
 
 public:
   virtual void load(VXml xml);
@@ -127,7 +127,7 @@ protected:
 
 public:
   bool prepare(VError& error);
-  SnoopFlowChangeItem*  find(SnoopTransportFlowKey& flowKey);
+  SnoopFlowChangeItem*  find(SnoopTransportFlowKey& flowKey, SnoopFlowChangeItem::Protocol protocol);
   SnoopTransportFlowKey change(SnoopFlowChangeItem& item, SnoopTransportFlowKey& flowKey);
 
 public:
@@ -162,6 +162,13 @@ public:
 };
 
 // ----------------------------------------------------------------------------
+// SnoopFlowChangeMap
+// ----------------------------------------------------------------------------
+class SnoopFlowChangeMap : public QMap<SnoopTransportFlowKey /*to*/, SnoopTransportFlowKey /*from*/>, public VLockable
+{
+};
+
+// ----------------------------------------------------------------------------
 // SnoopFlowChange
 // ----------------------------------------------------------------------------
 class SnoopFlowChange : public SnoopProcess
@@ -180,25 +187,41 @@ signals:
   void changed(SnoopPacket* packet);
   void unchanged(SnoopPacket* packet);
 
+protected:
+  void _changeTcpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem);
+  void _changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem);
+
 public slots:
   void processInOut(SnoopPacket* packet);
   void processOutIn(SnoopPacket* packet);
 
 public:
-  SnoopFlowMgr*        flowMgr;
+  SnoopCapture*        inCapture;
+  SnoopFlowMgr*        inFlowMgr;
+  SnoopCapture*        outCapture;
+  SnoopFlowMgr*        outFlowMgr;
   bool                 tcpChange;
   bool                 udpChange;
   SnoopFlowChangeItems changeItems;
 
 protected:
-    size_t                     tcpFlowOffset;
-    size_t                     udpFlowOffset;
+    size_t             inTcpFlowOffset;
+    size_t             outTcpFlowOffset;
+    size_t             inUdpFlowOffset;
+    size_t             outUdpFlowOffset;
+
+    SnoopFlowChangeMap tcpInOutMap;
+    SnoopFlowChangeMap udpInOutMap;
 
 protected slots:
-  void __tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
-  void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __inTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __inTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __outTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __outTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __inUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __inUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __outUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __outUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
 
 public:
   virtual void load(VXml xml);

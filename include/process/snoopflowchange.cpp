@@ -10,9 +10,9 @@ REGISTER_METACLASS(SnoopFlowChange, SnoopProcess)
 // ----------------------------------------------------------------------------
 SnoopFlowChangeItem::SnoopFlowChangeItem()
 {
-  enabled = true;
-  log     = true;
-  protocol = Tcp;
+  enabled           = true;
+  log               = true;
+  protocol          = Tcp;
 
   srcIp             = 0;
   srcIpMask         = 0;
@@ -58,9 +58,10 @@ bool SnoopFlowChangeItem::prepare(VError& error)
   return true;
 }
 
-bool SnoopFlowChangeItem::check(SnoopTransportFlowKey& flowKey)
+bool SnoopFlowChangeItem::check(SnoopTransportFlowKey& flowKey, Protocol protocol)
 {
   if (!this->enabled) return false;
+  if (this->protocol != protocol)                             return false;
   if ((flowKey.srcIp & this->srcIpMask)     != this->srcIp)   return false;
   if (this->srcPort != 0 && flowKey.srcPort != this->srcPort) return false;
   if ((flowKey.dstIp & this->dstIpMask)     != this->dstIp)   return false;
@@ -72,6 +73,7 @@ void SnoopFlowChangeItem::load(VXml xml)
 {
   enabled           = xml.getBool("enabled", enabled);
   log               = xml.getBool("log", log);
+  protocol          = (Protocol)xml.getInt("protocol", (int)protocol);
 
   srcIp             = xml.getStr("srcIp", srcIp.str());
   srcIpMask         = xml.getStr("srcIpMask", srcIpMask.str());
@@ -96,6 +98,7 @@ void SnoopFlowChangeItem::save(VXml xml)
 {
   xml.setBool("enabled", enabled);
   xml.setBool("log", log);
+  xml.setInt("protocol", (int)protocol);
 
   xml.setStr("srcIp", srcIp.str());
   xml.setStr("srcIpMask", srcIpMask.str());
@@ -119,7 +122,7 @@ void SnoopFlowChangeItem::save(VXml xml)
 #ifdef QT_GUI_LIB
 void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
 {
-  treeWidget->setMinimumWidth(1000);
+  treeWidget->setMinimumWidth(1200);
 
   QStringList headerLables;
   headerLables << "Enabled" << "Log" << "Protocol"
@@ -135,43 +138,21 @@ void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
 
   treeWidget->setColumnWidth(SRC_IP_IDX,           100);
   treeWidget->setColumnWidth(SRC_IP_MASK_IDX,      100);
-  treeWidget->setColumnWidth(SRC_IP_CHANGE_TYPE,   70);
+  treeWidget->setColumnWidth(SRC_IP_CHANGE_TYPE,   50);
   treeWidget->setColumnWidth(SRC_IP_FIX_VALUE,     100);
 
   treeWidget->setColumnWidth(SRC_PORT_IDX,         50);
-  treeWidget->setColumnWidth(SRC_PORT_CHANGE_TYPE, 70);
+  treeWidget->setColumnWidth(SRC_PORT_CHANGE_TYPE, 50);
   treeWidget->setColumnWidth(SRC_PORT_FIX_VALUE,   50);
 
   treeWidget->setColumnWidth(DST_IP_IDX,           100);
   treeWidget->setColumnWidth(DST_IP_MASK_IDX,      100);
-  treeWidget->setColumnWidth(DST_IP_CHANGE_TYPE,   70);
+  treeWidget->setColumnWidth(DST_IP_CHANGE_TYPE,   50);
   treeWidget->setColumnWidth(DST_IP_FIX_VALUE,     100);
 
   treeWidget->setColumnWidth(DST_PORT_IDX,         50);
-  treeWidget->setColumnWidth(DST_PORT_CHANGE_TYPE, 70);
+  treeWidget->setColumnWidth(DST_PORT_CHANGE_TYPE, 50);
   treeWidget->setColumnWidth(DST_PORT_FIX_VALUE,   50);
-
-  treeWidget->header()->setSectionResizeMode(ENABLED_IDX,          QHeaderView::Interactive);
-  treeWidget->header()->setSectionResizeMode(LOG_IDX,              QHeaderView::Interactive);
-  treeWidget->header()->setSectionResizeMode(PROTOCOL_IDX,         QHeaderView::Interactive);
-
-  treeWidget->header()->setSectionResizeMode(SRC_IP_IDX,           QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(SRC_IP_MASK_IDX,      QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(SRC_IP_CHANGE_TYPE,   QHeaderView::Interactive);
-  treeWidget->header()->setSectionResizeMode(SRC_IP_FIX_VALUE,     QHeaderView::Stretch);
-
-  treeWidget->header()->setSectionResizeMode(SRC_PORT_IDX,         QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(SRC_PORT_CHANGE_TYPE, QHeaderView::Interactive);
-  treeWidget->header()->setSectionResizeMode(SRC_PORT_FIX_VALUE,   QHeaderView::Stretch);
-
-  treeWidget->header()->setSectionResizeMode(DST_IP_IDX,           QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(DST_IP_MASK_IDX,      QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(DST_IP_CHANGE_TYPE,   QHeaderView::Interactive);
-  treeWidget->header()->setSectionResizeMode(DST_IP_FIX_VALUE,     QHeaderView::Stretch);
-
-  treeWidget->header()->setSectionResizeMode(DST_PORT_IDX,         QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(DST_PORT_CHANGE_TYPE, QHeaderView::Interactive);
-  treeWidget->header()->setSectionResizeMode(DST_PORT_FIX_VALUE,   QHeaderView::Stretch);
 }
 
 void operator << (QTreeWidgetItem& treeWidgetItem, SnoopFlowChangeItem& item)
@@ -279,12 +260,12 @@ bool SnoopFlowChangeItems::prepare(VError& error)
   return true;
 }
 
-SnoopFlowChangeItem* SnoopFlowChangeItems::find(SnoopTransportFlowKey& flowKey)
+SnoopFlowChangeItem* SnoopFlowChangeItems::find(SnoopTransportFlowKey& flowKey, SnoopFlowChangeItem::Protocol protocol)
 {
   for (int i = 0; i < count(); i++)
   {
     SnoopFlowChangeItem& item = (SnoopFlowChangeItem&)at(i);
-    if (item.check(flowKey)) return &item;
+    if (item.check(flowKey, protocol)) return &item;
   }
   return NULL;
 }
@@ -392,12 +373,19 @@ void SnoopFlowChangeItems::optionSaveDlg(QDialog* dialog)
 // ----------------------------------------------------------------------------
 SnoopFlowChange::SnoopFlowChange(void* owner) : SnoopProcess(owner)
 {
-  flowMgr       = NULL;
-  tcpChange     = true;
-  udpChange     = true;
+  inCapture        = NULL;
+  inFlowMgr        = NULL;
+  outCapture       = NULL;
+  outFlowMgr       = NULL;
+  tcpChange        = true;
+  udpChange        = true;
   changeItems.clear();
-  tcpFlowOffset = 0;
-  udpFlowOffset = 0;
+  inTcpFlowOffset  = 0;
+  outTcpFlowOffset = 0;
+  inUdpFlowOffset  = 0;
+  outUdpFlowOffset = 0;
+  tcpInOutMap.clear();
+  udpInOutMap.clear();
 }
 
 SnoopFlowChange::~SnoopFlowChange()
@@ -407,9 +395,24 @@ SnoopFlowChange::~SnoopFlowChange()
 
 bool SnoopFlowChange::doOpen()
 {
-  if (flowMgr == NULL)
+  if (inCapture == NULL)
   {
-    SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
+    SET_ERROR(SnoopError, "inCapture is null", VERR_OBJECT_IS_NULL);
+    return false;
+  }
+  if (inFlowMgr == NULL)
+  {
+    SET_ERROR(SnoopError, "inFlowMgr is null", VERR_OBJECT_IS_NULL);
+    return false;
+  }
+  if (outCapture == NULL)
+  {
+    SET_ERROR(SnoopError, "outCapture is null", VERR_OBJECT_IS_NULL);
+    return false;
+  }
+  if (outFlowMgr == NULL)
+  {
+    SET_ERROR(SnoopError, "outFlowMgr is null", VERR_OBJECT_IS_NULL);
     return false;
   }
 
@@ -417,42 +420,146 @@ bool SnoopFlowChange::doOpen()
 
   if (tcpChange)
   {
-    tcpFlowOffset = flowMgr->requestMemory_TcpFlow("SnoopFlowChange", sizeof(SnoopFlowChangeFlowItem));
-    flowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
-    flowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    inTcpFlowOffset = inFlowMgr->requestMemory_TcpFlow("SnoopFlowChangeIn", sizeof(SnoopFlowChangeFlowItem));
+    inFlowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__inTcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    inFlowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__inTcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+
+    outTcpFlowOffset = outFlowMgr->requestMemory_TcpFlow("SnoopFlowChangeOut", sizeof(SnoopFlowChangeFlowItem));
+    outFlowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__outTcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    outFlowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__outTcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
   }
 
   if (udpChange)
   {
-    udpFlowOffset = flowMgr->requestMemory_UdpFlow("SnoopFlowChange", sizeof(SnoopFlowChangeFlowItem));
-    flowMgr->connect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
-    flowMgr->connect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    inUdpFlowOffset = inFlowMgr->requestMemory_UdpFlow("SnoopFlowChangeIn", sizeof(SnoopFlowChangeFlowItem));
+    inFlowMgr->connect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__inUdpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    inFlowMgr->connect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__inUdpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+
+    inUdpFlowOffset = outFlowMgr->requestMemory_UdpFlow("SnoopFlowChangeIn", sizeof(SnoopFlowChangeFlowItem));
+    outFlowMgr->connect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__outUdpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    outFlowMgr->connect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__outUdpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
   }
+
+  tcpInOutMap.clear();
+  udpInOutMap.clear();
 
   return SnoopProcess::doOpen();
 }
 
 bool SnoopFlowChange::doClose()
 {
-  if (flowMgr == NULL)
+  if (inFlowMgr == NULL)
   {
-    SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
+    SET_ERROR(SnoopError, "inFlowMgr is null", VERR_OBJECT_IS_NULL);
+    return true;
+  }
+  if (outFlowMgr == NULL)
+  {
+    SET_ERROR(SnoopError, "outFlowMgr is null", VERR_OBJECT_IS_NULL);
     return true;
   }
 
   if (tcpChange)
   {
-    flowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
-    flowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
+    inFlowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__inTcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
+    inFlowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__inTcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
+
+    outFlowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__outTcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
+    outFlowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__outTcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
   }
 
   if (udpChange)
   {
-    flowMgr->disconnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)));
-    flowMgr->disconnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)));
+    inFlowMgr->disconnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__inUdpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)));
+    inFlowMgr->disconnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__inUdpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)));
+
+    outFlowMgr->disconnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__outUdpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)));
+    outFlowMgr->disconnect(SIGNAL(__udpFlowDeleted(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__outUdpFlowDelete(SnoopUdpFlowKey*,SnoopFlowValue*)));
   }
 
   return SnoopProcess::doClose();
+}
+
+void SnoopFlowChange::_changeTcpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem)
+{
+  Ip     oldSrcIp   = ntohl(packet->ipHdr->ip_src);
+  UINT16 oldSrcPort = ntohs(packet->tcpHdr->th_sport);
+  Ip     oldDstIp   = ntohl(packet->ipHdr->ip_dst);
+  UINT16 oldDstPort = ntohs(packet->tcpHdr->th_dport);
+
+  Ip     newSrcIp   = flowItem->to.srcIp;
+  UINT16 newSrcPort = flowItem->to.srcPort;
+  Ip     newDstIp   = flowItem->to.dstIp;
+  UINT16 newDstPort = flowItem->to.dstPort;
+
+  packet->ipHdr->ip_src    = htonl(newSrcIp);
+  packet->tcpHdr->th_sport = htons(newSrcPort);
+  packet->ipHdr->ip_dst    = htonl(newDstIp);
+  packet->tcpHdr->th_dport = htons(newDstPort);
+
+  UINT16 oldIpChecksum  = ntohs(packet->ipHdr->ip_sum);
+  UINT16 oldTcpChecksum = ntohs(packet->tcpHdr->th_sum);
+
+  UINT16 newIpChecksum;
+  newIpChecksum = SnoopIp::recalculateChecksum(oldIpChecksum, oldSrcIp, newSrcIp);
+  newIpChecksum = SnoopIp::recalculateChecksum(newIpChecksum, oldDstIp, newDstIp);
+  // UINT16 correctIpChecksum = SnoopIp::checksum(packet->ipHdr); // gilgil temp 2014.03.25
+  // LOG_DEBUG("ip checksum=0x%x 0x%x 0x%x", oldIpChecksum, newIpChecksum, correctIpChecksum); // gilgil temp 2014.03.25
+  packet->ipHdr->ip_sum = htons(newIpChecksum);
+
+  UINT16 newTcpChecksum;
+  newTcpChecksum = SnoopIp::recalculateChecksum(oldTcpChecksum, oldSrcIp,   newSrcIp);
+  newTcpChecksum = SnoopIp::recalculateChecksum(newTcpChecksum, oldDstIp,   newDstIp);
+  newTcpChecksum = SnoopIp::recalculateChecksum(newTcpChecksum, oldSrcPort, newSrcPort);
+  newTcpChecksum = SnoopIp::recalculateChecksum(newTcpChecksum, oldDstPort, newDstPort);
+  // UINT16 correctTcpChecksum = SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr);  // gilgil temp 2014.03.25
+  // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
+  packet->tcpHdr->th_sum = htons(newTcpChecksum);
+
+  LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
+    qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
+    qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
+}
+
+void SnoopFlowChange::_changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem)
+{
+  Ip     oldSrcIp   = ntohl(packet->ipHdr->ip_src);
+  UINT16 oldSrcPort = ntohs(packet->udpHdr->uh_sport);
+  Ip     oldDstIp   = ntohl(packet->ipHdr->ip_dst);
+  UINT16 oldDstPort = ntohs(packet->udpHdr->uh_dport);
+
+  Ip     newSrcIp   = flowItem->to.srcIp;
+  UINT16 newSrcPort = flowItem->to.srcPort;
+  Ip     newDstIp   = flowItem->to.dstIp;
+  UINT16 newDstPort = flowItem->to.dstPort;
+
+  packet->ipHdr->ip_src    = htonl(newSrcIp);
+  packet->udpHdr->uh_sport = htons(newSrcPort);
+  packet->ipHdr->ip_dst    = htonl(newDstIp);
+  packet->udpHdr->uh_dport = htons(newDstPort);
+
+  UINT16 oldIpChecksum  = ntohs(packet->ipHdr->ip_sum);
+  UINT16 oldUdpChecksum = ntohs(packet->udpHdr->uh_sum);
+
+  UINT16 newIpChecksum;
+  newIpChecksum = SnoopIp::recalculateChecksum(oldIpChecksum, oldSrcIp, newSrcIp);
+  newIpChecksum = SnoopIp::recalculateChecksum(newIpChecksum, oldDstIp, newDstIp);
+  // UINT16 correctIpChecksum = SnoopIp::checksum(packet->ipHdr); // gilgil temp 2014.03.25
+  // LOG_DEBUG("ip checksum=0x%x 0x%x 0x%x", oldIpChecksum, newIpChecksum, correctIpChecksum); // gilgil temp 2014.03.25
+  packet->ipHdr->ip_sum = htons(newIpChecksum);
+
+  UINT16 newUdpChecksum;
+  newUdpChecksum = SnoopIp::recalculateChecksum(oldUdpChecksum, oldSrcIp,   newSrcIp);
+  newUdpChecksum = SnoopIp::recalculateChecksum(newUdpChecksum, oldDstIp,   newDstIp);
+  newUdpChecksum = SnoopIp::recalculateChecksum(newUdpChecksum, oldSrcPort, newSrcPort);
+  newUdpChecksum = SnoopIp::recalculateChecksum(newUdpChecksum, oldDstPort, newDstPort);
+  // UINT16 correctTcpChecksum = SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr);  // gilgil temp 2014.03.25
+  // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
+  packet->udpHdr->uh_sum = htons(newUdpChecksum);
+
+  LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
+    qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
+    qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
 }
 
 void SnoopFlowChange::processInOut(SnoopPacket* packet)
@@ -468,46 +575,26 @@ void SnoopFlowChange::processInOut(SnoopPacket* packet)
   {
     if (tcpChange)
     {
-      SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(packet->flowValue->totalMem + tcpFlowOffset);
+      SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(packet->flowValue->totalMem + inTcpFlowOffset);
       if (flowItem->changed)
       {
-        Ip     oldSrcIp   = ntohl(packet->ipHdr->ip_src);
-        UINT16 oldSrcPort = ntohs(packet->tcpHdr->th_sport);
-        Ip     oldDstIp   = ntohl(packet->ipHdr->ip_dst);
-        UINT16 oldDstPort = ntohs(packet->tcpHdr->th_dport);
-
-        Ip     newSrcIp   = flowItem->to.srcIp;
-        UINT16 newSrcPort = flowItem->to.srcPort;
-        Ip     newDstIp   = flowItem->to.dstIp;
-        UINT16 newDstPort = flowItem->to.dstPort;
-
-        packet->ipHdr->ip_src    = htonl(newSrcIp);
-        packet->tcpHdr->th_sport = htons(newSrcPort);
-        packet->ipHdr->ip_dst    = htonl(newDstIp);
-        packet->tcpHdr->th_dport = htons(newDstPort);
-
-        UINT16 oldIpChecksum  = ntohs(packet->ipHdr->ip_sum);
-        UINT16 oldTcpChecksum = ntohs(packet->tcpHdr->th_sum);
-
-        UINT16 newIpChecksum;
-        newIpChecksum = SnoopIp::recalculateChecksum(oldIpChecksum, oldSrcIp, newSrcIp);
-        newIpChecksum = SnoopIp::recalculateChecksum(newIpChecksum, oldDstIp, newDstIp);
-        // UINT16 correctIpChecksum = SnoopIp::checksum(packet->ipHdr); // gilgil temp 2014.03.25
-        // LOG_DEBUG("ip checksum=0x%x 0x%x 0x%x", oldIpChecksum, newIpChecksum, correctIpChecksum); // gilgil temp 2014.03.25
-        packet->ipHdr->ip_sum = htons(newIpChecksum);
-
-        UINT16 newTcpChecksum;
-        newTcpChecksum = SnoopIp::recalculateChecksum(oldTcpChecksum, oldSrcIp,   newSrcIp);
-        newTcpChecksum = SnoopIp::recalculateChecksum(newTcpChecksum, oldDstIp,   newDstIp);
-        newTcpChecksum = SnoopIp::recalculateChecksum(newTcpChecksum, oldSrcPort, newSrcPort);
-        newTcpChecksum = SnoopIp::recalculateChecksum(newTcpChecksum, oldDstPort, newDstPort);
-        // UINT16 correctTcpChecksum = SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr);  // gilgil temp 2014.03.25
-        // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
-        packet->tcpHdr->th_sum = htons(newTcpChecksum);
+        _changeTcpFlow(packet, flowItem);
+        _changed = true;
+      }
+    }
+  } else
+  if (packet->udpHdr != NULL)
+  {
+    if (udpChange)
+    {
+      SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(packet->flowValue->totalMem + inUdpFlowOffset);
+      if (flowItem->changed)
+      {
+        _changeUdpFlow(packet, flowItem);
+        _changed = true;
       }
     }
   }
-
 
   if (_changed)
   {
@@ -520,80 +607,200 @@ void SnoopFlowChange::processInOut(SnoopPacket* packet)
 
 void SnoopFlowChange::processOutIn(SnoopPacket* packet)
 {
+  if (packet->ipHdr == NULL)
+  {
+    emit unchanged(packet);
+    return;
+  }
 
+  bool _changed = false;
+  if (packet->tcpHdr != NULL)
+  {
+    if (tcpChange)
+    {
+      SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(packet->flowValue->totalMem + outTcpFlowOffset);
+      if (flowItem->changed)
+      {
+        _changeTcpFlow(packet, flowItem);
+        _changed = true;
+      }
+    }
+  } else
+  if (packet->udpHdr != NULL)
+  {
+    if (udpChange)
+    {
+      SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(packet->flowValue->totalMem + outUdpFlowOffset);
+      if (flowItem->changed)
+      {
+        _changeUdpFlow(packet, flowItem);
+        _changed = true;
+      }
+    }
+  }
+
+  if (_changed)
+  {
+    emit changed(packet);
+  } else
+  {
+    emit unchanged(packet);
+  }
 }
-
-void SnoopFlowChange::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
+void SnoopFlowChange::__inTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
-  SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(value->totalMem + tcpFlowOffset);
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort); // gilgil temp 2014.03.26
+  SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(value->totalMem + inTcpFlowOffset);
 
-  flowItem->changed = false;
-  flowItem->from    = *key;
-  flowItem->to      = *key;
-
-  SnoopFlowChangeItem* item = changeItems.find(*key);
+  SnoopFlowChangeItem* item = changeItems.find(*key, SnoopFlowChangeItem::Tcp);
   if (item != NULL)
   {
-    SnoopTransportFlowKey changeFlow = changeItems.change(*item, *key);
-    if (*key == changeFlow)
-    {
-      LOG_DEBUG("key and changeFlow is same(%s:%d > %s:%d)", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort); // gilgil temp 2014.03.25
-      return;
-    }
     flowItem->changed = true;
-    flowItem->to      = changeFlow;
+    flowItem->from    = *key;
+    flowItem->to      = changeItems.change(*item, *key);;
     if (item->log)
     {
       LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
         qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
         qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
     }
+
+    VLock lock(tcpInOutMap);
+    tcpInOutMap[flowItem->to] = flowItem->from;
     return;
   }
 
-  SnoopTcpFlowKey rkey = key->reverse();
-  Snoop_TcpFlow_Map::iterator it = flowMgr->tcpFlow_Map.find(rkey);
-  if (it != flowMgr->tcpFlow_Map.end())
-  {
-    SnoopFlowValue& rvalue = it.value();
-    SnoopFlowChangeFlowItem* rflowItem = (SnoopFlowChangeFlowItem*)(rvalue.totalMem + tcpFlowOffset);
-
-    flowItem->changed  = true;
-    flowItem->to       = rflowItem->from;
-    if (item->log)
-    {
-      LOG_INFO("change (reverse) %s:%d > %s:%d into %s:%d > %s:%d",
-        qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
-        qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
-    }
-    return;
-  }
-
-
+  flowItem->changed = false;
+  flowItem->from    = *key;
+  flowItem->to      = *key;
 }
 
-void SnoopFlowChange::__tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
+void SnoopFlowChange::__inTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
   Q_UNUSED(key)
   Q_UNUSED(value)
 }
 
-void SnoopFlowChange::__udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+void SnoopFlowChange::__outTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort); // gilgil temp 2014.03.26
+  SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(value->totalMem + outTcpFlowOffset);
 
+  SnoopTcpFlowKey rkey = key->reverse();
+
+  VLock lock(tcpInOutMap);
+  SnoopFlowChangeMap::iterator it = tcpInOutMap.find(rkey);
+  if (it != tcpInOutMap.end())
+  {
+    SnoopTransportFlowKey rvalue = it.value();
+    flowItem->changed = true;
+    flowItem->from    = *key;
+    flowItem->to.srcIp   = rvalue.dstIp;
+    flowItem->to.srcPort = rvalue.dstPort;
+    flowItem->to.dstIp   = rvalue.srcIp;
+    flowItem->to.dstPort = rvalue.srcPort;
+
+    LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
+      qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
+      qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
+
+    return;
+  }
+
+  flowItem->changed = false;
+  flowItem->from    = *key;
+  flowItem->to      = *key;
 }
 
-void SnoopFlowChange::__udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+void SnoopFlowChange::__outTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(key)
+  Q_UNUSED(value)
+}
 
+void SnoopFlowChange::__inUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+{
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort); // gilgil temp 2014.03.26
+  SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(value->totalMem + inUdpFlowOffset);
+
+  SnoopFlowChangeItem* item = changeItems.find(*key, SnoopFlowChangeItem::Udp);
+  if (item != NULL)
+  {
+    flowItem->changed = true;
+    flowItem->from    = *key;
+    flowItem->to      = changeItems.change(*item, *key);;
+    if (item->log)
+    {
+      LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
+        qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
+        qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
+    }
+
+    VLock lock(udpInOutMap);
+    udpInOutMap[flowItem->to] = flowItem->from;
+    return;
+  }
+
+  flowItem->changed = false;
+  flowItem->from    = *key;
+  flowItem->to      = *key;
+}
+
+void SnoopFlowChange::__inUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+{
+  Q_UNUSED(*key)
+  Q_UNUSED(*value)
+}
+
+void SnoopFlowChange::__outUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+{
+  LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort); // gilgil temp 2014.03.26
+  SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(value->totalMem + outUdpFlowOffset);
+
+  SnoopTcpFlowKey rkey = key->reverse();
+
+  VLock lock(udpInOutMap);
+  SnoopFlowChangeMap::iterator it = udpInOutMap.find(rkey);
+  if (it != udpInOutMap.end())
+  {
+    SnoopTransportFlowKey rvalue = it.value();
+    flowItem->changed = true;
+    flowItem->from    = *key;
+    flowItem->to.srcIp   = rvalue.dstIp;
+    flowItem->to.srcPort = rvalue.dstPort;
+    flowItem->to.dstIp   = rvalue.srcIp;
+    flowItem->to.dstPort = rvalue.srcPort;
+
+    LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
+      qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
+      qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
+
+    return;
+  }
+
+  flowItem->changed = false;
+  flowItem->from    = *key;
+  flowItem->to      = *key;
+}
+
+void SnoopFlowChange::__outUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
+{
+  Q_UNUSED(*key)
+  Q_UNUSED(*value)
 }
 
 void SnoopFlowChange::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  QString flowMgrName = xml.getStr("flowMgr", "");
-  if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
+  QString inCaptureName = xml.getStr("inCapture", "");
+  if (inCaptureName != "") inCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(inCaptureName));
+  QString inFlowMgrName = xml.getStr("inFlowMgr", "");
+  if (inFlowMgrName != "") inFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(inFlowMgrName));
+  QString outCaptureName = xml.getStr("outCapture", "");
+  if (outCaptureName != "") outCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(outCaptureName));
+  QString outFlowMgrName = xml.getStr("outFlowMgr", "");
+  if (outFlowMgrName != "") outFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(outFlowMgrName));
   tcpChange = xml.getBool("tcpChange", tcpChange);
   udpChange = xml.getBool("udpChange", udpChange);
   changeItems.load(xml.gotoChild("changeItems"));
@@ -603,8 +810,14 @@ void SnoopFlowChange::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  QString flowMgrName = flowMgr == NULL ? "" : flowMgr->name;
-  xml.setStr("flowMgr", flowMgrName);
+  QString inCaptureName = inCapture == NULL ? "" : inCapture->name;
+  xml.setStr("inCapture", inCaptureName);
+  QString inFlowMgrName = inFlowMgr == NULL ? "" : inFlowMgr->name;
+  xml.setStr("inFlowMgr", inFlowMgrName);
+  QString outCaptureName = outCapture == NULL ? "" : outCapture->name;
+  xml.setStr("outCapture", outCaptureName);
+  QString outFlowMgrName = outFlowMgr == NULL ? "" : outFlowMgr->name;
+  xml.setStr("outFlowMgr", outFlowMgrName);
   xml.setBool("tcpChange", tcpChange);
   xml.setBool("udpChange", udpChange);
   changeItems.save(xml.gotoChild("changeItems"));
@@ -615,8 +828,13 @@ void SnoopFlowChange::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
 
+  QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
   QStringList flowMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
-  VOptionable::addComboBox(layout, "cbxFlowMgr", "FlowMgr", flowMgrList, -1, flowMgr == NULL ? "" : flowMgr->name);
+
+  VOptionable::addComboBox(layout, "cbxInCapture", "In Capture", captureList, -1, inCapture == NULL ? "" : inCapture->name);
+  VOptionable::addComboBox(layout, "cbxInFlowMgr", "In FlowMgr", flowMgrList, -1, inFlowMgr == NULL ? "" : inFlowMgr->name);
+  VOptionable::addComboBox(layout, "cbxOutCapture", "Out Capture", captureList, -1, outCapture == NULL ? "" : outCapture->name);
+  VOptionable::addComboBox(layout, "cbxOutFlowMgr", "Out FlowMgr", flowMgrList, -1, outFlowMgr == NULL ? "" : outFlowMgr->name);
   VOptionable::addCheckBox(layout, "chkTcpChange", "TCP Change", tcpChange);
   VOptionable::addCheckBox(layout, "chkUdpChange", "UDP Change", udpChange);
   changeItems.optionAddWidget(layout);
@@ -626,7 +844,10 @@ void SnoopFlowChange::optionSaveDlg(QDialog* dialog)
 {
   SnoopProcess::optionSaveDlg(dialog);
 
-  flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
+  inCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxInCapture")->currentText()));
+  inFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxInFlowMgr")->currentText()));
+  outCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxOutCapture")->currentText()));
+  outFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxOutFlowMgr")->currentText()));
   tcpChange = dialog->findChild<QCheckBox*>("chkTcpChange")->checkState() == Qt::Checked;
   udpChange = dialog->findChild<QCheckBox*>("chkUdpChange")->checkState() == Qt::Checked;
   changeItems.optionSaveDlg(dialog);
