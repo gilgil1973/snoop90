@@ -25,7 +25,7 @@ SnoopDataChange::~SnoopDataChange()
 
 bool SnoopDataChange::doOpen()
 {
-  if (flowMgr == NULL)
+  if (tcpChange && flowMgr == NULL)
   {
     SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
     return false;
@@ -33,29 +33,35 @@ bool SnoopDataChange::doOpen()
 
   if (!dataChange.prepare(error)) return false;
 
-  // ----- by gilgil 2014.03.13 -----
-  // All SnoopDataChange objects should share SnoopDataChangeFlowItem contents.
-  // So id parameter value set into the same value.
-  // tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopDataChangeFlowItem));
-  tcpFlowOffset = flowMgr->requestMemory_TcpFlow("SnoopDataChange", sizeof(SnoopDataChangeFlowItem)); // gilgil temp 2014.03.13
-  // --------------------------------
+  if (tcpChange)
+  {
+    // ----- by gilgil 2014.03.13 -----
+    // All SnoopDataChange objects should share SnoopDataChangeFlowItem contents.
+    // So id parameter value set into the same value.
+    // tcpFlowOffset = flowMgr->requestMemory_TcpFlow(this, sizeof(SnoopDataChangeFlowItem));
+    tcpFlowOffset = flowMgr->requestMemory_TcpFlow("SnoopDataChange", sizeof(SnoopDataChangeFlowItem)); // gilgil temp 2014.03.13
+    // --------------------------------
 
-  flowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
-  flowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+    flowMgr->connect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)), Qt::DirectConnection);
+  }
 
   return SnoopProcess::doOpen();
 }
 
 bool SnoopDataChange::doClose()
 {
-  if (flowMgr == NULL)
+  if (tcpChange && flowMgr == NULL)
   {
     SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
     return true;
   }
 
-  flowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
-  flowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
+  if (tcpChange)
+  {
+    flowMgr->disconnect(SIGNAL(__tcpFlowCreated(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowCreate(SnoopTcpFlowKey*,SnoopFlowValue*)));
+    flowMgr->disconnect(SIGNAL(__tcpFlowDeleted(SnoopTcpFlowKey*,SnoopFlowValue*)), this, SLOT(__tcpFlowDelete(SnoopTcpFlowKey*,SnoopFlowValue*)));
+  }
 
   return SnoopProcess::doClose();
 }
