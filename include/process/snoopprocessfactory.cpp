@@ -7,6 +7,7 @@
 #include <SnoopDataFind>
 #include <SnoopDelay>
 #include <SnoopDnsChange>
+#include <SnoopFlowChange>
 #include <SnoopFlowMgr>
 #include <SnoopFlowMgrTest>
 #include <SnoopDump>
@@ -27,6 +28,7 @@ void SnoopProcessFactory::explicitLink()
   SnoopDelay        delay;
   SnoopDnsChange    dnsChange;
   SnoopDump         dump;
+  SnoopFlowChange   flowChange;
   SnoopFlowMgr      flowMgr;
   SnoopFlowMgrTest  flowMgrTest;
   SnoopTcpBlock     tcpBlock;
