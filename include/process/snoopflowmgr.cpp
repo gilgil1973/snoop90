@@ -521,13 +521,16 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
   //
   if (packet->ethHdr != NULL)
   {
-    Mac srcMac = packet->ethHdr->ether_shost;
-    Mac dstMac = packet->ethHdr->ether_dhost;
+    if (macFlow_Items.count() > 0)
+    {
+      Mac srcMac = packet->ethHdr->ether_shost;
+      Mac dstMac = packet->ethHdr->ether_dhost;
 
-    SnoopMacFlowKey key;
-    key.srcMac = srcMac;
-    key.dstMac = dstMac;
-    process_MacFlow(packet, key);
+      SnoopMacFlowKey key;
+      key.srcMac = srcMac;
+      key.dstMac = dstMac;
+      process_MacFlow(packet, key);
+    }
 
     //
     // IpFlow
@@ -537,25 +540,31 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
       Ip srcIp = ntohl(packet->ipHdr->ip_src);
       Ip dstIp = ntohl(packet->ipHdr->ip_dst);
 
-      SnoopIpFlowKey key;
-      key.srcIp = srcIp;
-      key.dstIp = dstIp;
-      process_IpFlow(packet, key);
+      if (ipFlow_Items.count() > 0)
+      {
+        SnoopIpFlowKey key;
+        key.srcIp = srcIp;
+        key.dstIp = dstIp;
+        process_IpFlow(packet, key);
+      }
 
       //
       // TcpFlow
       //
       if (packet->tcpHdr != NULL)
       {
-        UINT16 srcPort = ntohs(packet->tcpHdr->th_sport);
-        UINT16 dstPort = ntohs(packet->tcpHdr->th_dport);
+        if (tcpFlow_Items.count() > 0)
+        {
+          UINT16 srcPort = ntohs(packet->tcpHdr->th_sport);
+          UINT16 dstPort = ntohs(packet->tcpHdr->th_dport);
 
-        SnoopTcpFlowKey key;
-        key.srcIp   = srcIp;
-        key.srcPort = srcPort;
-        key.dstIp   = dstIp;
-        key.dstPort = dstPort;
-        process_TcpFlow(packet, key);
+          SnoopTcpFlowKey key;
+          key.srcIp   = srcIp;
+          key.srcPort = srcPort;
+          key.dstIp   = dstIp;
+          key.dstPort = dstPort;
+          process_TcpFlow(packet, key);
+        }
       }
 
       //
@@ -563,15 +572,18 @@ void SnoopFlowMgr::process(SnoopPacket* packet)
       //
       if (packet->udpHdr != NULL)
       {
-        UINT16 srcPort = ntohs(packet->udpHdr->uh_sport);
-        UINT16 dstPort = ntohs(packet->udpHdr->uh_dport);
+        if (udpFlow_Items.count() > 0)
+        {
+          UINT16 srcPort = ntohs(packet->udpHdr->uh_sport);
+          UINT16 dstPort = ntohs(packet->udpHdr->uh_dport);
 
-        SnoopUdpFlowKey key;
-        key.srcIp   = srcIp;
-        key.srcPort = srcPort;
-        key.dstIp   = dstIp;
-        key.dstPort = dstPort;
-        process_UdpFlow(packet, key);
+          SnoopUdpFlowKey key;
+          key.srcIp   = srcIp;
+          key.srcPort = srcPort;
+          key.dstIp   = dstIp;
+          key.dstPort = dstPort;
+          process_UdpFlow(packet, key);
+        }
       }
     }
   }
