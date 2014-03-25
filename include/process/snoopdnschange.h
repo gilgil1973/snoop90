@@ -51,7 +51,7 @@ void operator << (SnoopDnsChangeItem& item, QTreeWidgetItem& treeWidgetItem);
 // ----------------------------------------------------------------------------
 // SnoopDnsChangeItems
 // ----------------------------------------------------------------------------
-class SnoopDnsChangeItems : public QObject, public QList<SnoopDnsChangeItem>, public VXmlable, public VOptionable
+class SnoopDnsChangeItems : public QObject, public QList<SnoopDnsChangeItem>, public VXmlable, public VOptionable, public VListWidgetAccessible
 {
   Q_OBJECT
 
@@ -63,20 +63,20 @@ public:
   virtual void save(VXml xml);
 
 #ifdef QT_GUI_LIB
-protected slots:
-  void __on_pbAdd_clicked();
-  void __on_pbDel_clicked();
-
-public:
+public: // VOptionable
   virtual void optionAddWidget(QLayout* layout);
   virtual void optionSaveDlg(QDialog* dialog);
+
+public: // VListWidgetAccessible
+  virtual void  widgetClear()                                                             { clear();                                       }
+  virtual int   widgetCount()                                                             { return count();                                }
+  virtual void* widgetAt(int i)                                                           { return  (void*)&at(i);                         }
+  virtual void  widgetPushBack(void* item)                                                { push_back(*(const SnoopDnsChangeItem*)item);   }
+  virtual void* widgetCeateItem()                                                         { return new SnoopDnsChangeItem;                 }
+  virtual void  widgetItemIntoTreeWidgetItem(void* item, QTreeWidgetItem* treeWidgetItem) { *treeWidgetItem << *(SnoopDnsChangeItem*)item; }
+  virtual void  widgetTreeWidgetItemIntoItem(QTreeWidgetItem* treeWidgetItem, void* item) { *(SnoopDnsChangeItem*)item << *treeWidgetItem; }
 #endif // QT_GUI_LIB
 };
-
-#ifdef QT_GUI_LIB
-void operator << (QTreeWidget& treeWidget, SnoopDnsChangeItems& changeItems);
-void operator << (SnoopDnsChangeItems& changeItems, QTreeWidget& treeWidget);
-#endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
 // SnoopDnsChange

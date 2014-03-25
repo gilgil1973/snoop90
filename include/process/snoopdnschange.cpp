@@ -107,81 +107,22 @@ void SnoopDnsChangeItems::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-#include "other/vdatafindwidget.h"
-#include "../lib/ui_vdatafindwidget.h"
-void SnoopDnsChangeItems::__on_pbAdd_clicked()
-{
-  QPushButton* pbAdd = dynamic_cast<QPushButton*>(this->sender());
-  LOG_ASSERT(pbAdd != NULL);
-  VDataFindWidget* widget = dynamic_cast<VDataFindWidget*>(pbAdd->parent());
-  LOG_ASSERT(widget != NULL);
-  QTreeWidget* treeWidget = widget->ui->treeWidget;
-
-  QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(treeWidget);
-  SnoopDnsChangeItem newItem;
-  *treeWidgetItem << newItem;
-  int count = treeWidget->topLevelItemCount();
-  treeWidget->insertTopLevelItem(count, treeWidgetItem);
-}
-
-void SnoopDnsChangeItems::__on_pbDel_clicked()
-{
-  QPushButton* pbDel = dynamic_cast<QPushButton*>(this->sender());
-  LOG_ASSERT(pbDel != NULL);
-  VDataFindWidget* widget = dynamic_cast<VDataFindWidget*>(pbDel->parent());
-  LOG_ASSERT(widget != NULL);
-  QTreeWidget* treeWidget = widget->ui->treeWidget;
-
-  QList<QTreeWidgetItem*> items = treeWidget->selectedItems();
-  foreach (QTreeWidgetItem* item, items)
-  {
-    delete item;
-  }
-}
-
+#include "other/vlistwidget.h"
+#include "../lib/ui_vlistwidget.h"
 void SnoopDnsChangeItems::optionAddWidget(QLayout* layout)
 {
-  VDataFindWidget* widget = new VDataFindWidget(layout->parentWidget());
+  VListWidget* widget = new VListWidget(layout->parentWidget(), this);
   SnoopDnsChangeItem::initialize(widget->ui->treeWidget);
   widget->setObjectName("snoopDnsChangeWidget");
-  *(widget->ui->treeWidget) << *this;
+  widget->itemsIntoTreeWidget();
   layout->addWidget(widget);
-  VObject::connect(widget->ui->pbAdd, SIGNAL(clicked()), this, SLOT(__on_pbAdd_clicked()));
-  VObject::connect(widget->ui->pbDel, SIGNAL(clicked()), this, SLOT(__on_pbDel_clicked()));
 }
 
 void SnoopDnsChangeItems::optionSaveDlg(QDialog* dialog)
 {
-  VDataFindWidget* widget = dialog->findChild<VDataFindWidget*>("snoopDnsChangeWidget");
+  VListWidget* widget = dialog->findChild<VListWidget*>("snoopDnsChangeWidget");
   LOG_ASSERT(widget != NULL);
-  *this << *(widget->ui->treeWidget);
-}
-
-void operator << (QTreeWidget& treeWidget, SnoopDnsChangeItems& changeItems)
-{
-  treeWidget.clear();
-  QList<QTreeWidgetItem*> treeWidgetItems;
-  for (int i = 0; i < changeItems.count(); i++)
-  {
-    SnoopDnsChangeItem& item = (SnoopDnsChangeItem&)changeItems.at(i);
-    QTreeWidgetItem* newWidgetItem = new QTreeWidgetItem(&treeWidget);
-    *newWidgetItem << item;
-    treeWidgetItems.push_back(newWidgetItem);
-  }
-  treeWidget.insertTopLevelItems(0, treeWidgetItems);
-}
-
-void operator << (SnoopDnsChangeItems& changeItems, QTreeWidget& treeWidget)
-{
-  changeItems.clear();
-  int count = treeWidget.topLevelItemCount();
-  for (int i = 0; i < count; i++)
-  {
-    QTreeWidgetItem* treeWidgetItem = treeWidget.topLevelItem(i);
-    SnoopDnsChangeItem newItem;
-    newItem << *treeWidgetItem;
-    changeItems.push_back(newItem);
-  }
+  widget->treeWidgetIntoItems();
 }
 #endif // QT_GUI_LIB
 
