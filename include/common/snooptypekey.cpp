@@ -142,6 +142,18 @@ bool SnoopTransportFlowKey::operator < (const SnoopTransportFlowKey& rhs) const
   return false;
 }
 
+bool SnoopTransportFlowKey::operator == (const SnoopTransportFlowKey& rhs) const
+{
+  if (this->srcIp   != rhs.srcIp)   return false;
+  if (this->srcIp   != rhs.srcIp)   return false;
+  if (this->srcPort != rhs.srcPort) return false;
+  if (this->srcPort != rhs.srcPort) return false;
+  if (this->dstIp   != rhs.dstIp)   return false;
+  if (this->dstIp   != rhs.dstIp)   return false;
+  if (this->dstPort != rhs.dstPort) return false;
+  return true;
+}
+
 SnoopTransportFlowKey SnoopTransportFlowKey::reverse()
 {
   SnoopTransportFlowKey res;
