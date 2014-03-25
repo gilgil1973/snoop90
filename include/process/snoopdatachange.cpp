@@ -75,7 +75,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
   }
 
   bool _changed = false;
-  if (packet->proto == IPPROTO_TCP)
+  if (packet->tcpHdr != NULL)
   {
     if (tcpChange)
     {
@@ -130,7 +130,7 @@ void SnoopDataChange::change(SnoopPacket* packet)
       }
     }
   } else
-  if (packet->proto == IPPROTO_UDP)
+  if (packet->udpHdr != NULL)
   {
     if (udpChange)
     {
