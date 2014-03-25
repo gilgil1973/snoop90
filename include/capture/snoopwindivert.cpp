@@ -323,7 +323,6 @@ SnoopCaptureType SnoopWinDivert::captureType()
 
 bool SnoopWinDivert::relay(SnoopPacket* packet)
 {
-  if (!SnoopCapture::relay(packet)) return false;
   return write(packet) != VERR_FAIL;
 }
 

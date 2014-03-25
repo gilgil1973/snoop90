@@ -45,6 +45,22 @@ int SnoopCapture::read(SnoopPacket* packet)
   return -1;
 }
 
+int SnoopCapture::write(SnoopPacket* packet)
+{
+  Q_UNUSED(packet)
+  SET_ERROR(SnoopError, "write not supported", VERR_NOT_WRITABLE);
+  return -1;
+}
+
+int SnoopCapture::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
+{
+  Q_UNUSED(buf)
+  Q_UNUSED(size)
+  Q_UNUSED(divertAddr)
+  SET_ERROR(SnoopError, "write not supported", VERR_NOT_WRITABLE);
+  return -1;
+}
+
 #include <SnoopEth>
 #include <SnoopIp>
 #include <SnoopArp>
@@ -97,64 +113,11 @@ void SnoopCapture::parse(SnoopPacket* packet)
   }
 }
 
-int SnoopCapture::write(SnoopPacket* packet)
-{
-  Q_UNUSED(packet)
-  SET_ERROR(SnoopError, "write not supported", VERR_NOT_WRITABLE);
-  return -1;
-}
-
-int SnoopCapture::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
-{
-  Q_UNUSED(buf)
-  Q_UNUSED(size)
-  Q_UNUSED(divertAddr)
-  SET_ERROR(SnoopError, "write not supported", VERR_NOT_WRITABLE);
-  return -1;
-}
-
 bool SnoopCapture::relay(SnoopPacket* packet)
 {
-  if (captureType() != SnoopCaptureType::InPath) return false;
-  if (packet->drop) return false;
-
-  return true;
-
-  // ----- issue14_remove_changed_in_snoop_packet -----
-  /*
-
-  //
-  // TCP checksum
-  //
-  if (packet->tcpChanged)
-  {
-    LOG_ASSERT(packet->ipHdr != NULL);
-    LOG_ASSERT(packet->tcpHdr != NULL);
-    packet->tcpHdr->th_sum = htons(SnoopTcp::checksum(packet->ipHdr, packet->tcpHdr));
-  }
-
-  //
-  // UDP checksum
-  //
-  if (packet->udpChanged)
-  {
-    LOG_ASSERT(packet->ipHdr != NULL);
-    LOG_ASSERT(packet->udpHdr != NULL);
-    packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
-  }
-
-  //
-  // IP checksum
-  //
-  if (packet->ipChanged)
-  {
-    LOG_ASSERT(packet->ipHdr != NULL);
-    packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
-  }
-
-  return packet->pktHdr->caplen;
-  */
-  // --------------------------------------------------
+  Q_UNUSED(packet)
+  LOG_FATAL("virtual function call");
+  return false;
 }
 
 void SnoopCapture::run()
@@ -166,7 +129,7 @@ void SnoopCapture::run()
     if (res == 0) continue;
     if (res < 0) break;
     emit captured(&packet);
-    if (packet.sender != NULL && packet.sender->captureType() == SnoopCaptureType::InPath)
+    if (!packet.drop && packet.sender != NULL && packet.sender->captureType() == SnoopCaptureType::InPath)
       packet.sender->relay(&packet);
   }
   emit closed();
