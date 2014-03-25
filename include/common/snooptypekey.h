@@ -148,6 +148,7 @@ public:
   UINT16 dstPort;
 
   bool operator < (const SnoopTransportFlowKey& rhs) const;
+  bool operator == (const SnoopTransportFlowKey& rhs) const;
   SnoopTransportFlowKey reverse();
 };
 
