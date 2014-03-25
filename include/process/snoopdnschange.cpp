@@ -107,7 +107,6 @@ void SnoopDnsChangeItems::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-#include "other/vlistwidget.h"
 #include "../lib/ui_vlistwidget.h"
 void SnoopDnsChangeItems::optionAddWidget(QLayout* layout)
 {
