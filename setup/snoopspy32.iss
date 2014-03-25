@@ -53,7 +53,9 @@ Source: "..\..\..\vdream\vdream90\bin\vlog.exe"; DestDir: "{app}"; Flags: ignore
 ; certificate
 Source: "..\..\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; openssl
-Source: "C:\OpenSSL-Win32\bin\openssl.exe";  DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\OpenSSL-Win32\bin\openssl.exe";  DestDir: "{app}\certificate"; Flags: ignoreversion
+Source: "C:\OpenSSL-Win32\bin\libeay32.dll"; DestDir: "{app}\certificate"; Flags: ignoreversion
+Source: "C:\OpenSSL-Win32\bin\ssleay32.dll"; DestDir: "{app}\certificate"; Flags: ignoreversion
 Source: "C:\OpenSSL-Win32\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\OpenSSL-Win32\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; windivert
