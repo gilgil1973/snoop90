@@ -25,7 +25,7 @@ int SnoopDelayItemMgr::flush(VTick now)
     if (it == items.end()) break;
     SnoopDelayItem& item = *it;
     if (now < item.tick) break;
-    capture->write((u_char*)item.ba.data(), item.ba.size(), &item.divertAddr);
+    item.sender->write((u_char*)item.buf.data(), item.buf.size(), &item.divertAddr);
     items.removeAt(0);
     res++;
   }
@@ -37,7 +37,6 @@ int SnoopDelayItemMgr::flush(VTick now)
 // ----------------------------------------------------------------------------
 SnoopDelayThread::SnoopDelayThread(SnoopDelay* delay) : VThread(delay)
 {
-  itemMgr.capture = delay->capture;
 }
 
 SnoopDelayThread::~SnoopDelayThread()
@@ -61,7 +60,6 @@ void SnoopDelayThread::run()
 // ----------------------------------------------------------------------------
 SnoopDelay::SnoopDelay(void* owner) : SnoopProcess(owner)
 {
-  capture = NULL;
   timeout = 1000; // 1 sec
   thread  = NULL;
 }
@@ -73,11 +71,6 @@ SnoopDelay::~SnoopDelay()
 
 bool SnoopDelay::doOpen()
 {
-  if (capture == NULL)
-  {
-    SET_ERROR(SnoopError, "capture is null", VERR_OBJECT_IS_NULL);
-    return false;
-  }
   thread = new SnoopDelayThread(this);
   thread->open();
 
@@ -97,7 +90,8 @@ void SnoopDelay::delay(SnoopPacket* packet)
 
   SnoopDelayItem item;
   item.tick = tick() + this->timeout;
-  packet->write(item.ba);
+  item.sender     = packet->sender;
+  packet->write(item.buf);
   item.divertAddr = packet->divertAddr;
 
   VLock lock(thread->itemMgr);
@@ -108,8 +102,6 @@ void SnoopDelay::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  QString captureName = xml.getStr("capture", "");
-  if (captureName != "") capture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(captureName));
   timeout = xml.getInt("timeout", (int)timeout);
 }
 
@@ -117,8 +109,6 @@ void SnoopDelay::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  QString captureName = capture == NULL ? "" : capture->name;
-  xml.setStr("capture", captureName);
   xml.setInt("timeout", (int)timeout);
 }
 
@@ -127,8 +117,6 @@ void SnoopDelay::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
 
-  QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
-  VOptionable::addComboBox(layout, "cbxCapture", "Capture", captureList, -1, capture == NULL ? "" : capture->name);
   VOptionable::addLineEdit(layout, "leTimeout", "Timeout", QString::number(timeout));
 }
 
@@ -136,7 +124,6 @@ void SnoopDelay::optionSaveDlg(QDialog* dialog)
 {
   SnoopProcess::optionSaveDlg(dialog);
 
-  capture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxCapture")->currentText()));
   timeout = (VTimeout)dialog->findChild<QLineEdit*>("leTimeout")->text().toLong();
 }
 #endif // QT_GUI_LIB

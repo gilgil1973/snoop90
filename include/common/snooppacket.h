@@ -30,6 +30,7 @@ public:
 // ----------------------------------------------------------------------------
 // SnoopPacket
 // ----------------------------------------------------------------------------
+class SnoopCapture;
 class SnoopPacket
 {
 public:
@@ -69,7 +70,8 @@ public:
   ///
   /// control
   ///
-  bool      drop;
+  SnoopCapture* sender;
+  bool          drop;
   // bool      ipChanged;  // issue14_remove_changed_in_snoop_packet
   // bool      tcpChanged; // issue14_remove_changed_in_snoop_packet
   // bool      udpChanged; // issue14_remove_changed_in_snoop_packet
