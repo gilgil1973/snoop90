@@ -31,14 +31,14 @@ public:
   };
 
   enum IpChangeType {
-    Copy,
-    Fix
+    IpCopy,
+    IpFix
   };
 
   enum PortChangeType {
-    Copy,
-    AutoInc,
-    Fix
+    PortCopy,
+    PortAutoInc,
+    PortFix
   };
 
 public:
@@ -88,17 +88,17 @@ public:
   static const int SRC_IP_FIX_VALUE     = 6;
 
   static const int SRC_PORT_IDX         = 7;
-  static const int SRC_PORT_CHANGE_TYPE = 9;
-  static const int SRC_PORT_FIX_VALUE   = 10;
+  static const int SRC_PORT_CHANGE_TYPE = 8;
+  static const int SRC_PORT_FIX_VALUE   = 9;
 
-  static const int DST_IP_IDX           = 11;
-  static const int DST_IP_MASK_IDX      = 12;
-  static const int DST_IP_CHANGE_TYPE   = 13;
-  static const int DST_IP_FIX_VALUE     = 14;
+  static const int DST_IP_IDX           = 10;
+  static const int DST_IP_MASK_IDX      = 11;
+  static const int DST_IP_CHANGE_TYPE   = 12;
+  static const int DST_IP_FIX_VALUE     = 13;
 
-  static const int DST_PORT_IDX         = 15;
-  static const int DST_PORT_CHANGE_TYPE = 17;
-  static const int DST_PORT_FIX_VALUE   = 18;
+  static const int DST_PORT_IDX         = 14;
+  static const int DST_PORT_CHANGE_TYPE = 15;
+  static const int DST_PORT_FIX_VALUE   = 16;
 
 public:
   static void initialize(QTreeWidget* treeWidget);
@@ -122,9 +122,7 @@ public:
   virtual ~SnoopFlowChangeItems();
 
 protected:
-  Ip     lastAutoIncSrcIp;
   UINT16 lastAutoIncSrcPort;
-  Ip     lastAutoIncDstIp;
   UINT16 lastAutoIncDstPort;
 
 public:

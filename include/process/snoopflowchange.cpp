@@ -16,43 +16,41 @@ SnoopFlowChangeItem::SnoopFlowChangeItem()
 
   srcIp             = 0;
   srcIpMask         = 0;
-  srcIpChangeType   = Copy;
+  srcIpChangeType   = IpCopy;
   srcIpFixValue     = 0;
 
   srcPort           = 0;
-  srcPortMask       = 0;
-  srcPortChangeType = AutoInc;
+  srcPortChangeType = PortAutoInc;
   srcPortFixValue   = 0;
 
   dstIp             = 0;
   dstIpMask         = 0;
-  dstIpChangeType   = Fix;
+  dstIpChangeType   = IpFix;
   dstIpFixValue     = 0;
 
   dstPort           = 0;
-  dstPortMask       = 0;
-  dstPortChangeType = Copy;
+  dstPortChangeType = PortCopy;
   dstPortFixValue   = 0;
 }
 
 bool SnoopFlowChangeItem::prepare(VError& error)
 {
-  if (srcIpChangeType == Fix && srcIpFixValue == 0)
+  if (srcIpChangeType == IpFix && srcIpFixValue == 0)
   {
     SET_ERROR(VError, "srcIpFixValue is zero", VERR_VALUE_IS_ZERO);
     return false;
   }
-  if (srcPortChangeType == Fix && srcPortFixValue == 0)
+  if (srcPortChangeType == PortFix && srcPortFixValue == 0)
   {
     SET_ERROR(VError, "srcPortFixValue is zero", VERR_VALUE_IS_ZERO);
     return false;
   }
-  if (dstIpChangeType == Fix && dstIpFixValue == 0)
+  if (dstIpChangeType == IpFix && dstIpFixValue == 0)
   {
     SET_ERROR(VError, "dstIpFixValue is zero", VERR_VALUE_IS_ZERO);
     return false;
   }
-  if (dstPortChangeType == Fix && dstPortFixValue == 0)
+  if (dstPortChangeType == PortFix && dstPortFixValue == 0)
   {
     SET_ERROR(VError, "dstPortFixValue is zero", VERR_VALUE_IS_ZERO);
     return false;
@@ -62,10 +60,11 @@ bool SnoopFlowChangeItem::prepare(VError& error)
 
 bool SnoopFlowChangeItem::check(SnoopTransportFlowKey& flowKey)
 {
+  if (!this->enabled) return false;
   if ((flowKey.srcIp & this->srcIpMask)     != this->srcIp)   return false;
-  if ((flowKey.srcPort & this->srcPortMask) != this->srcPort) return false;
+  if (this->srcPort != 0 && flowKey.srcPort != this->srcPort) return false;
   if ((flowKey.dstIp & this->dstIpMask)     != this->dstIp)   return false;
-  if ((flowKey.dstPort & this->dstPortMask) != this->dstPort) return false;
+  if (this->dstPort != 0 && flowKey.dstPort != this->dstPort) return false;
   return true;
 }
 
@@ -76,22 +75,20 @@ void SnoopFlowChangeItem::load(VXml xml)
 
   srcIp             = xml.getStr("srcIp", srcIp.str());
   srcIpMask         = xml.getStr("srcIpMask", srcIpMask.str());
-  srcIpChangeType   = (ChangeType)xml.getInt("srcIpChangeType", (int)srcIpChangeType);
+  srcIpChangeType   = (IpChangeType)xml.getInt("srcIpChangeType", (int)srcIpChangeType);
   srcIpFixValue     = xml.getStr("srcIpFixValue", srcIpFixValue.str());
 
   srcPort           = (UINT16)xml.getInt("srcPort", (int)srcPort);
-  srcPortMask       = (UINT16)xml.getInt("srcPortMask", (int)srcPortMask);
-  srcPortChangeType = (ChangeType)xml.getInt("srcPortChangeType", (int)srcPortChangeType);
+  srcPortChangeType = (PortChangeType)xml.getInt("srcPortChangeType", (int)srcPortChangeType);
   srcPortFixValue   = (UINT16)xml.getInt("srcPortFixValue", (int)srcPortFixValue);
 
   dstIp             = xml.getStr("dstIp", dstIp.str());
   dstIpMask         = xml.getStr("dstIpMask", dstIpMask.str());
-  dstIpChangeType   = (ChangeType)xml.getInt("dstIpChangeType", (int)dstIpChangeType);
+  dstIpChangeType   = (IpChangeType)xml.getInt("dstIpChangeType", (int)dstIpChangeType);
   dstIpFixValue     = xml.getStr("dstIpFixValue", dstIpFixValue.str());
 
   dstPort           = (UINT16)xml.getInt("dstPort", (int)dstPort);
-  dstPortMask       = (UINT16)xml.getInt("dstPortMask", (int)dstPortMask);
-  dstPortChangeType = (ChangeType)xml.getInt("dstPortChangeType", (int)dstPortChangeType);
+  dstPortChangeType = (PortChangeType)xml.getInt("dstPortChangeType", (int)dstPortChangeType);
   dstPortFixValue   = (UINT16)xml.getInt("dstPortFixValue", (int)dstPortFixValue);
 }
 
@@ -106,7 +103,6 @@ void SnoopFlowChangeItem::save(VXml xml)
   xml.setStr("srcIpFixValue", srcIpFixValue.str());
 
   xml.setInt("srcPort", (int)srcPort);
-  xml.setInt("srcPortMask", (int)srcPortMask);
   xml.setInt("srcPortChangeType", (int)srcPortChangeType);
   xml.setInt("srcPortFixValue", (int)srcPortFixValue);
 
@@ -116,7 +112,6 @@ void SnoopFlowChangeItem::save(VXml xml)
   xml.setStr("dstIpFixValue", dstIpFixValue.str());
 
   xml.setInt("dstPort", (int)dstPort);
-  xml.setInt("dstPortMask", (int)dstPortMask);
   xml.setInt("dstPortChangeType", (int)dstPortChangeType);
   xml.setInt("dstPortFixValue", (int)dstPortFixValue);
 }
@@ -129,9 +124,9 @@ void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
   QStringList headerLables;
   headerLables << "Enabled" << "Log" << "Protocol"
     << "srcIp"   << "SrcIpMask"   << "SrcIpChangeType"   << "SrcIpFixValue"
-    << "srcPort" << "SrcPortMask" << "SrcPortChangeType" << "SrcPortFixValue"
+    << "srcPort"                  << "SrcPortChangeType" << "SrcPortFixValue"
     << "dstIp"   << "dstIpMask"   << "dstIpChangeType"   << "dstIpFixValue"
-    << "dstPort" << "dstPortMask" << "dstPortChangeType" << "dstPortFixValue";
+    << "dstPort"                  << "dstPortChangeType" << "dstPortFixValue";
   treeWidget->setHeaderLabels(headerLables);
 
   treeWidget->setColumnWidth(ENABLED_IDX,          30);
@@ -144,7 +139,6 @@ void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
   treeWidget->setColumnWidth(SRC_IP_FIX_VALUE,     100);
 
   treeWidget->setColumnWidth(SRC_PORT_IDX,         50);
-  treeWidget->setColumnWidth(SRC_PORT_MASK_IDX,    50);
   treeWidget->setColumnWidth(SRC_PORT_CHANGE_TYPE, 70);
   treeWidget->setColumnWidth(SRC_PORT_FIX_VALUE,   50);
 
@@ -154,7 +148,6 @@ void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
   treeWidget->setColumnWidth(DST_IP_FIX_VALUE,     100);
 
   treeWidget->setColumnWidth(DST_PORT_IDX,         50);
-  treeWidget->setColumnWidth(DST_PORT_MASK_IDX,    50);
   treeWidget->setColumnWidth(DST_PORT_CHANGE_TYPE, 70);
   treeWidget->setColumnWidth(DST_PORT_FIX_VALUE,   50);
 
@@ -168,7 +161,6 @@ void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
   treeWidget->header()->setSectionResizeMode(SRC_IP_FIX_VALUE,     QHeaderView::Stretch);
 
   treeWidget->header()->setSectionResizeMode(SRC_PORT_IDX,         QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(SRC_PORT_MASK_IDX,    QHeaderView::Stretch);
   treeWidget->header()->setSectionResizeMode(SRC_PORT_CHANGE_TYPE, QHeaderView::Interactive);
   treeWidget->header()->setSectionResizeMode(SRC_PORT_FIX_VALUE,   QHeaderView::Stretch);
 
@@ -178,7 +170,6 @@ void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
   treeWidget->header()->setSectionResizeMode(DST_IP_FIX_VALUE,     QHeaderView::Stretch);
 
   treeWidget->header()->setSectionResizeMode(DST_PORT_IDX,         QHeaderView::Stretch);
-  treeWidget->header()->setSectionResizeMode(DST_PORT_MASK_IDX,    QHeaderView::Stretch);
   treeWidget->header()->setSectionResizeMode(DST_PORT_CHANGE_TYPE, QHeaderView::Interactive);
   treeWidget->header()->setSectionResizeMode(DST_PORT_FIX_VALUE,   QHeaderView::Stretch);
 }
@@ -197,33 +188,31 @@ void operator << (QTreeWidgetItem& treeWidgetItem, SnoopFlowChangeItem& item)
   treeWidgetItem.setText(SnoopFlowChangeItem::SRC_IP_IDX, item.srcIp.str());
   treeWidgetItem.setText(SnoopFlowChangeItem::SRC_IP_MASK_IDX, item.srcIpMask.str());
   QComboBox* srcIpComboBox = new QComboBox(treeWidgetItem.treeWidget());
-  QStringList changeTypeList; changeTypeList << "Copy" << "AutoInc" << "Fix";
-  srcIpComboBox->insertItems(0, changeTypeList);
+  QStringList ipChangeTypeList; ipChangeTypeList << "Copy" << "Fix";
+  srcIpComboBox->insertItems(0, ipChangeTypeList);
   srcIpComboBox->setCurrentIndex((int)item.srcIpChangeType);
   treeWidgetItem.treeWidget()->setItemWidget(&treeWidgetItem, SnoopFlowChangeItem::SRC_IP_CHANGE_TYPE, srcIpComboBox);
   treeWidgetItem.setText(SnoopFlowChangeItem::SRC_IP_FIX_VALUE, item.srcIpFixValue.str());
 
   treeWidgetItem.setText(SnoopFlowChangeItem::SRC_PORT_IDX, QString::number(item.srcPort));
-  treeWidgetItem.setText(SnoopFlowChangeItem::SRC_PORT_MASK_IDX, QString::number(item.srcPortMask));
   QComboBox* srcPortComboBox = new QComboBox(treeWidgetItem.treeWidget());
-  srcPortComboBox->insertItems(0, changeTypeList);
+  QStringList portChangeTypeList; portChangeTypeList << "Copy" << "AutoInc" << "Fix";
+  srcPortComboBox->insertItems(0, portChangeTypeList);
   srcPortComboBox->setCurrentIndex((int)item.srcPortChangeType);
   treeWidgetItem.treeWidget()->setItemWidget(&treeWidgetItem, SnoopFlowChangeItem::SRC_PORT_CHANGE_TYPE, srcPortComboBox);
   treeWidgetItem.setText(SnoopFlowChangeItem::SRC_PORT_FIX_VALUE, QString::number(item.srcPortFixValue));
 
-
   treeWidgetItem.setText(SnoopFlowChangeItem::DST_IP_IDX, item.dstIp.str());
   treeWidgetItem.setText(SnoopFlowChangeItem::DST_IP_MASK_IDX, item.dstIpMask.str());
   QComboBox* dstIpComboBox = new QComboBox(treeWidgetItem.treeWidget());
-  dstIpComboBox->insertItems(0, changeTypeList);
+  dstIpComboBox->insertItems(0, ipChangeTypeList);
   dstIpComboBox->setCurrentIndex((int)item.dstIpChangeType);
   treeWidgetItem.treeWidget()->setItemWidget(&treeWidgetItem, SnoopFlowChangeItem::DST_IP_CHANGE_TYPE, dstIpComboBox);
   treeWidgetItem.setText(SnoopFlowChangeItem::DST_IP_FIX_VALUE, item.dstIpFixValue.str());
 
   treeWidgetItem.setText(SnoopFlowChangeItem::DST_PORT_IDX, QString::number(item.dstPort));
-  treeWidgetItem.setText(SnoopFlowChangeItem::DST_PORT_MASK_IDX, QString::number(item.dstPortMask));
   QComboBox* dstPortComboBox = new QComboBox(treeWidgetItem.treeWidget());
-  dstPortComboBox->insertItems(0, changeTypeList);
+  dstPortComboBox->insertItems(0, portChangeTypeList);
   dstPortComboBox->setCurrentIndex((int)item.dstPortChangeType);
   treeWidgetItem.treeWidget()->setItemWidget(&treeWidgetItem, SnoopFlowChangeItem::DST_PORT_CHANGE_TYPE, dstPortComboBox);
   treeWidgetItem.setText(SnoopFlowChangeItem::DST_PORT_FIX_VALUE, QString::number(item.dstPortFixValue));
@@ -241,28 +230,24 @@ void operator << (SnoopFlowChangeItem& item, QTreeWidgetItem& treeWidgetItem)
   item.srcIp = treeWidgetItem.text(SnoopFlowChangeItem::SRC_IP_IDX);
   item.srcIpMask = treeWidgetItem.text(SnoopFlowChangeItem::SRC_IP_MASK_IDX);
   QComboBox* srcIpComboBox = dynamic_cast<QComboBox*>(treeWidgetItem.treeWidget()->itemWidget(&treeWidgetItem, SnoopFlowChangeItem::SRC_IP_CHANGE_TYPE));
-  item.srcIpChangeType = (SnoopFlowChangeItem::ChangeType)(srcIpComboBox->currentIndex());
+  item.srcIpChangeType = (SnoopFlowChangeItem::IpChangeType)(srcIpComboBox->currentIndex());
   item.srcIpFixValue = treeWidgetItem.text(SnoopFlowChangeItem::SRC_IP_FIX_VALUE);
 
   item.srcPort = treeWidgetItem.text(SnoopFlowChangeItem::SRC_PORT_IDX).toUShort();
-  item.srcPortMask = treeWidgetItem.text(SnoopFlowChangeItem::SRC_PORT_MASK_IDX).toUShort();
   QComboBox* srcPortComboBox = dynamic_cast<QComboBox*>(treeWidgetItem.treeWidget()->itemWidget(&treeWidgetItem, SnoopFlowChangeItem::SRC_PORT_CHANGE_TYPE));
-  item.srcPortChangeType = (SnoopFlowChangeItem::ChangeType)(srcPortComboBox->currentIndex());
+  item.srcPortChangeType = (SnoopFlowChangeItem::PortChangeType)(srcPortComboBox->currentIndex());
   item.srcPortFixValue = treeWidgetItem.text(SnoopFlowChangeItem::SRC_PORT_FIX_VALUE).toUShort();
 
   item.dstIp = treeWidgetItem.text(SnoopFlowChangeItem::DST_IP_IDX);
   item.dstIpMask = treeWidgetItem.text(SnoopFlowChangeItem::DST_IP_MASK_IDX);
   QComboBox* dstIpComboBox = dynamic_cast<QComboBox*>(treeWidgetItem.treeWidget()->itemWidget(&treeWidgetItem, SnoopFlowChangeItem::DST_IP_CHANGE_TYPE));
-  item.dstIpChangeType = (SnoopFlowChangeItem::ChangeType)(dstIpComboBox->currentIndex());
+  item.dstIpChangeType = (SnoopFlowChangeItem::IpChangeType)(dstIpComboBox->currentIndex());
   item.dstIpFixValue = treeWidgetItem.text(SnoopFlowChangeItem::DST_IP_FIX_VALUE);
 
   item.dstPort = treeWidgetItem.text(SnoopFlowChangeItem::DST_PORT_IDX).toUShort();
-  item.dstPortMask = treeWidgetItem.text(SnoopFlowChangeItem::DST_PORT_MASK_IDX).toUShort();
   QComboBox* dstPortComboBox = dynamic_cast<QComboBox*>(treeWidgetItem.treeWidget()->itemWidget(&treeWidgetItem, SnoopFlowChangeItem::DST_PORT_CHANGE_TYPE));
-  item.dstPortChangeType = (SnoopFlowChangeItem::ChangeType)(dstPortComboBox->currentIndex());
+  item.dstPortChangeType = (SnoopFlowChangeItem::PortChangeType)(dstPortComboBox->currentIndex());
   item.dstPortFixValue = treeWidgetItem.text(SnoopFlowChangeItem::DST_PORT_FIX_VALUE).toUShort();
-
-  // gilgil temp 2014.03.25
 
   VError error; item.prepare(error);
 }
@@ -283,9 +268,7 @@ SnoopFlowChangeItems::~SnoopFlowChangeItems()
 
 bool SnoopFlowChangeItems::prepare(VError& error)
 {
-  lastAutoIncSrcIp   = 0;
   lastAutoIncSrcPort = 1024;
-  lastAutoIncDstIp   = 0;
   lastAutoIncDstPort = 1024;
 
   for (int i = 0; i < count(); i++)
@@ -312,56 +295,48 @@ SnoopTransportFlowKey SnoopFlowChangeItems::change(SnoopFlowChangeItem& item, Sn
 
   switch (item.srcIpChangeType)
   {
-    case SnoopFlowChangeItem::Copy:
+    case SnoopFlowChangeItem::IpCopy:
       res.srcIp = flowKey.srcIp;
       break;
-    case SnoopFlowChangeItem::AutoInc:
-      res.srcIp = lastAutoIncSrcIp;
-      lastAutoIncSrcIp = lastAutoIncSrcIp + 1;
-      break;
-    case SnoopFlowChangeItem::Fix:
+    case SnoopFlowChangeItem::IpFix:
       res.srcIp = item.srcIpFixValue;
       break;
   }
 
   switch (item.srcPortChangeType)
   {
-    case SnoopFlowChangeItem::Copy:
+    case SnoopFlowChangeItem::PortCopy:
       res.srcPort = flowKey.srcPort;
       break;
-    case SnoopFlowChangeItem::AutoInc:
+    case SnoopFlowChangeItem::PortAutoInc:
       res.srcPort = lastAutoIncSrcPort;
       lastAutoIncSrcPort++;
       break;
-    case SnoopFlowChangeItem::Fix:
+    case SnoopFlowChangeItem::PortFix:
       res.srcPort = item.srcPortFixValue;
       break;
   }
 
   switch (item.dstIpChangeType)
   {
-    case SnoopFlowChangeItem::Copy:
+    case SnoopFlowChangeItem::IpCopy:
       res.dstIp = flowKey.dstIp;
       break;
-    case SnoopFlowChangeItem::AutoInc:
-      res.dstIp = lastAutoIncDstIp;
-      lastAutoIncDstIp = lastAutoIncDstIp + 1;
-      break;
-    case SnoopFlowChangeItem::Fix:
+     case SnoopFlowChangeItem::IpFix:
       res.dstIp = item.dstIpFixValue;
       break;
   }
 
   switch (item.dstPortChangeType)
   {
-    case SnoopFlowChangeItem::Copy:
+    case SnoopFlowChangeItem::PortCopy:
       res.dstPort = flowKey.dstPort;
       break;
-    case SnoopFlowChangeItem::AutoInc:
+    case SnoopFlowChangeItem::PortAutoInc:
       res.dstPort = lastAutoIncDstPort;
       lastAutoIncDstPort++;
       break;
-    case SnoopFlowChangeItem::Fix:
+    case SnoopFlowChangeItem::PortFix:
       res.dstPort = item.dstPortFixValue;
       break;
   }
