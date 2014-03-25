@@ -159,7 +159,6 @@ bool SnoopCapture::relay(SnoopPacket* packet)
 
 void SnoopCapture::run()
 {
-  SnoopCaptureType _captureType = captureType();
   emit opened();
   while (runThread().active())
   {
