@@ -34,7 +34,7 @@ protected:
   QProcess* process;
 
 public:
-  bool execute();
+  bool execute(VError& error);
 
 public:
   virtual void load(VXml xml);
@@ -59,7 +59,7 @@ void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item);
 class SnoopCommandItems : public QList<SnoopCommandItem>, public VXmlable
 {
 public:
-  bool execute();
+  bool execute(VError& error);
 
 public:
   virtual void load(VXml xml);

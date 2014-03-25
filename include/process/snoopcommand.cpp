@@ -37,14 +37,14 @@ void SnoopCommandItem::save(VXml xml)
   xml.setBool("sync",    sync);
 }
 
-bool SnoopCommandItem::execute()
+bool SnoopCommandItem::execute(VError& error)
 {
   if (!enabled) return true;
   if (process == NULL) process = new QProcess;
   process->start(command);
   if (!process->waitForStarted())
   {
-    LOG_ERROR("process->waitForStarted(%s) return false", qPrintable(command));
+    SET_ERROR(VError, qformat("process->waitForStarted(%s) return false", qPrintable(command)), VERR_RUN_PROCESS);
     return false;
   }
 
@@ -52,7 +52,7 @@ bool SnoopCommandItem::execute()
   {
     if (!process->waitForFinished())
     {
-      LOG_ERROR("process->waitForFinished(%s) return false", qPrintable(command));
+      SET_ERROR(VError, qformat("process->waitForFinished(%s) return false", qPrintable(command)), VERR_RUN_PROCESS);
       return false;
     }
   }
@@ -79,12 +79,12 @@ void operator << (QTreeWidgetItem& treeWidgetItem, SnoopCommandItem& item)
 // ----------------------------------------------------------------------------
 // SnoopCommandItems
 // ----------------------------------------------------------------------------
-bool SnoopCommandItems::execute()
+bool SnoopCommandItems::execute(VError& error)
 {
   for (int i = 0; i < this->count(); i++)
   {
     SnoopCommandItem& item = (SnoopCommandItem&)this->at(i);
-    if (!item.execute()) return false;
+    if (!item.execute(error)) return false;
   }
   return true;
 }
@@ -157,9 +157,8 @@ bool SnoopCommand::doOpen()
 {
   if (!SnoopProcess::doOpen()) return false;
 
-  if (!openCommands.execute())
+  if (!openCommands.execute(error))
   {
-    SET_ERROR(VError, "openCommands.execute() return false", VERR_RUN_PROCESS);
     return false;
   }
 
@@ -168,9 +167,8 @@ bool SnoopCommand::doOpen()
 
 bool SnoopCommand::doClose()
 {
-  if (!closeCommands.execute())
+  if (!closeCommands.execute(error))
   {
-    SET_ERROR(VError, "closeCommands.execute() return false", VERR_RUN_PROCESS);
     return false;
   }
 
