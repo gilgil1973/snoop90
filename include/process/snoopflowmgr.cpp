@@ -352,7 +352,7 @@ void SnoopFlowMgr::connect(const char* signal, VObject* receiver, const char* sl
   VObjectConnection connection(signal, receiver, slot);
   if (this->connections.indexOf(connection) == -1)
   {
-    LOG_DEBUG("%s(%s) %s > %s(%s) %s must be connected",
+    LOG_DEBUG("connecting    %s(%s) %s > %s(%s) %s",
       qPrintable(this->name),     qPrintable(this->className()),     signal,
       qPrintable(receiver->name), qPrintable(receiver->className()), slot);
     VObject::connect(this, signal, receiver, slot, type);
@@ -364,7 +364,7 @@ void SnoopFlowMgr::disconnect(const char* signal, VObject* receiver, const char*
   VObjectConnection connection(signal, receiver, slot);
   if (this->connections.indexOf(connection) != -1)
   {
-    LOG_DEBUG("%s(%s) %s > %s(%s) %s must be disconnected",
+    LOG_DEBUG("disconnecting %s(%s) %s > %s(%s) %s",
       qPrintable(this->name),     qPrintable(this->className()),     signal,
       qPrintable(receiver->name), qPrintable(receiver->className()), slot);
     VObject::disconnect(this, signal, receiver, slot);
