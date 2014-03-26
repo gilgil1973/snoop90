@@ -516,9 +516,9 @@ void SnoopFlowChange::_changeTcpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
   // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
   packet->tcpHdr->th_sum = htons(newTcpChecksum);
 
-  LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
-    qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
-    qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
+  //LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
+  //  qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
+  //  qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
 }
 
 void SnoopFlowChange::_changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem)
@@ -557,9 +557,9 @@ void SnoopFlowChange::_changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
   // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
   packet->udpHdr->uh_sum = htons(newUdpChecksum);
 
-  LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
-    qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
-    qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
+  //LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
+  //  qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
+  //  qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
 }
 
 void SnoopFlowChange::processInOut(SnoopPacket* packet)
