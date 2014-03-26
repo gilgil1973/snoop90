@@ -267,6 +267,9 @@ void SnoopProcessFilter::load(VXml xml)
   QString flowMgrName = xml.getStr("flowMgr", "");
   if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
   policyMap.load(xml.gotoChild("policies"));
+#ifdef QT_GUI_LIB
+  showStatus = xml.getBool("showStatus", showStatus);
+#endif //  QT_GUI_LIB
 }
 
 void SnoopProcessFilter::save(VXml xml)
@@ -276,6 +279,9 @@ void SnoopProcessFilter::save(VXml xml)
   QString flowMgrName = flowMgr == NULL ? "" : flowMgr->name;
   xml.setStr("flowMgr", flowMgrName);
   policyMap.save(xml.gotoChild("policies"));
+#ifdef QT_GUI_LIB
+  xml.setBool("showStatus", showStatus);
+#endif //  QT_GUI_LIB
 }
 
 #ifdef QT_GUI_LIB
