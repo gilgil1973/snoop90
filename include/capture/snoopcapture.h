@@ -12,7 +12,6 @@
 #define __SNOOP_CAPTURE_H__
 
 #include <Snoop>
-//#include <VMetaClass> // gilgil temp 2012.08.26
 #include <VThread>
 #include <VObjectWidget>
 #include <VGraph>
