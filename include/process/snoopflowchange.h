@@ -14,9 +14,9 @@
 #include <SnoopProcess>
 #include <SnoopCapture>
 #include <SnoopFlowMgr>
+#include <VListWidget>
 #ifdef QT_GUI_LIB
 #include <QTreeWidget>
-#include <VListWidget>
 #endif // QT_GUI_LIB
 
 // ----------------------------------------------------------------------------
