@@ -17,6 +17,7 @@ DESTDIR  = ../lib
 SOURCES += \
     ../include/capture/snoopvirtualnat.cpp \
     ../include/capture/snoopadapter.cpp \
+    ../include/capture/snooparpspoof.cpp \	
     ../include/capture/snoopcapture.cpp \
     ../include/capture/snoopcapturefactory.cpp \
     ../include/capture/snoopfile.cpp \
@@ -66,6 +67,7 @@ SOURCES += \
 
 HEADERS += \
     ../include/capture/snoopadapter.h \
+    ../include/capture/snooparpspoof.h \
     ../include/capture/snoopcapture.h \
     ../include/capture/snoopcapturefactory.h \
     ../include/capture/snoopfile.h \
