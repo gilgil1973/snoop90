@@ -15,15 +15,15 @@ CONFIG  += staticlib
 DESTDIR  = ../lib
 
 SOURCES += \
-    ../include/capture/snoopvirtualnat.cpp \
     ../include/capture/snoopadapter.cpp \
-    ../include/capture/snooparpspoof.cpp \	
+    ../include/capture/snooparpspoof.cpp \
     ../include/capture/snoopcapture.cpp \
     ../include/capture/snoopcapturefactory.cpp \
     ../include/capture/snoopfile.cpp \
     ../include/capture/snooppcap.cpp \
     ../include/capture/snoopremote.cpp \
     ../include/capture/snoopsourcepcap.cpp \
+    ../include/capture/snoopvirtualnat.cpp \
     ../include/capture/snoopwindivert.cpp \
     ../include/common/snoopautodetectadapter.cpp \
     ../include/common/snoopcommon.cpp \
@@ -40,8 +40,8 @@ SOURCES += \
     ../include/filter/snoopprocessfilter.cpp \
     ../include/filter/snoopprocessfilterwidget.cpp \
     ../include/parse/snooparp.cpp \
-    ../include/parse/snoopeth.cpp \
     ../include/parse/snoopdns.cpp \
+    ../include/parse/snoopeth.cpp \
     ../include/parse/snoopicmp.cpp \
     ../include/parse/snoopip.cpp \
     ../include/parse/snooptcp.cpp \
@@ -49,21 +49,21 @@ SOURCES += \
     ../include/parse/snoopudp.cpp \
     ../include/parse/snoopudpdata.cpp \
     ../include/process/snoopblock.cpp \
+    ../include/process/snoopchecksum.cpp \
     ../include/process/snoopcommand.cpp \
     ../include/process/snoopcommandwidget.cpp \
     ../include/process/snoopdatachange.cpp \
-    ../include/process/snoopdatafind.cpp \	
+    ../include/process/snoopdatafind.cpp \
     ../include/process/snoopdelay.cpp \
     ../include/process/snoopdnschange.cpp \
     ../include/process/snoopdump.cpp \
-    ../include/process/snoopflowchange.cpp \	
+    ../include/process/snoopflowchange.cpp \
     ../include/process/snoopflowmgr.cpp \
     ../include/process/snoopflowmgrtest.cpp \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
     ../include/process/snooptcpblock.cpp \
-    ../include/process/snoopwriteadapter.cpp \
-    ../include/process/snoopchecksum.cpp
+    ../include/process/snoopwriteadapter.cpp
 
 HEADERS += \
     ../include/capture/snoopadapter.h \
@@ -99,8 +99,8 @@ HEADERS += \
     ../include/libnet/libnet-structures.h \
     ../include/libnet/libnet-types.h \
     ../include/parse/snooparp.h \
-    ../include/parse/snoopeth.h \
     ../include/parse/snoopdns.h \
+    ../include/parse/snoopeth.h \
     ../include/parse/snoopicmp.h \
     ../include/parse/snoopip.h \
     ../include/parse/snooptcp.h \
@@ -108,6 +108,7 @@ HEADERS += \
     ../include/parse/snoopudp.h \
     ../include/parse/snoopudpdata.h \
     ../include/process/snoopblock.h \
+    ../include/process/snoopchecksum.h \
     ../include/process/snoopcommand.h \
     ../include/process/snoopcommandwidget.h \
     ../include/process/snoopdatachange.h \
@@ -115,15 +116,14 @@ HEADERS += \
     ../include/process/snoopdelay.h \
     ../include/process/snoopdnschange.h \
     ../include/process/snoopdump.h \
-    ../include/process/snoopflowchange.h \	
+    ../include/process/snoopflowchange.h \
     ../include/process/snoopflowmgr.h \
     ../include/process/snoopflowmgrtest.h \
     ../include/process/snoopprocess.h \
     ../include/process/snoopprocessfactory.h \
     ../include/process/snooptcpblock.h \
     ../include/process/snoopwriteadapter.h \
-    ../include/windivert/windivert.h \
-    ../include/process/snoopchecksum.h
+    ../include/windivert/windivert.h
 
 FORMS += \
     ../include/filter/snoopprocessfilterwidget.ui \
