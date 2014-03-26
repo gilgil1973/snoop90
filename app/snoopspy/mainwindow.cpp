@@ -59,7 +59,7 @@ void MainWindow::showEvent(QShowEvent* showEvent)
 
 void MainWindow::initializeControl()
 {
-  move(0, 0); resize(640, 480);
+  move(0, 0); resize(640, 640);
 
   ui->dockWidget->setWidget(ui->leftSplitter); // (ui->treeWidget);
 
@@ -84,7 +84,7 @@ void MainWindow::initializeControl()
   QList<int> sizes; sizes << 100 << 200;
   mainSplitter->setSizes(sizes);
 
-  sizes.clear(); sizes << 200 << 100;
+  sizes.clear(); sizes << 400 << 100;
   ui->leftSplitter->setSizes(sizes);
 
   connect(scene, SIGNAL(changed(QList<QRectF>)), this, SLOT(changed(QList<QRectF>))); // gilgil temp 2012.07.31
