@@ -28,6 +28,7 @@ SOURCES += \
     ../include/common/snoopautodetectadapter.cpp \
     ../include/common/snoopcommon.cpp \
     ../include/common/snoopfindhost.cpp \
+    ../include/common/snoophostlist.cpp \
     ../include/common/snoopinterface.cpp \
     ../include/common/snoopnetinfo.cpp \
     ../include/common/snoopnetstat.cpp \
@@ -72,7 +73,6 @@ HEADERS += \
     ../include/capture/snoopcapture.h \
     ../include/capture/snoopcapturefactory.h \
     ../include/capture/snoopfile.h \
-    ../include/capture/snoopfindhost.h \
     ../include/capture/snooppcap.h \
     ../include/capture/snoopremote.h \
     ../include/capture/snoopsourcepcap.h \
@@ -82,6 +82,7 @@ HEADERS += \
     ../include/common/snoopautodetectadapter.h \
     ../include/common/snoopcommon.h \
     ../include/common/snoopfindhost.h \
+    ../include/common/snoophostlist.h \
     ../include/common/snoopinterface.h \
     ../include/common/snoopnetinfo.h \
     ../include/common/snoopnetstat.h \
