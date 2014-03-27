@@ -21,6 +21,8 @@
 // ----------------------------------------------------------------------------
 class SnoopFindHost : public SnoopAdapter
 {
+  Q_OBJECT
+
 public:
   SnoopFindHost(void* owner = NULL);
   virtual ~SnoopFindHost();
