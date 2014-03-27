@@ -60,10 +60,10 @@ protected:
   Ip   ip_and_subnet; // for isSameLanIP
 
 public:
-  bool isSameLanIP(Ip ip) { return (ip_and_subnet) == (ip & subnet); }
-  Ip   getAdjIP(Ip ip)    { return isSameLanIP(ip) ? ip : gateway;   }
-  Ip   getStartIP()       { return (ip & subnet) + 1;                }
-  Ip   getEndIP()         { return (ip | ~subnet);                   }
+  bool isSameLanIp(Ip ip) { return (ip_and_subnet) == (ip & subnet); }
+  Ip   getAdjIp(Ip ip)    { return isSameLanIp(ip) ? ip : gateway;   }
+  Ip   getStartIp()       { return (ip & subnet) + 1;                }
+  Ip   getEndIp()         { return (ip | ~subnet);                   }
 
 public:
   virtual void load(VXml xml);
