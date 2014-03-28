@@ -25,11 +25,12 @@ win32:contains(QMAKE_TARGET.arch, x86_64) {
 } else {
   LIBS       += -L$${WINPCAP_PATH}/Lib
 }
+LIBS         += -lwpcap -lIphlpapi
 
 #-------------------------------------------------
 # snoop
 #-------------------------------------------------
-SNOOP_PATH            =   $$PWD/..
+SNOOP_PATH             =   $$PWD/..
 INCLUDEPATH           +=   $${SNOOP_PATH}/include
 INCLUDEPATH           +=   $${SNOOP_PATH}/lib
 DEPENDPATH            +=   $${SNOOP_PATH}
