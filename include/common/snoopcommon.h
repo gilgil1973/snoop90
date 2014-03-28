@@ -31,10 +31,12 @@
 // ----------------------------------------------------------------------------
 // Link Library
 // ----------------------------------------------------------------------------
+// ----- gilgil temp 2014.03.28 -----
+/*
 #ifdef _MSC_VER
   #ifdef _DEBUG
     #ifdef QT_GUI_LIB
-      // #pragma comment(lib, "snoopd_gui.lib") // gilgil temp 2014.03.28
+      #pragma comment(lib, "snoopd_gui.lib")
     #else
       #pragma comment(lib, "snoopd.lib")
     #endif // QT_GUI_LIB
@@ -48,6 +50,8 @@
   #pragma comment(lib, "wpcap.lib")
   #pragma comment(lib, "Iphlpapi.lib")
 #endif // _MSC_VER
+*/
+// ----------------------------------
 
 // ----------------------------------------------------------------------------
 // Snoop Version
