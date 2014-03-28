@@ -68,6 +68,10 @@ public:
   PortChangeType dstPortChangeType;
   UINT16         dstPortFixValue;
 
+  UINT32         IfIdx;
+  UINT32         SubIfIdx;
+  UINT8          Direction;
+
 public:
   bool prepare(VError& error);
   bool check(SnoopTransportFlowKey& flowKey, Protocol protocol);
@@ -99,6 +103,10 @@ public:
   static const int DST_PORT_IDX         = 14;
   static const int DST_PORT_CHANGE_TYPE = 15;
   static const int DST_PORT_FIX_VALUE   = 16;
+
+  static const int IF_IDX_IDX           = 17;
+  static const int SUB_IF_IDX_ID        = 18;
+  static const int DIRECTION_IDX        = 19;
 
 public:
   static void initialize(QTreeWidget* treeWidget);
@@ -159,6 +167,8 @@ public:
   bool                  changed;
   SnoopTransportFlowKey from;
   SnoopTransportFlowKey to;
+  WINDIVERT_ADDRESS     divertAddr;
+  SnoopCapture*         sender;
 };
 
 // ----------------------------------------------------------------------------
