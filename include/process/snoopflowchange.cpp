@@ -350,7 +350,7 @@ void SnoopFlowChangeItems::save(VXml xml)
 }
 
 #ifdef QT_GUI_LIB
-#include "../lib/ui_vlistwidget.h"
+#include "ui_vlistwidget.h"
 void SnoopFlowChangeItems::optionAddWidget(QLayout* layout)
 {
   VListWidget* widget = new VListWidget(layout->parentWidget(), this);
