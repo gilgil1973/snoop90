@@ -294,6 +294,7 @@ bool SnoopArpSpoof::doClose()
 {
   bpFilter.close();
   SAFE_DELETE(infectThread);
+  sendArpRecoverAll();
   return SnoopAdapter::doClose();
 }
 
@@ -717,7 +718,7 @@ void SnoopArpSpoof::optionSaveDlg(QDialog* dialog)
 
   virtualMac = dialog->findChild<QLineEdit*>("leVirtualMac")->text();
   selfRelay  = dialog->findChild<QCheckBox*>("chkSelfRelay")->checkState() == Qt::Checked;
-  infectInterval = dialog->findChild<QLineEdit*>("leVirtualMac")->text().toULong();
+  infectInterval = dialog->findChild<QLineEdit*>("leInfectInterval")->text().toULong();
   sessionList.optionSaveDlg(dialog);
 }
 #endif // QT_GUI_LIB
