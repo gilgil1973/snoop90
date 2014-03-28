@@ -142,6 +142,26 @@ class SnoopArpSpoof : public SnoopAdapter
   friend class SnoopArpSpoofInfectThread;
 
 public:
+  typedef enum
+  {
+    arpNone,
+    arpSender,    // sender sent arp packet (emit captured)
+    arpInfect,    // infecting   arp packet (emit capturedSpoof)
+    arpRecover,   // recovering  arp packet (emit capturedSpoof)
+    arpOther      // other       arp packet (emit capturedOther)
+  } ArpPacketType;
+
+  typedef enum
+  {
+    ipNone,
+    ipSender,    // sender     ip packet
+    ipSpoofed,   // spoofed    ip packet (emit captured)
+    ipRelay,     // relay      ip packet (emit capturedSpoof)
+    ipSelfRelay, // self relay ip packet (emit capturedSpoof)
+    ipOther      // other      ip packet (emit capturedOther)
+  } IpPacketType;
+
+public:
   SnoopArpSpoof(void* owner = NULL);
   virtual ~SnoopArpSpoof();
 
@@ -182,10 +202,11 @@ protected:
   bool sendArpRecoverAll();
 
 protected:
-  bool preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
-  SnoopArpSpoofSession* findSessionByIpPacket(SnoopPacket* packet);
+  ArpPacketType preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
+  IpPacketType  findSessionByIpPacket(SnoopPacket* packet, SnoopArpSpoofSession** _session);
 
 signals:
+  void capturedSpoof(SnoopPacket* packet);
   void capturedOther(SnoopPacket* packet);
 
 public:
