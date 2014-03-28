@@ -213,8 +213,6 @@ SnoopArpSpoof::SnoopArpSpoof(void* owner) : SnoopAdapter(owner), sessionList(thi
 {
   virtualMac            = Mac::cleanMac();
   selfRelay             = true;
-  autoRoutingTtls.push_back(127);
-  autoRoutingTtls.push_back(254);
   infectInterval        = 1000; // 1 sec
   sessionList.clear();
 
@@ -296,7 +294,11 @@ bool SnoopArpSpoof::doClose()
 {
   bpFilter.close();
   SAFE_DELETE(infectThread);
-  sendArpRecoverAll();
+  for (int i = 0; i < 3; i++)
+  {
+    sendArpRecoverAll();
+    msleep(100); // gilgil temp 2014.03.29
+  }
   return SnoopAdapter::doClose();
 }
 
@@ -677,13 +679,10 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
   if (dstMac.isBroadcast()) return ipOther;
   if (dstMac.isMulticast()) return ipOther;
 
-  //
-  // If Auto Routing IP packet by OS?
-  //
-  if (autoRoutingTtls.indexOf(packet->ipHdr->ip_ttl) != -1) return ipAutoRouting;
-
-  Ip adjSrcIp = netInfo.getAdjIp(ntohl(packet->ipHdr->ip_src));
-  Ip adjDstIp = netInfo.getAdjIp(ntohl(packet->ipHdr->ip_dst));
+  Ip srcIp    = ntohl(packet->ipHdr->ip_src);
+  Ip dstIp    = htonl(packet->ipHdr->ip_dst);
+  Ip adjSrcIp = netInfo.getAdjIp(srcIp);
+  Ip adjDstIp = netInfo.getAdjIp(dstIp);
 
   //
   // Find session
@@ -692,23 +691,60 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
   {
     SnoopArpSpoofSession& session = *it;
 
+    //
+    // ipSender?
+    //
     if (
       srcMac    == session.senderMac &&
       dstMac    == realVirtualMac &&
       adjSrcIp  == session.senderIp &&
       adjDstIp  == session.targetIp)
     {
+      // LOG_DEBUG("ipSender %s %s %s %s", qPrintable(srcMac.str()), qPrintable(dstMac.str()), qPrintable(srcIp.str()), qPrintable(dstIp.str())); // gilgil temp 2014.03.29
       *_session = &session;
       return ipSender;
     }
 
+    //
+    // ipRelay?
+    //
     if (
       srcMac    == realVirtualMac &&
       dstMac    == session.targetMac &&
       adjSrcIp  == session.senderIp &&
       adjDstIp  == session.targetIp)
     {
+      // LOG_DEBUG("ipRelay %s %s %s %s", qPrintable(srcMac.str()), qPrintable(dstMac.str()), qPrintable(srcIp.str()), qPrintable(dstIp.str())); // gilgil temp 2014.03.29
       return ipRelay;
+    }
+
+    //
+    // ipAutoRouting by OS?
+    //
+    if (
+      srcMac    == netInfo.mac &&
+      dstMac    == realVirtualMac &&
+      adjSrcIp  == session.senderIp &&
+      adjDstIp  == session.targetIp)
+    {
+      // LOG_DEBUG("ipAutoRouting %s %s %s %s", qPrintable(srcMac.str()), qPrintable(dstMac.str()), qPrintable(srcIp.str()), qPrintable(dstIp.str())); // gilgil temp 2014.03.29
+      return ipAutoRouting;
+    }
+
+    //
+    // ICMP redirect by OS?
+    //
+    if (
+      packet->icmpHdr != NULL &&
+      packet->icmpHdr->icmp_type == ICMP_REDIRECT &&
+      srcMac          == netInfo.mac &&
+      dstMac          == realVirtualMac &&
+      srcIp           == netInfo.ip &&
+      dstIp           == session.senderIp)
+    {
+      //LOG_DEBUG("icmp ipAutoRouting %s %s %s %s", qPrintable(srcMac.str()), qPrintable(dstMac.str()), qPrintable(srcIp.str()), qPrintable(dstIp.str())); // gilgil temp 2014.03.29
+      return ipAutoRouting;
+
     }
   }
 

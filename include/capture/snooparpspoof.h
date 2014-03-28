@@ -172,7 +172,6 @@ public:
 public:
   Mac                        virtualMac;
   bool                       selfRelay;
-  QList<UINT8>               autoRoutingTtls;
   VTimeout                   infectInterval;
   SnoopArpSpoofSessionList   sessionList;
 
