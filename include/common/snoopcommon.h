@@ -34,7 +34,7 @@
 #ifdef _MSC_VER
   #ifdef _DEBUG
     #ifdef QT_GUI_LIB
-      #pragma comment(lib, "snoopd_gui.lib")
+      // #pragma comment(lib, "snoopd_gui.lib") // gilgil temp 2014.03.28
     #else
       #pragma comment(lib, "snoopd.lib")
     #endif // QT_GUI_LIB

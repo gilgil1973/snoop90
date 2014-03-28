@@ -124,6 +124,10 @@ public:
   SnoopArpSpoofInfectThread(SnoopArpSpoof* arpSpoof);
   virtual ~SnoopArpSpoofInfectThread();
 
+public:
+  virtual bool open();
+  virtual bool close();
+
 protected:
   virtual void run();
 };
@@ -178,11 +182,8 @@ protected:
   bool sendArpRecoverAll();
 
 protected:
-  void preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
-  SnoopArpSpoofSession* findSessionByIpPacket(PKT_HDR* pktHdr, ETH_HDR* ethHdr, IP_HDR* ipHdr);
-
-public slots:
-  void process(SnoopPacket* packet);
+  bool preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
+  SnoopArpSpoofSession* findSessionByIpPacket(SnoopPacket* packet);
 
 signals:
   void capturedOther(SnoopPacket* packet);

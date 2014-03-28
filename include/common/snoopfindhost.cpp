@@ -22,6 +22,7 @@ SnoopFindHost::~SnoopFindHost()
 bool SnoopFindHost::doOpen()
 {
   lastSendTick = tick();
+  netInfo.adapterIndex = this->adapterIndex;
   return SnoopAdapter::doOpen();
 }
 
@@ -81,7 +82,7 @@ bool SnoopFindHost::sendArpRequestAll()
     SnoopHost& host = *it;
     if (host.mac.isClean())
     {
-      if (sendArpRequest(host.ip) < 0) return false;
+      if (!sendArpRequest(host.ip)) return false;
       if (sendInterval != 0)
         Sleep(sendInterval);
     }
@@ -118,7 +119,7 @@ void SnoopFindHost::logUnfoundHost(VLog* log)
 
 int SnoopFindHost::sendArpRequest(Ip ip)
 {
-  static const int BUF_SIZE = sizeof(ETH_HDR) + sizeof(IP_HDR);
+  static const int BUF_SIZE = sizeof(ETH_HDR) + sizeof(ARP_HDR);
   BYTE buf[BUF_SIZE];
   ETH_HDR* ethHdr = (ETH_HDR*)buf;
   ARP_HDR* arpHdr = (ARP_HDR*)(buf + sizeof(ETH_HDR));
@@ -127,8 +128,8 @@ int SnoopFindHost::sendArpRequest(Ip ip)
   // Set Ethernet Hdr
   //
   ethHdr->ether_dhost = Mac::broadcastMac();
-  ethHdr->ether_shost  = netInfo.mac;
-  ethHdr->ether_type   = htons(ETHERTYPE_ARP);
+  ethHdr->ether_shost = netInfo.mac;
+  ethHdr->ether_type  = htons(ETHERTYPE_ARP);
 
   //
   // Set ARP Hdr

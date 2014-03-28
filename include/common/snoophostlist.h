@@ -24,7 +24,7 @@ public:
   QString name;
 
 public:
-  SnoopHost();
+  SnoopHost(Ip ip = 0, Mac mac = Mac::cleanMac(), QString name = "");
   virtual ~SnoopHost();
 
 public:

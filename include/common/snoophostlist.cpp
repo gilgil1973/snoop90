@@ -3,11 +3,11 @@
 // ----------------------------------------------------------------------------
 // SnoopHost
 // ----------------------------------------------------------------------------
-SnoopHost::SnoopHost()
+SnoopHost::SnoopHost(Ip ip, Mac mac, QString name)
 {
-  ip   = 0;
-  mac  = Mac::cleanMac();
-  name = "";
+  this->ip   = ip;
+  this->mac  = mac;
+  this->name = name;
 }
 
 SnoopHost::~SnoopHost()
