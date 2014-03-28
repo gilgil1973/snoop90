@@ -141,24 +141,14 @@ class SnoopArpSpoof : public SnoopAdapter
 
   friend class SnoopArpSpoofInfectThread;
 
-public:
-  typedef enum
-  {
-    arpNone,
-    arpSender,    // sender sent arp packet (emit captured)
-    arpInfect,    // infecting   arp packet (emit capturedSpoof)
-    arpRecover,   // recovering  arp packet (emit capturedSpoof)
-    arpOther      // other       arp packet (emit capturedOther)
-  } ArpPacketType;
-
   typedef enum
   {
     ipNone,
-    ipSender,    // sender     ip packet
-    ipSpoofed,   // spoofed    ip packet (emit captured)
-    ipRelay,     // relay      ip packet (emit capturedSpoof)
-    ipSelfRelay, // self relay ip packet (emit capturedSpoof)
-    ipOther      // other      ip packet (emit capturedOther)
+    ipSender,      // sender       ip packet (emit captured)
+    ipRelay,       // relay        ip packet (emit capturedSpoof)
+    ipSelfSpoofed, // self spoofed ip packet (emit capturedOther)
+    ipAutoRouting, // auto routing ip packet (emit capturedOther)
+    ipOther        // other        ip packet (emit capturedOther)
   } IpPacketType;
 
 public:
@@ -182,6 +172,7 @@ public:
 public:
   Mac                        virtualMac;
   bool                       selfRelay;
+  QList<UINT8>               autoRoutingTtls;
   VTimeout                   infectInterval;
   SnoopArpSpoofSessionList   sessionList;
 
@@ -196,13 +187,13 @@ protected:
   bool retrieveUnknownMacHostList();
 
 protected:
-  bool sendArpInfect(SnoopArpSpoofSession* session);
+  bool sendArpInfect(SnoopArpSpoofSession& session);
   bool sendArpInfectAll();
-  bool sendArpRecover(SnoopArpSpoofSession* session);
+  bool sendArpRecover(SnoopArpSpoofSession& session);
   bool sendArpRecoverAll();
 
 protected:
-  ArpPacketType preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
+  void preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
   IpPacketType  findSessionByIpPacket(SnoopPacket* packet, SnoopArpSpoofSession** _session);
 
 signals:
