@@ -541,15 +541,19 @@ void SnoopFlowChange::_changeTcpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
   // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
   packet->tcpHdr->th_sum = htons(newTcpChecksum);
 
-  //LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
-  //  qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
-  //  qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
+  packet->sender = flowItem->sender;
 
   if (packet->divertAddr.IfIdx != 0)
   {
-    packet->divertAddr = flowItem->divertAddr;
+    // packet->divertAddr = flowItem->divertAddr; // gilgil temp 2014.03.30
   }
-  packet->sender     = flowItem->sender;
+
+  if (flowItem->log)
+  {
+    LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
+      qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
+      qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
+  }
 }
 
 void SnoopFlowChange::_changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem)
@@ -588,15 +592,19 @@ void SnoopFlowChange::_changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
   // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
   packet->udpHdr->uh_sum = htons(newUdpChecksum);
 
-  //LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
-  //  qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
-  //  qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
+  packet->sender = flowItem->sender;
 
   if (packet->divertAddr.IfIdx != 0)
   {
-    packet->divertAddr = flowItem->divertAddr;
+    // packet->divertAddr = flowItem->divertAddr; // gilgil temp 2014.03.30
   }
-  packet->sender     = flowItem->sender;
+
+  if (flowItem->log)
+  {
+    LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
+      qPrintable(oldSrcIp.str()), oldSrcPort, qPrintable(oldDstIp.str()), oldDstPort,
+      qPrintable(newSrcIp.str()), newSrcPort, qPrintable(newDstIp.str()), newDstPort); // gilgil temp 2014.03.26
+  }
 }
 
 void SnoopFlowChange::processInOut(SnoopPacket* packet)
@@ -684,40 +692,44 @@ void SnoopFlowChange::processOutIn(SnoopPacket* packet)
     emit unchanged(packet);
   }
 }
+
 void SnoopFlowChange::__inTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
   LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort); // gilgil temp 2014.03.26
   SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(value->totalMem + inTcpFlowOffset);
 
-  SnoopFlowChangeItem* item = changeItems.find(*key, SnoopFlowChangeItem::Tcp);
-  if (item != NULL)
+  SnoopFlowChangeItem* changeItem = changeItems.find(*key, SnoopFlowChangeItem::Tcp);
+  if (changeItem != NULL)
   {
-    flowItem->changed = true;
-    flowItem->from    = *key;
-    flowItem->to      = changeItems.change(*item, *key);
-    flowItem->divertAddr.IfIdx     = item->IfIdx;
-    flowItem->divertAddr.SubIfIdx  = item->SubIfIdx;
-    flowItem->divertAddr.Direction = item->Direction;
+    flowItem->changed              = true;
+    flowItem->log                  = changeItem->log;
+    flowItem->from                 = *key;
+    flowItem->to                   = changeItems.change(*changeItem, *key);
     flowItem->sender               = this->outCapture;
-    if (item->log)
+    flowItem->divertAddr.IfIdx     = changeItem->IfIdx;
+    flowItem->divertAddr.SubIfIdx  = changeItem->SubIfIdx;
+    flowItem->divertAddr.Direction = changeItem->Direction;
+
+    SnoopFlowChangeOutInMapVal val;
+    val.flowKey = flowItem->from;
+    val.flowItem = flowItem;
+
+    tcpInOutMap.lock();
+    tcpInOutMap[flowItem->to] = val;
+    tcpInOutMap.unlock();
+
+    if (flowItem->log)
     {
       LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
         qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
         qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
     }
 
-    VLock lock(tcpInOutMap);
-    tcpInOutMap[flowItem->to] = flowItem->from;
     return;
   }
 
+  memset(flowItem, 0, sizeof(SnoopFlowChangeFlowItem));
   flowItem->changed = false;
-  flowItem->from    = *key;
-  flowItem->to      = *key;
-  flowItem->divertAddr.IfIdx     = 0;
-  flowItem->divertAddr.SubIfIdx  = 0;
-  flowItem->divertAddr.Direction = 0;
-  flowItem->sender    = NULL;
 }
 
 void SnoopFlowChange::__inTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
@@ -734,35 +746,34 @@ void SnoopFlowChange::__outTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* v
   SnoopTcpFlowKey rkey = key->reverse();
 
   VLock lock(tcpInOutMap);
-  SnoopFlowChangeMap::iterator it = tcpInOutMap.find(rkey);
+  SnoopFlowChangeOutInMap::iterator it = tcpInOutMap.find(rkey);
   if (it != tcpInOutMap.end())
   {
-    SnoopTransportFlowKey rvalue = it.value();
-    flowItem->changed = true;
-    flowItem->from    = *key;
-    flowItem->to.srcIp   = rvalue.dstIp;
-    flowItem->to.srcPort = rvalue.dstPort;
-    flowItem->to.dstIp   = rvalue.srcIp;
-    flowItem->to.dstPort = rvalue.srcPort;
-    flowItem->divertAddr.IfIdx      = 1; // gilgil temp 2014.03.29
-    flowItem->divertAddr.SubIfIdx   = 0;  // gilgil temp 2014.03.29
-    flowItem->divertAddr.Direction  = WINDIVERT_DIRECTION_OUTBOUND; // gilgil temp 2014.03.29
-    flowItem->sender     = this->inCapture;
+    SnoopFlowChangeOutInMapVal rvalue = it.value();
+    flowItem->changed              = true;
+    flowItem->log                  = rvalue.flowItem->log;
+    flowItem->from                 = *key;
+    flowItem->to.srcIp             = rvalue.flowKey.dstIp;
+    flowItem->to.srcPort           = rvalue.flowKey.dstPort;
+    flowItem->to.dstIp             = rvalue.flowKey.srcIp;
+    flowItem->to.dstPort           = rvalue.flowKey.srcPort;
+    flowItem->sender               = this->inCapture;
+    flowItem->divertAddr.IfIdx     = rvalue.flowItem->divertAddr.IfIdx;
+    flowItem->divertAddr.SubIfIdx  = rvalue.flowItem->divertAddr.SubIfIdx;
+    flowItem->divertAddr.Direction = 1 - rvalue.flowItem->divertAddr.Direction;
 
-    LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
-      qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
-      qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
+    if (flowItem->log)
+    {
+      LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
+        qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
+        qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
+    }
 
     return;
   }
 
+  memset(flowItem, 0, sizeof(SnoopFlowChangeFlowItem));
   flowItem->changed = false;
-  flowItem->from    = *key;
-  flowItem->to      = *key;
-  flowItem->divertAddr.IfIdx     = 0;
-  flowItem->divertAddr.SubIfIdx  = 0;
-  flowItem->divertAddr.Direction = 0;
-  flowItem->sender    = NULL;
 }
 
 void SnoopFlowChange::__outTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
@@ -776,42 +787,44 @@ void SnoopFlowChange::__inUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* va
   LOG_DEBUG("%s:%d > %s:%d", qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort); // gilgil temp 2014.03.26
   SnoopFlowChangeFlowItem* flowItem = (SnoopFlowChangeFlowItem*)(value->totalMem + inUdpFlowOffset);
 
-  SnoopFlowChangeItem* item = changeItems.find(*key, SnoopFlowChangeItem::Udp);
-  if (item != NULL)
+  SnoopFlowChangeItem* changeItem = changeItems.find(*key, SnoopFlowChangeItem::Udp);
+  if (changeItem != NULL)
   {
-    flowItem->changed = true;
-    flowItem->from    = *key;
-    flowItem->to      = changeItems.change(*item, *key);
-    flowItem->divertAddr.IfIdx     = item->IfIdx;
-    flowItem->divertAddr.SubIfIdx  = item->SubIfIdx;
-    flowItem->divertAddr.Direction = item->Direction;
-    flowItem->sender    = this->outCapture;
+    flowItem->changed              = true;
+    flowItem->log                  = changeItem->log;
+    flowItem->from                 = *key;
+    flowItem->to                   = changeItems.change(*changeItem, *key);
+    flowItem->sender               = this->outCapture;
+    flowItem->divertAddr.IfIdx     = changeItem->IfIdx;
+    flowItem->divertAddr.SubIfIdx  = changeItem->SubIfIdx;
+    flowItem->divertAddr.Direction = changeItem->Direction;
 
-    if (item->log)
+    SnoopFlowChangeOutInMapVal val;
+    val.flowKey = flowItem->from;
+    val.flowItem = flowItem;
+
+    udpInOutMap.lock();
+    udpInOutMap[flowItem->to] = val;
+    udpInOutMap.unlock();
+
+    if (flowItem->log)
     {
       LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
         qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
         qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
     }
 
-    VLock lock(udpInOutMap);
-    udpInOutMap[flowItem->to] = flowItem->from;
     return;
   }
 
+  memset(flowItem, 0, sizeof(SnoopFlowChangeFlowItem));
   flowItem->changed = false;
-  flowItem->from    = *key;
-  flowItem->to      = *key;
-  flowItem->divertAddr.IfIdx     = 0;
-  flowItem->divertAddr.SubIfIdx  = 0;
-  flowItem->divertAddr.Direction = 0;
-  flowItem->sender    = NULL;
 }
 
 void SnoopFlowChange::__inUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
-  Q_UNUSED(*key)
-  Q_UNUSED(*value)
+  Q_UNUSED(key)
+  Q_UNUSED(value)
 }
 
 void SnoopFlowChange::__outUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
@@ -822,41 +835,40 @@ void SnoopFlowChange::__outUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* v
   SnoopTcpFlowKey rkey = key->reverse();
 
   VLock lock(udpInOutMap);
-  SnoopFlowChangeMap::iterator it = udpInOutMap.find(rkey);
+  SnoopFlowChangeOutInMap::iterator it = udpInOutMap.find(rkey);
   if (it != udpInOutMap.end())
   {
-    SnoopTransportFlowKey rvalue = it.value();
-    flowItem->changed = true;
-    flowItem->from    = *key;
-    flowItem->to.srcIp   = rvalue.dstIp;
-    flowItem->to.srcPort = rvalue.dstPort;
-    flowItem->to.dstIp   = rvalue.srcIp;
-    flowItem->to.dstPort = rvalue.srcPort;
-    flowItem->divertAddr.IfIdx      = 1; // gilgil temp 2014.03.29
-    flowItem->divertAddr.SubIfIdx   = 0;  // gilgil temp 2014.03.29
-    flowItem->divertAddr.Direction  = WINDIVERT_DIRECTION_OUTBOUND; // gilgil temp 2014.03.29
-    flowItem->sender     = this->inCapture;
+    SnoopFlowChangeOutInMapVal rvalue = it.value();
+    flowItem->changed              = true;
+    flowItem->log                  = rvalue.flowItem->log;
+    flowItem->from                 = *key;
+    flowItem->to.srcIp             = rvalue.flowKey.dstIp;
+    flowItem->to.srcPort           = rvalue.flowKey.dstPort;
+    flowItem->to.dstIp             = rvalue.flowKey.srcIp;
+    flowItem->to.dstPort           = rvalue.flowKey.srcPort;
+    flowItem->sender               = this->inCapture;
+    flowItem->divertAddr.IfIdx     = rvalue.flowItem->divertAddr.IfIdx;
+    flowItem->divertAddr.SubIfIdx  = rvalue.flowItem->divertAddr.SubIfIdx;
+    flowItem->divertAddr.Direction = 1 - rvalue.flowItem->divertAddr.Direction;
 
-    LOG_DEBUG("change %s:%d > %s:%d into %s:%d > %s:%d",
-      qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
-      qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
+    if (flowItem->log)
+    {
+      LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
+        qPrintable(key->srcIp.str()), key->srcPort, qPrintable(key->dstIp.str()), key->dstPort,
+        qPrintable(flowItem->to.srcIp.str()), flowItem->to.srcPort, qPrintable(flowItem->to.dstIp.str()), flowItem->to.dstPort);
+    }
 
     return;
   }
 
+  memset(flowItem, 0, sizeof(SnoopFlowChangeFlowItem));
   flowItem->changed = false;
-  flowItem->from    = *key;
-  flowItem->to      = *key;
-  flowItem->divertAddr.IfIdx     = 0;
-  flowItem->divertAddr.SubIfIdx  = 0;
-  flowItem->divertAddr.Direction = 0;
-  flowItem->sender    = NULL;
 }
 
 void SnoopFlowChange::__outUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
-  Q_UNUSED(*key)
-  Q_UNUSED(*value)
+  Q_UNUSED(key)
+  Q_UNUSED(value)
 }
 
 void SnoopFlowChange::load(VXml xml)

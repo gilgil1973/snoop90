@@ -45,10 +45,10 @@ public:
   SnoopFlowChangeItem();
 
 public:
-  bool       enabled;
-  bool       log;
+  bool           enabled;
+  bool           log;
 
-  Protocol   protocol;
+  Protocol       protocol;
 
   Ip             srcIp;
   Ip             srcIpMask;
@@ -165,16 +165,27 @@ class SnoopFlowChangeFlowItem
 {
 public:
   bool                  changed;
+  bool                  log;
   SnoopTransportFlowKey from;
   SnoopTransportFlowKey to;
-  WINDIVERT_ADDRESS     divertAddr;
   SnoopCapture*         sender;
+  WINDIVERT_ADDRESS     divertAddr;
 };
 
 // ----------------------------------------------------------------------------
-// SnoopFlowChangeMap
+// SnoopFlowChangeOutInMapVal
 // ----------------------------------------------------------------------------
-class SnoopFlowChangeMap : public QMap<SnoopTransportFlowKey /*to*/, SnoopTransportFlowKey /*from*/>, public VLockable
+class SnoopFlowChangeOutInMapVal
+{
+public:
+  SnoopTransportFlowKey    flowKey;
+  SnoopFlowChangeFlowItem* flowItem;
+};
+
+// ----------------------------------------------------------------------------
+// SnoopFlowChangeOutInMap
+// ----------------------------------------------------------------------------
+class SnoopFlowChangeOutInMap : public QMap<SnoopTransportFlowKey/*out*/,  SnoopFlowChangeOutInMapVal/*in and flowItem*/>, public VLockable
 {
 };
 
@@ -215,13 +226,13 @@ public:
   SnoopFlowChangeItems changeItems;
 
 protected:
-    size_t             inTcpFlowOffset;
-    size_t             outTcpFlowOffset;
-    size_t             inUdpFlowOffset;
-    size_t             outUdpFlowOffset;
+    size_t inTcpFlowOffset;
+    size_t outTcpFlowOffset;
+    size_t inUdpFlowOffset;
+    size_t outUdpFlowOffset;
 
-    SnoopFlowChangeMap tcpInOutMap;
-    SnoopFlowChangeMap udpInOutMap;
+    SnoopFlowChangeOutInMap tcpInOutMap;
+    SnoopFlowChangeOutInMap udpInOutMap;
 
 protected slots:
   void __inTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
