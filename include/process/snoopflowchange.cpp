@@ -16,11 +16,11 @@ SnoopFlowChangeItem::SnoopFlowChangeItem()
 
   srcIp             = 0;
   srcIpMask         = 0;
-  srcIpChangeType   = IpCopy;
+  srcIpChangeType   = IpFix;
   srcIpFixValue     = 0;
 
   srcPort           = 0;
-  srcPortChangeType = PortAutoInc;
+  srcPortChangeType = PortFix;
   srcPortFixValue   = 0;
 
   dstIp             = 0;
@@ -29,7 +29,7 @@ SnoopFlowChangeItem::SnoopFlowChangeItem()
   dstIpFixValue     = 0;
 
   dstPort           = 0;
-  dstPortChangeType = PortCopy;
+  dstPortChangeType = PortFix;
   dstPortFixValue   = 0;
 
   IfIdx              = 0;
