@@ -204,36 +204,36 @@ protected:
   void _changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem);
 
 public slots:
-  void processInOut(SnoopPacket* packet);
-  void processOutIn(SnoopPacket* packet);
+  void processFromTo(SnoopPacket* packet);
+  void processToFrom(SnoopPacket* packet);
 
 public:
-  SnoopCapture*        inCapture;
-  SnoopFlowMgr*        inFlowMgr;
-  SnoopCapture*        outCapture;
-  SnoopFlowMgr*        outFlowMgr;
+  SnoopCapture*        fromCapture;
+  SnoopFlowMgr*        fromFlowMgr;
+  SnoopCapture*        toCapture;
+  SnoopFlowMgr*        toFlowMgr;
   bool                 tcpChange;
   bool                 udpChange;
   SnoopFlowChangeItems changeItems;
 
 protected:
-    size_t inTcpFlowOffset;
-    size_t outTcpFlowOffset;
-    size_t inUdpFlowOffset;
-    size_t outUdpFlowOffset;
+    size_t fromTcpFlowOffset;
+    size_t toTcpFlowOffset;
+    size_t fromUdpFlowOffset;
+    size_t toUdpFlowOffset;
 
-    SnoopFlowChangeOutInMap tcpInOutMap;
-    SnoopFlowChangeOutInMap udpInOutMap;
+    SnoopFlowChangeOutInMap tcpFlowChangeMap;
+    SnoopFlowChangeOutInMap udpFlowChangeMap;
 
 protected slots:
-  void __inTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __inTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __outTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __outTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
-  void __inUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
-  void __inUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
-  void __outUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
-  void __outUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __fromTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __fromTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __toTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __toTcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value);
+  void __fromUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __fromUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __toUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __toUdpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
 
 public:
   virtual void load(VXml xml);
