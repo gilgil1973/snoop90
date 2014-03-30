@@ -12,7 +12,7 @@ SnoopFlowChangeItem::SnoopFlowChangeItem()
 {
   enabled           = true;
   log               = true;
-  protocol          = Tcp;
+  protocol          = Any;
 
   srcIp             = 0;
   srcIpMask         = 0;
@@ -61,7 +61,7 @@ bool SnoopFlowChangeItem::prepare(VError& error)
 bool SnoopFlowChangeItem::check(SnoopTransportFlowKey& flowKey, Protocol protocol)
 {
   if (!this->enabled) return false;
-  if (this->protocol != protocol)                             return false;
+  if (this->protocol != Any && this->protocol != protocol)    return false;
   if ((flowKey.srcIp & this->srcIpMask)     != this->srcIp)   return false;
   if (this->srcPort != 0 && flowKey.srcPort != this->srcPort) return false;
   if ((flowKey.dstIp & this->dstIpMask)     != this->dstIp)   return false;
@@ -161,7 +161,7 @@ void operator << (QTreeWidgetItem& treeWidgetItem, SnoopFlowChangeItem& item)
   treeWidgetItem.setCheckState(SnoopFlowChangeItem::LOG_IDX,     item.log ? Qt::Checked : Qt::Unchecked);
 
   QComboBox* protocolComboBox = new QComboBox(treeWidgetItem.treeWidget());
-  QStringList sl; sl << "TCP" << "UDP";
+  QStringList sl; sl << "Any" << "TCP" << "UDP";
   protocolComboBox->insertItems(0, sl);
   protocolComboBox->setCurrentIndex((int)item.protocol);
   treeWidgetItem.treeWidget()->setItemWidget(&treeWidgetItem, SnoopFlowChangeItem::PROTOCOL_IDX, protocolComboBox);

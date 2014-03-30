@@ -26,6 +26,7 @@ class SnoopFlowChangeItem : public VXmlable
 {
 public:
   enum Protocol {
+    Any,
     Tcp,
     Udp
   };
