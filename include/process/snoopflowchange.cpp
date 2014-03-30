@@ -31,10 +31,6 @@ SnoopFlowChangeItem::SnoopFlowChangeItem()
   dstPort           = 0;
   dstPortChangeType = PortFix;
   dstPortFixValue   = 0;
-
-  IfIdx              = 0;
-  SubIfIdx           = 0;
-  Direction          = WINDIVERT_DIRECTION_OUTBOUND;
 }
 
 bool SnoopFlowChangeItem::prepare(VError& error)
@@ -96,10 +92,6 @@ void SnoopFlowChangeItem::load(VXml xml)
   dstPort           = (UINT16)xml.getInt("dstPort", (int)dstPort);
   dstPortChangeType = (PortChangeType)xml.getInt("dstPortChangeType", (int)dstPortChangeType);
   dstPortFixValue   = (UINT16)xml.getInt("dstPortFixValue", (int)dstPortFixValue);
-
-  IfIdx             = xml.getULong("IfIdx", IfIdx);
-  SubIfIdx          = xml.getULong("SubIfIdx", SubIfIdx);
-  Direction         = xml.getLong("Direction", Direction);
 }
 
 void SnoopFlowChangeItem::save(VXml xml)
@@ -125,24 +117,19 @@ void SnoopFlowChangeItem::save(VXml xml)
   xml.setInt("dstPort", (int)dstPort);
   xml.setInt("dstPortChangeType", (int)dstPortChangeType);
   xml.setInt("dstPortFixValue", (int)dstPortFixValue);
-
-  xml.setULong("IfIdx", IfIdx);
-  xml.setULong("SubIfIdx", SubIfIdx);
-  xml.setLong("Direction", Direction);
 }
 
 #ifdef QT_GUI_LIB
 void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
 {
-  treeWidget->setMinimumWidth(1300);
+  treeWidget->setMinimumWidth(1200);
 
   QStringList headerLables;
   headerLables << "Enabled" << "Log" << "Protocol"
     << "srcIp"   << "SrcIpMask"   << "SrcIpChangeType"   << "SrcIpFixValue"
     << "srcPort"                  << "SrcPortChangeType" << "SrcPortFixValue"
     << "dstIp"   << "dstIpMask"   << "dstIpChangeType"   << "dstIpFixValue"
-    << "dstPort"                  << "dstPortChangeType" << "dstPortFixValue"
-    << "IfIdx"   << "SubIfIdx"    << "Direction";
+    << "dstPort"                  << "dstPortChangeType" << "dstPortFixValue";
   treeWidget->setHeaderLabels(headerLables);
 
   treeWidget->setColumnWidth(ENABLED_IDX,          30);
@@ -166,10 +153,6 @@ void SnoopFlowChangeItem::initialize(QTreeWidget* treeWidget)
   treeWidget->setColumnWidth(DST_PORT_IDX,         50);
   treeWidget->setColumnWidth(DST_PORT_CHANGE_TYPE, 50);
   treeWidget->setColumnWidth(DST_PORT_FIX_VALUE,   50);
-
-  treeWidget->setColumnWidth(IF_IDX_IDX,           30);
-  treeWidget->setColumnWidth(SUB_IF_IDX_ID,        30);
-  treeWidget->setColumnWidth(DIRECTION_IDX,        30);
 }
 
 void operator << (QTreeWidgetItem& treeWidgetItem, SnoopFlowChangeItem& item)
@@ -215,10 +198,6 @@ void operator << (QTreeWidgetItem& treeWidgetItem, SnoopFlowChangeItem& item)
   treeWidgetItem.treeWidget()->setItemWidget(&treeWidgetItem, SnoopFlowChangeItem::DST_PORT_CHANGE_TYPE, dstPortComboBox);
   treeWidgetItem.setText(SnoopFlowChangeItem::DST_PORT_FIX_VALUE, QString::number(item.dstPortFixValue));
 
-  treeWidgetItem.setText(SnoopFlowChangeItem::IF_IDX_IDX, QString::number(item.IfIdx));
-  treeWidgetItem.setText(SnoopFlowChangeItem::SUB_IF_IDX_ID, QString::number(item.SubIfIdx));
-  treeWidgetItem.setText(SnoopFlowChangeItem::DIRECTION_IDX, QString::number(item.Direction));
-
   treeWidgetItem.setFlags(treeWidgetItem.flags() | Qt::ItemIsEditable);
 }
 
@@ -250,10 +229,6 @@ void operator << (SnoopFlowChangeItem& item, QTreeWidgetItem& treeWidgetItem)
   QComboBox* dstPortComboBox = dynamic_cast<QComboBox*>(treeWidgetItem.treeWidget()->itemWidget(&treeWidgetItem, SnoopFlowChangeItem::DST_PORT_CHANGE_TYPE));
   item.dstPortChangeType = (SnoopFlowChangeItem::PortChangeType)(dstPortComboBox->currentIndex());
   item.dstPortFixValue = treeWidgetItem.text(SnoopFlowChangeItem::DST_PORT_FIX_VALUE).toUShort();
-
-  item.IfIdx = treeWidgetItem.text(SnoopFlowChangeItem::IF_IDX_IDX).toUInt();
-  item.SubIfIdx = treeWidgetItem.text(SnoopFlowChangeItem::SUB_IF_IDX_ID).toUInt();
-  item.Direction = treeWidgetItem.text(SnoopFlowChangeItem::DIRECTION_IDX).toUInt();
 
   VError error; item.prepare(error);
 }
@@ -543,11 +518,6 @@ void SnoopFlowChange::_changeTcpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
 
   packet->sender = flowItem->sender;
 
-  if (packet->divertAddr.IfIdx != 0)
-  {
-    // packet->divertAddr = flowItem->divertAddr; // gilgil temp 2014.03.30
-  }
-
   if (flowItem->log)
   {
     LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
@@ -593,11 +563,6 @@ void SnoopFlowChange::_changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
   packet->udpHdr->uh_sum = htons(newUdpChecksum);
 
   packet->sender = flowItem->sender;
-
-  if (packet->divertAddr.IfIdx != 0)
-  {
-    // packet->divertAddr = flowItem->divertAddr; // gilgil temp 2014.03.30
-  }
 
   if (flowItem->log)
   {
@@ -706,9 +671,6 @@ void SnoopFlowChange::__inTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* va
     flowItem->from                 = *key;
     flowItem->to                   = changeItems.change(*changeItem, *key);
     flowItem->sender               = this->outCapture;
-    flowItem->divertAddr.IfIdx     = changeItem->IfIdx;
-    flowItem->divertAddr.SubIfIdx  = changeItem->SubIfIdx;
-    flowItem->divertAddr.Direction = changeItem->Direction;
 
     SnoopFlowChangeOutInMapVal val;
     val.flowKey = flowItem->from;
@@ -758,9 +720,6 @@ void SnoopFlowChange::__outTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* v
     flowItem->to.dstIp             = rvalue.flowKey.srcIp;
     flowItem->to.dstPort           = rvalue.flowKey.srcPort;
     flowItem->sender               = this->inCapture;
-    flowItem->divertAddr.IfIdx     = rvalue.flowItem->divertAddr.IfIdx;
-    flowItem->divertAddr.SubIfIdx  = rvalue.flowItem->divertAddr.SubIfIdx;
-    flowItem->divertAddr.Direction = 1 - rvalue.flowItem->divertAddr.Direction;
 
     if (flowItem->log)
     {
@@ -795,9 +754,6 @@ void SnoopFlowChange::__inUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* va
     flowItem->from                 = *key;
     flowItem->to                   = changeItems.change(*changeItem, *key);
     flowItem->sender               = this->outCapture;
-    flowItem->divertAddr.IfIdx     = changeItem->IfIdx;
-    flowItem->divertAddr.SubIfIdx  = changeItem->SubIfIdx;
-    flowItem->divertAddr.Direction = changeItem->Direction;
 
     SnoopFlowChangeOutInMapVal val;
     val.flowKey = flowItem->from;
@@ -847,9 +803,6 @@ void SnoopFlowChange::__outUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* v
     flowItem->to.dstIp             = rvalue.flowKey.srcIp;
     flowItem->to.dstPort           = rvalue.flowKey.srcPort;
     flowItem->sender               = this->inCapture;
-    flowItem->divertAddr.IfIdx     = rvalue.flowItem->divertAddr.IfIdx;
-    flowItem->divertAddr.SubIfIdx  = rvalue.flowItem->divertAddr.SubIfIdx;
-    flowItem->divertAddr.Direction = 1 - rvalue.flowItem->divertAddr.Direction;
 
     if (flowItem->log)
     {
