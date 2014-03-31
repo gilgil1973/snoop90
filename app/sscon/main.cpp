@@ -1,37 +1,74 @@
-#include <iostream>
 #include <QCoreApplication>
-#include <VGraph>
+#include <VFile> // for VERR_INVALID_FILENAME
 #include "explicit_link.h"
+#include "param.h"
+#include "main.h"
 
-using namespace std;
-
-class Param
+// ----------------------------------------------------------------------------
+// Main
+// ----------------------------------------------------------------------------
+Main::Main()
 {
-public:
-  QString fileName;
+  fileName = "";
+  VObject::connect(&graph, SIGNAL(closed()), this, SLOT(terminate()));
+}
 
-  bool parse(int argc, char* argv[])
+Main::~Main()
+{
+  close();
+}
+
+bool Main::doOpen()
+{
+  if (!graph.loadFromFile(fileName, "graph"))
   {
-    if (argc <= 1) return false;
-    fileName = argv[1];
-    return true;
+    SET_ERROR(VError, qformat("can not open file(%s)", qPrintable(fileName)), VERR_INVALID_FILENAME);
+    return false;
   }
 
-  static void usage()
+  if (!graph.open())
   {
-    printf("snoopspy console version 9.0\n");
-    printf("Copyright (c) Gilbert Lee All rights reserved\n");
-    printf("\n");
-    printf("sscon <snoopspy file name>\n");
-    printf("\n");
-    printf("example\n");
-    printf("\n");
-    printf("  sscon test.ss\n");
+    error = graph.error;
+    return false;
   }
-};
 
-int run(int argc, char *argv[])
+  runThread().open();
+
+  return true;
+}
+
+bool Main::doClose()
 {
+  graph.close();
+  runThread().close();
+  return true;
+}
+
+void Main::terminate()
+{
+  if (runThread().active())
+  {
+    LOG_DEBUG("terminate application by force");
+    _exit(0);
+  }
+}
+
+void Main::run()
+{
+  printf("press any key to close");
+  std::string s; std::getline(std::cin, s);
+  QCoreApplication::exit(0); // awaken a.exec()
+}
+
+// ----------------------------------------------------------------------------
+// main
+// ----------------------------------------------------------------------------
+int main(int argc, char *argv[])
+{
+  QCoreApplication a(argc, argv);
+
+  explicitLink();
+
   Param param;
   if (!param.parse(argc, argv))
   {
@@ -39,31 +76,15 @@ int run(int argc, char *argv[])
     return 0;
   }
 
-  explicitLink();
-
-  VGraph graph;
-  if (!graph.loadFromFile(param.fileName, "graph"))
+  Main main;
+  main.fileName = param.fileName;
+  if (!main.open())
   {
-    LOG_ERROR("can not open file %s\n", qPrintable(param.fileName));
-    return 0;
-  }
-  if (!graph.open())
-  {
-    LOG_ERROR("can not open graph %s\n", graph.error.msg);
+    printf("%s\n", main.error.msg);
     return 0;
   }
 
-  printf("press any key to close\n");
-  string s; getline(cin, s);
-
-  graph.close();
-
-  return 0;
-}
-
-int main(int argc, char *argv[])
-{
-  QCoreApplication a(argc, argv);
-  int res = run(argc, argv);
+  int res = a.exec();
+  main.close();
   return res;
 }
