@@ -163,6 +163,7 @@ void SnoopDnsChange::check(SnoopPacket* packet)
   if (packet->ipHdr         == NULL) return;
   if (packet->ipHdr->ip_tos == 0x44) return;
   if (packet->udpHdr        == NULL) return;
+  if (ntohs(packet->udpHdr->uh_dport) != 53) return;
   if (packet->data          == NULL)
   {
     LOG_WARN("packet->data is null");
