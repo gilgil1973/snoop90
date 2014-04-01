@@ -70,7 +70,7 @@ public:
   ///
   /// control
   ///
-  SnoopCapture* sender;
+  // SnoopCapture* sender; // gilgil temp 2014.04.41
   bool          drop;
   // bool      ipChanged;  // issue14_remove_changed_in_snoop_packet
   // bool      tcpChanged; // issue14_remove_changed_in_snoop_packet
