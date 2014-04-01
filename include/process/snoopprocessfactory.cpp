@@ -13,6 +13,7 @@
 #include <SnoopDump>
 #include <SnoopTcpBlock>
 #include <SnoopWriteAdapter>
+#include <SnoopWriteWinDivert>
 #include <VDebugNew>
 
 // ----------------------------------------------------------------------------
@@ -33,6 +34,7 @@ void SnoopProcessFactory::explicitLink()
   SnoopFlowMgrTest  flowMgrTest;
   SnoopTcpBlock     tcpBlock;
   SnoopWriteAdapter writeAdapter;
+  SnoopWriteWinDivert writeWinDivert;
 }
 
 SnoopProcess* SnoopProcessFactory::createDefaultProcess()
