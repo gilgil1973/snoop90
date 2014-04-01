@@ -122,6 +122,7 @@ bool SnoopCapture::relay(SnoopPacket* packet)
 
 void SnoopCapture::run()
 {
+  SnoopCaptureType _captureType = captureType();
   emit opened();
   while (runThread().active())
   {
@@ -129,8 +130,8 @@ void SnoopCapture::run()
     if (res == 0) continue;
     if (res < 0) break;
     emit captured(&packet);
-    if (!packet.drop && packet.sender != NULL && packet.sender->captureType() == SnoopCaptureType::InPath)
-      packet.sender->relay(&packet);
+    if (_captureType == SnoopCaptureType::InPath && !packet.drop)
+      relay(&packet);
   }
   emit closed();
 }

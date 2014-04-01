@@ -224,7 +224,6 @@ int SnoopWinDivert::read(SnoopPacket* packet)
   }
 
   packet->clear();
-  packet->sender = this;
   UINT readLen;
   BOOL res = lib.WinDivertRecv(handle, this->pktData + sizeof(ETH_HDR), MAXBUF - sizeof(ETH_HDR), &packet->divertAddr, &readLen);
   if (!res)

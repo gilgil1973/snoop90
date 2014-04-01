@@ -68,7 +68,6 @@ int SnoopPcap::read(SnoopPacket* packet)
   LOG_ASSERT(m_pcap != NULL);
   
   packet->clear();
-  packet->sender = this;
   int res;
   int i = pcap_next_ex(m_pcap, (pcap_pkthdr**)&packet->pktHdr, (const u_char**)&packet->pktData);
   switch (i) {
