@@ -22,14 +22,14 @@ SnoopWriteWinDivert::~SnoopWriteWinDivert()
 void SnoopWriteWinDivert::copy(SnoopPacket* packet)
 {
   if (divertAddr.IfIdx != 0) packet->divertAddr = divertAddr;
-  SnoopWinDivert::write(packet->pktData, packet->pktHdr->caplen);
+  SnoopWinDivert::write(packet);
   emit copied(packet);
 }
 
 void SnoopWriteWinDivert::move(SnoopPacket* packet)
 {
   if (divertAddr.IfIdx != 0) packet->divertAddr = divertAddr;
-  SnoopWinDivert::write(packet->pktData, packet->pktHdr->caplen);
+  SnoopWinDivert::write(packet);
   packet->drop = true;
   emit moved(packet);
 }
