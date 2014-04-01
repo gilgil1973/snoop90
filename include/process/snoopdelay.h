@@ -23,7 +23,6 @@ class SnoopDelayItem
 {
 public:
   VTick             tick;
-  SnoopCapture*     sender;
   QByteArray        buf;
   WINDIVERT_ADDRESS divertAddr;
 };
@@ -38,6 +37,7 @@ public:
   virtual ~SnoopDelayItemMgr();
 
 public:
+  SnoopCapture*         writer; // reference
   QList<SnoopDelayItem> items;
 
 public:
@@ -73,6 +73,7 @@ public:
   virtual ~SnoopDelay();
 
 public:
+  SnoopCapture* writer;
   VTimeout      timeout;
 
 protected:
