@@ -367,6 +367,7 @@ void SnoopWinDivert::optionAddWidget(QLayout* layout)
   VOptionable::addCheckBox(layout, "chkFlagNoChecksum",  "Flag No Checksum",      flags & WINDIVERT_FLAG_NO_CHECKSUM);
   VOptionable::addLineEdit(layout, "leQueueLen",         "Queue Len",             QString::number(queueLen));
   VOptionable::addLineEdit(layout, "leQueueTime",        "Queue Time",            QString::number(queueTime));
+  VOptionable::addLineEdit(layout, "leTos",              "Tos",                   QString::number(tos));
   VOptionable::addCheckBox(layout, "chkCorrectChecksum", "Correct Checksum",      correctChecksum);
 }
 
@@ -384,6 +385,7 @@ void SnoopWinDivert::optionSaveDlg(QDialog* dialog)
   if (dialog->findChild<QCheckBox*>("chkFlagNoChecksum")->checkState() == Qt::Checked) flags |= WINDIVERT_FLAG_NO_CHECKSUM;
   queueLen  = dialog->findChild<QLineEdit*>("leQueueLen")->text().toULongLong();
   queueTime = dialog->findChild<QLineEdit*>("leQueueTime")->text().toULongLong();
+  tos       = dialog->findChild<QLineEdit*>("leQueueTime")->text().toUInt();
   correctChecksum = dialog->findChild<QCheckBox*>("chkCorrectChecksum")->checkState() == Qt::Checked;
 }
 #endif // QT_GUI_LIB
