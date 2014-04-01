@@ -65,7 +65,8 @@ SOURCES += \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
     ../include/process/snooptcpblock.cpp \
-    ../include/process/snoopwriteadapter.cpp
+    ../include/process/snoopwriteadapter.cpp \
+    ../include/process/snoopwritewindivert.cpp
 
 HEADERS += \
     ../include/capture/snoopadapter.h \
@@ -127,6 +128,7 @@ HEADERS += \
     ../include/process/snoopprocessfactory.h \
     ../include/process/snooptcpblock.h \
     ../include/process/snoopwriteadapter.h \
+    ../include/process/snoopwritewindivert.h \
     ../include/windivert/windivert.h
 
 FORMS += \
