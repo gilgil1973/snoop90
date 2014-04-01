@@ -107,7 +107,7 @@ SnoopWinDivert::SnoopWinDivert(void* owner) : SnoopCapture(owner)
   filter          = "true";
   priority        = 0;
   layer           = WINDIVERT_LAYER_NETWORK;
-  flags           = 0; //WINDIVERT_FLAG_SNIFF; // gilgil temp 2013.12.06
+  flags           = 0;
   queueLen        = 8192;
   queueTime       = 1024;
   tos             = 0;
