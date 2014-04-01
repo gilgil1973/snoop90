@@ -296,6 +296,7 @@ int SnoopWinDivert::write(SnoopPacket* packet)
 
 int SnoopWinDivert::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
 {
+  LOG_ASSERT(divertAddr != NULL);
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
   if (!lib.ok)
   {
