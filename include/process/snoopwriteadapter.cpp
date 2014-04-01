@@ -23,7 +23,7 @@ void SnoopWriteAdapter::copy(SnoopPacket* packet)
   LOG_ASSERT(packet->ethHdr != NULL);
   if (!srcMac.isClean()) packet->ethHdr->ether_shost = srcMac;
   if (!dstMac.isClean()) packet->ethHdr->ether_dhost = dstMac;
-  SnoopAdapter::write(packet->pktData, packet->pktHdr->caplen);
+  SnoopAdapter::write(packet);
   emit copied(packet);
 }
 
@@ -32,7 +32,7 @@ void SnoopWriteAdapter::move(SnoopPacket* packet)
   LOG_ASSERT(packet->ethHdr != NULL);
   if (!srcMac.isClean()) packet->ethHdr->ether_shost = srcMac;
   if (!dstMac.isClean()) packet->ethHdr->ether_dhost = dstMac;
-  SnoopAdapter::write(packet->pktData, packet->pktHdr->caplen);
+  SnoopAdapter::write(packet);
   packet->drop = true;
   emit moved(packet);
 }
