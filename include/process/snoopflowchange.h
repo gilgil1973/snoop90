@@ -161,7 +161,6 @@ public:
   bool                  log;
   SnoopTransportFlowKey from;
   SnoopTransportFlowKey to;
-  SnoopCapture*         sender;
 };
 
 // ----------------------------------------------------------------------------
@@ -197,8 +196,10 @@ protected:
   virtual bool doClose();
 
 signals:
-  void changed(SnoopPacket* packet);
-  void unchanged(SnoopPacket* packet);
+  void changedFromTo(SnoopPacket* packet);
+  void unchangedFromTo(SnoopPacket* packet);
+  void changedToFrom(SnoopPacket* packet);
+  void unchangedToFrom(SnoopPacket* packet);
 
 protected:
   void _changeTcpFlow(SnoopPacket* packet, SnoopFlowChangeFlowItem* flowItem);
@@ -209,9 +210,7 @@ public slots:
   void processToFrom(SnoopPacket* packet);
 
 public:
-  SnoopCapture*        fromCapture;
   SnoopFlowMgr*        fromFlowMgr;
-  SnoopCapture*        toCapture;
   SnoopFlowMgr*        toFlowMgr;
   bool                 tcpChange;
   bool                 udpChange;

@@ -373,9 +373,7 @@ void SnoopFlowChangeItems::optionSaveDlg(QDialog* dialog)
 // ----------------------------------------------------------------------------
 SnoopFlowChange::SnoopFlowChange(void* owner) : SnoopProcess(owner)
 {
-  fromCapture       = NULL;
   fromFlowMgr       = NULL;
-  toCapture         = NULL;
   toFlowMgr         = NULL;
   tcpChange         = true;
   udpChange         = true;
@@ -395,19 +393,9 @@ SnoopFlowChange::~SnoopFlowChange()
 
 bool SnoopFlowChange::doOpen()
 {
-  if (fromCapture == NULL)
-  {
-    SET_ERROR(SnoopError, "fromCapture is null", VERR_OBJECT_IS_NULL);
-    return false;
-  }
   if (fromFlowMgr == NULL)
   {
     SET_ERROR(SnoopError, "fromFlowMgr is null", VERR_OBJECT_IS_NULL);
-    return false;
-  }
-  if (toCapture == NULL)
-  {
-    SET_ERROR(SnoopError, "toCapture is null", VERR_OBJECT_IS_NULL);
     return false;
   }
   if (toFlowMgr == NULL)
@@ -516,8 +504,6 @@ void SnoopFlowChange::_changeTcpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
   // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
   packet->tcpHdr->th_sum = htons(newTcpChecksum);
 
-  packet->sender = flowItem->sender;
-
   if (flowItem->log)
   {
     LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
@@ -562,8 +548,6 @@ void SnoopFlowChange::_changeUdpFlow(SnoopPacket* packet, SnoopFlowChangeFlowIte
   // LOG_DEBUG("tcp checksum=0x%x 0x%x 0x%x", oldTcpChecksum, newTcpChecksum, correctTcpChecksum); // gilgil temp 2014.03.25
   packet->udpHdr->uh_sum = htons(newUdpChecksum);
 
-  packet->sender = flowItem->sender;
-
   if (flowItem->log)
   {
     LOG_INFO("change %s:%d > %s:%d into %s:%d > %s:%d",
@@ -576,7 +560,7 @@ void SnoopFlowChange::processFromTo(SnoopPacket* packet)
 {
   if (packet->ipHdr == NULL)
   {
-    emit unchanged(packet);
+    emit unchangedFromTo(packet);
     return;
   }
 
@@ -608,10 +592,10 @@ void SnoopFlowChange::processFromTo(SnoopPacket* packet)
 
   if (_changed)
   {
-    emit changed(packet);
+    emit changedFromTo(packet);
   } else
   {
-    emit unchanged(packet);
+    emit unchangedFromTo(packet);
   }
 }
 
@@ -619,7 +603,7 @@ void SnoopFlowChange::processToFrom(SnoopPacket* packet)
 {
   if (packet->ipHdr == NULL)
   {
-    emit unchanged(packet);
+    emit unchangedToFrom(packet);
     return;
   }
 
@@ -651,10 +635,10 @@ void SnoopFlowChange::processToFrom(SnoopPacket* packet)
 
   if (_changed)
   {
-    emit changed(packet);
+    emit changedToFrom(packet);
   } else
   {
-    emit unchanged(packet);
+    emit unchangedToFrom(packet);
   }
 }
 
@@ -670,7 +654,6 @@ void SnoopFlowChange::__fromTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* 
     flowItem->log                  = changeItem->log;
     flowItem->from                 = *key;
     flowItem->to                   = changeItems.change(*changeItem, *key);
-    flowItem->sender               = this->toCapture;
 
     SnoopFlowChangeOutInMapVal val;
     val.flowKey = flowItem->from;
@@ -719,7 +702,6 @@ void SnoopFlowChange::__toTcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* va
     flowItem->to.srcPort           = rvalue.flowKey.dstPort;
     flowItem->to.dstIp             = rvalue.flowKey.srcIp;
     flowItem->to.dstPort           = rvalue.flowKey.srcPort;
-    flowItem->sender               = this->fromCapture;
 
     if (flowItem->log)
     {
@@ -753,7 +735,6 @@ void SnoopFlowChange::__fromUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* 
     flowItem->log                  = changeItem->log;
     flowItem->from                 = *key;
     flowItem->to                   = changeItems.change(*changeItem, *key);
-    flowItem->sender               = this->fromCapture;
 
     SnoopFlowChangeOutInMapVal val;
     val.flowKey = flowItem->from;
@@ -802,7 +783,6 @@ void SnoopFlowChange::__toUdpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* va
     flowItem->to.srcPort           = rvalue.flowKey.dstPort;
     flowItem->to.dstIp             = rvalue.flowKey.srcIp;
     flowItem->to.dstPort           = rvalue.flowKey.srcPort;
-    flowItem->sender               = this->fromCapture;
 
     if (flowItem->log)
     {
@@ -828,12 +808,8 @@ void SnoopFlowChange::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  QString fromCaptureName = xml.getStr("fromCapture", "");
-  if (fromCaptureName != "") fromCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(fromCaptureName));
   QString fromFlowMgrName = xml.getStr("fromFlowMgr", "");
   if (fromFlowMgrName != "") fromFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(fromFlowMgrName));
-  QString toCaptureName = xml.getStr("toCapture", "");
-  if (toCaptureName != "") toCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(toCaptureName));
   QString toFlowMgrName = xml.getStr("toFlowMgr", "");
   if (toFlowMgrName != "") toFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(toFlowMgrName));
   tcpChange = xml.getBool("tcpChange", tcpChange);
@@ -845,12 +821,8 @@ void SnoopFlowChange::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  QString fromCaptureName = fromCapture == NULL ? "" : fromCapture->name;
-  xml.setStr("fromCapture", fromCaptureName);
   QString fromFlowMgrName = fromFlowMgr == NULL ? "" : fromFlowMgr->name;
   xml.setStr("fromFlowMgr", fromFlowMgrName);
-  QString toCaptureName = toCapture == NULL ? "" : toCapture->name;
-  xml.setStr("toCapture", toCaptureName);
   QString toFlowMgrName = toFlowMgr == NULL ? "" : toFlowMgr->name;
   xml.setStr("toFlowMgr", toFlowMgrName);
   xml.setBool("tcpChange", tcpChange);
@@ -866,9 +838,7 @@ void SnoopFlowChange::optionAddWidget(QLayout* layout)
   QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
   QStringList flowMgrList = ((VGraph*)owner)->objectList.findNamesByClassName("SnoopFlowMgr");
 
-  VOptionable::addComboBox(layout, "cbxFromCapture", "From Capture", captureList, -1, fromCapture == NULL ? "" : fromCapture->name);
   VOptionable::addComboBox(layout, "cbxFromFlowMgr", "From FlowMgr", flowMgrList, -1, fromFlowMgr == NULL ? "" : fromFlowMgr->name);
-  VOptionable::addComboBox(layout, "cbxToCapture", "To Capture", captureList, -1, toCapture == NULL ? "" : toCapture->name);
   VOptionable::addComboBox(layout, "cbxToFlowMgr", "To FlowMgr", flowMgrList, -1, toFlowMgr == NULL ? "" : toFlowMgr->name);
   VOptionable::addCheckBox(layout, "chkTcpChange", "TCP Change", tcpChange);
   VOptionable::addCheckBox(layout, "chkUdpChange", "UDP Change", udpChange);
@@ -879,9 +849,7 @@ void SnoopFlowChange::optionSaveDlg(QDialog* dialog)
 {
   SnoopProcess::optionSaveDlg(dialog);
 
-  fromCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFromCapture")->currentText()));
   fromFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFromFlowMgr")->currentText()));
-  toCapture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxToCapture")->currentText()));
   toFlowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxToFlowMgr")->currentText()));
   tcpChange = dialog->findChild<QCheckBox*>("chkTcpChange")->checkState() == Qt::Checked;
   udpChange = dialog->findChild<QCheckBox*>("chkUdpChange")->checkState() == Qt::Checked;
