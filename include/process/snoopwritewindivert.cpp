@@ -15,8 +15,15 @@ SnoopWriteWinDivert::~SnoopWriteWinDivert()
   close();
 }
 
-void SnoopWriteWinDivert::output(SnoopPacket* packet)
+void SnoopWriteWinDivert::copy(SnoopPacket* packet)
 {
-  SnoopWinDivert::write(packet);
-  emit captured(packet);
+  SnoopWinDivert::write(packet->pktData, packet->pktHdr->caplen);
+  emit copied(packet);
+}
+
+void SnoopWriteWinDivert::move(SnoopPacket* packet)
+{
+  SnoopWinDivert::write(packet->pktData, packet->pktHdr->caplen);
+  packet->drop = true;
+  emit moved(packet);
 }

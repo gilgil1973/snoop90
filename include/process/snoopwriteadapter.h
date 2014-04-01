@@ -25,7 +25,12 @@ public:
   virtual ~SnoopWriteAdapter();
 
 public slots:
-  void output(SnoopPacket* packet);
+  void copy(SnoopPacket* packet);
+  void move(SnoopPacket* packet);
+
+signals:
+  void copied(SnoopPacket* packet);
+  void moved(SnoopPacket* packet);
 };
 
 #endif // __SNOOP_WRITE_ADAPTER_H__

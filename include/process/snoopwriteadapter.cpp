@@ -16,8 +16,15 @@ SnoopWriteAdapter::~SnoopWriteAdapter()
   close();
 }
 
-void SnoopWriteAdapter::output(SnoopPacket* packet)
+void SnoopWriteAdapter::copy(SnoopPacket* packet)
 {
   SnoopAdapter::write(packet->pktData, packet->pktHdr->caplen);
-  emit captured(packet);
+  emit copied(packet);
+}
+
+void SnoopWriteAdapter::move(SnoopPacket* packet)
+{
+  SnoopAdapter::write(packet->pktData, packet->pktHdr->caplen);
+  packet->drop = true;
+  emit moved(packet);
 }
