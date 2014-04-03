@@ -25,6 +25,7 @@ public:
   virtual ~SnoopWriteWinDivert();
 
 public:
+  bool              changeDivertAddr;
   WINDIVERT_ADDRESS divertAddr;
 
 public slots:
