@@ -48,6 +48,8 @@ void SnoopChecksum::calculate(SnoopPacket* packet)
 
 void SnoopChecksum::load(VXml xml)
 {
+  SnoopProcess::load(xml);
+
   ipChecksum  = xml.getBool("ipChecksum",  ipChecksum);
   tcpChecksum = xml.getBool("tcpChecksum", tcpChecksum);
   udpChecksum = xml.getBool("udpChecksum", udpChecksum);
@@ -55,6 +57,8 @@ void SnoopChecksum::load(VXml xml)
 
 void SnoopChecksum::save(VXml xml)
 {
+  SnoopProcess::save(xml);
+
   xml.setBool("ipChecksum",  ipChecksum);
   xml.setBool("tcpChecksum", tcpChecksum);
   xml.setBool("udpChecksum", udpChecksum);
