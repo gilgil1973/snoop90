@@ -274,20 +274,25 @@ bool SnoopArpSpoof::doOpen()
   //
   if (disableAutoRouting)
   {
-    QProcess process;
-
-    process.start("sc start RemoteAccess");
-    if (!process.waitForFinished())
+    static bool done = false;
+    if (!done)
     {
-      SET_ERROR(VError, "process.waitForStarted(sc start RemoteAccess) return false", VERR_RUN_PROCESS);
-      return false;
-    }
+      QProcess process;
 
-    process.start("sc stop RemoteAccess");
-    if (!process.waitForFinished())
-    {
-      SET_ERROR(VError, "process.waitForStarted(sc stop RemoteAccess) return false", VERR_RUN_PROCESS);
-      return false;
+      process.start("sc start RemoteAccess");
+      if (!process.waitForFinished())
+      {
+        SET_ERROR(VError, "process.waitForStarted(sc start RemoteAccess) return false", VERR_RUN_PROCESS);
+        return false;
+      }
+
+      process.start("sc stop RemoteAccess");
+      if (!process.waitForFinished())
+      {
+        SET_ERROR(VError, "process.waitForStarted(sc stop RemoteAccess) return false", VERR_RUN_PROCESS);
+        return false;
+      }
+      done = true;
     }
   }
 
@@ -430,6 +435,12 @@ bool SnoopArpSpoof::retrieveUnknownMacHostList()
     if ((session.senderIp == session.targetIp))
     {
       SET_ERROR(SnoopError, qformat("source ip is same as target ip(%s)", qPrintable(session.senderIp.str())), VERR_THE_SAME_SOURCE_AND_TARGET_IP);
+      return false;
+    }
+
+    if (session.senderIp == netInfo.ip)
+    {
+      SET_ERROR(SnoopError, qformat("can not spoof myself(%s)", qPrintable(session.senderIp.str())), VERR_CAN_NOT_SPOOF_MYSELF);
       return false;
     }
   }
@@ -758,7 +769,7 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
         relay(packet);
         return ipSelfSpoofed;
       }
-      if (dstMac == host->mac)
+      if (host != NULL && dstMac == host->mac)
       {
         return ipRelay; // self spoofed relay packet
       }

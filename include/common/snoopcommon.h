@@ -120,5 +120,7 @@ static const int VERR_CAN_NOT_FIND_HOST             = VERR_CATEGORY_SNOOP + 12;
 static const int VERR_THE_SAME_REAL_AND_TARGET_MAC  = VERR_CATEGORY_SNOOP + 13;
 static const int VERR_CAN_NOT_OPEN_INFECT_THREAD    = VERR_CATEGORY_SNOOP + 14;
 static const int VERR_IN_PCAP_DUMP_OPEN             = VERR_CATEGORY_SNOOP + 15;
+static const int VERR_CAN_NOT_SPOOF_MYSELF          = VERR_CATEGORY_SNOOP + 16;
 
 #endif // __SNOOP_COMMON_H__
+
