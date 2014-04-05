@@ -200,7 +200,6 @@ void SnoopArpSpoofInfectThread::run()
     bool res = event.wait(interval);
     if (res) break;
     {
-      VLock lock(arpSpoof->sessionList);
       arpSpoof->sendArpInfectAll();
     }
   }
@@ -347,10 +346,8 @@ int SnoopArpSpoof::read(SnoopPacket* packet)
     return 0;
   }
 
-  sessionList.lock();
   SnoopArpSpoofSession* session;
   IpPacketType packetType = findSessionByIpPacket(packet, &session);
-  sessionList.unlock();
 
   switch (packetType)
   {
@@ -551,6 +548,7 @@ bool SnoopArpSpoof::sendArpInfect(SnoopArpSpoofSession& session)
 
 bool SnoopArpSpoof::sendArpInfectAll()
 {
+  VLock lock(sessionList);
   for (SnoopArpSpoofSessionList::iterator it = sessionList.begin(); it != sessionList.end(); it++)
   {
     SnoopArpSpoofSession& session = *it;
@@ -603,6 +601,7 @@ bool SnoopArpSpoof::sendArpRecover(SnoopArpSpoofSession& session)
 
 bool SnoopArpSpoof::sendArpRecoverAll()
 {
+  VLock lock(sessionList);
   for (SnoopArpSpoofSessionList::iterator it = sessionList.begin(); it != sessionList.end(); it++)
   {
     SnoopArpSpoofSession& session = *it;
@@ -710,6 +709,7 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
   //
   // Find session
   //
+  VLock lock(sessionList);
   for (SnoopArpSpoofSessionList::iterator it = sessionList.begin(); it != sessionList.end(); it++)
   {
     SnoopArpSpoofSession& session = *it;
