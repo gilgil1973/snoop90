@@ -64,9 +64,10 @@ SnoopNetStatWin::SnoopNetStatWin()
     netInfo.adapterIndex = i;
     Ip ip = netInfo.ip;
     if (ip != 0)
-      myIPList.push_back(ip);
+      myIpList.push_back(ip);
   }
-  foreach(Ip ip, myIPList)
+  myIpList.push_back(Ip("127.0.0.1"));
+  foreach (Ip ip, myIpList)
   {
     LOG_DEBUG("ip=%s", qPrintable(ip.str()));
   }
@@ -96,7 +97,7 @@ quint32 SnoopNetStatWin::getPID(SnoopTupleFlowKey &infoKey)
   quint32 pid = UNKNOWN_PROCESS_ID;
 
   bool outbound = false;
-  if (myIPList.contains(infoKey.flow.srcIp)) outbound = true;
+  if (myIpList.contains(infoKey.flow.srcIp)) outbound = true;
 
   if (infoKey.proto == IPPROTO_TCP)
   {
