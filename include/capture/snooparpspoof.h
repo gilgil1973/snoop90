@@ -145,9 +145,8 @@ class SnoopArpSpoof : public SnoopAdapter
   {
     ipNone,
     ipSender,      // sender       ip packet (emit captured)
-    ipRelay,       // relay        ip packet (emit capturedSpoof)
+    ipRelay,       // relay        ip packet (emit capturedSpoof) - including self spoofed relay packet
     ipSelfSpoofed, // self spoofed ip packet (emit capturedOther)
-    ipAutoRouting, // auto routing ip packet (emit capturedOther)
     ipOther        // other        ip packet (emit capturedOther)
   } IpPacketType;
 
@@ -193,8 +192,8 @@ protected:
   bool sendArpRecoverAll();
 
 protected:
-  void preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
-  IpPacketType  findSessionByIpPacket(SnoopPacket* packet, SnoopArpSpoofSession** _session);
+  void         preventArpRecover(ETH_HDR* ethHdr, ARP_HDR* arpHdr);
+  IpPacketType findSessionByIpPacket(SnoopPacket* packet, SnoopArpSpoofSession** _session);
 
 signals:
   void capturedSpoof(SnoopPacket* packet);

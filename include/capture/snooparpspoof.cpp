@@ -372,7 +372,6 @@ int SnoopArpSpoof::read(SnoopPacket* packet)
       break;
 
     case ipSelfSpoofed:
-    case ipAutoRouting:
     case ipOther:
       capturedOther(packet);
       res = 0;
@@ -740,35 +739,6 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
       // LOG_DEBUG("ipRelay %s %s %s %s", qPrintable(srcMac.str()), qPrintable(dstMac.str()), qPrintable(srcIp.str()), qPrintable(dstIp.str())); // gilgil temp 2014.03.29
       return ipRelay;
     }
-
-    //
-    // ipAutoRouting by OS?
-    //
-    if (
-      srcMac    == netInfo.mac &&
-      dstMac    == realVirtualMac &&
-      adjSrcIp  == session.senderIp &&
-      adjDstIp  == session.targetIp)
-    {
-      // LOG_DEBUG("ipAutoRouting %s %s %s %s", qPrintable(srcMac.str()), qPrintable(dstMac.str()), qPrintable(srcIp.str()), qPrintable(dstIp.str())); // gilgil temp 2014.03.29
-      return ipAutoRouting;
-    }
-
-    //
-    // ICMP redirect by OS?
-    //
-    if (
-      packet->icmpHdr != NULL &&
-      packet->icmpHdr->icmp_type == ICMP_REDIRECT &&
-      srcMac          == netInfo.mac &&
-      dstMac          == realVirtualMac &&
-      srcIp           == netInfo.ip &&
-      dstIp           == session.senderIp)
-    {
-      //LOG_DEBUG("icmp ipAutoRouting %s %s %s %s", qPrintable(srcMac.str()), qPrintable(dstMac.str()), qPrintable(srcIp.str()), qPrintable(dstIp.str())); // gilgil temp 2014.03.29
-      return ipAutoRouting;
-
-    }
   }
 
   //
@@ -777,15 +747,21 @@ SnoopArpSpoof::IpPacketType SnoopArpSpoof::findSessionByIpPacket(SnoopPacket* pa
   if (selfRelay)
   {
     if (
-      srcMac == netInfo.mac &&
-      dstMac == realVirtualMac &&
+      srcMac                       == netInfo.mac &&
       ntohl(packet->ipHdr->ip_src) == netInfo.ip)
     {
       SnoopHost* host = this->findHost.hostList.findByIp(adjDstIp);
-      LOG_ASSERT(host != NULL);
-      packet->ethHdr->ether_dhost = host->mac;
-      relay(packet);
-      return ipSelfSpoofed;
+      if (dstMac == realVirtualMac)
+      {
+        LOG_ASSERT(host != NULL);
+        packet->ethHdr->ether_dhost = host->mac;
+        relay(packet);
+        return ipSelfSpoofed;
+      }
+      if (dstMac == host->mac)
+      {
+        return ipRelay; // self spoofed relay packet
+      }
     }
   }
 
