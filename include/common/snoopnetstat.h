@@ -235,7 +235,7 @@ private: // singleton
   virtual ~SnoopNetStatWin();
 
 protected:
-  QList<Ip> myIPList;
+  QList<Ip> myIpList;
 
 public:
   virtual quint32 getPID(SnoopTupleFlowKey& infoKey);
