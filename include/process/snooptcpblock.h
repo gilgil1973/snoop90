@@ -38,7 +38,7 @@ public slots:
   void tcpBlock(SnoopPacket* packet);
 
 public:
-  SnoopCapture* capture;
+  SnoopCapture* writer;
   bool          forwardRst;
   bool          backwardRst;
   bool          forwardFin;

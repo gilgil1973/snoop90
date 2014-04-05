@@ -10,7 +10,7 @@ REGISTER_METACLASS(SnoopTcpBlock, SnoopProcess)
 // ----------------------------------------------------------------------------
 SnoopTcpBlock::SnoopTcpBlock(void* owner) : SnoopProcess(owner)
 {
-  capture        = NULL;
+  writer         = NULL;
   forwardRst     = true;
   backwardRst    = true;
   forwardFin     = false;
@@ -26,9 +26,9 @@ SnoopTcpBlock::~SnoopTcpBlock()
 
 bool SnoopTcpBlock::doOpen()
 {
-  if (capture == NULL)
+  if (writer == NULL)
   {
-    SET_ERROR(SnoopError, "capture is null", VERR_OBJECT_IS_NULL);
+    SET_ERROR(SnoopError, "writer is null", VERR_OBJECT_IS_NULL);
     return false;
   }
   if (forwardRst && forwardFin)
@@ -194,22 +194,22 @@ void SnoopTcpBlock::tcpBlock(SnoopPacket* packet)
   LOG_DEBUG("BLOCK!!!"); // gilgil temp 2013.11.30
 
   if (forwardRst)
-    sendForwardBlock(capture, packet, TH_RST);
+    sendForwardBlock(writer, packet, TH_RST);
   if (backwardRst)
-    sendBackwardBlock(capture, packet, TH_RST);
+    sendBackwardBlock(writer, packet, TH_RST);
 
   if (forwardFin)
-    sendForwardBlock(capture, packet, TH_FIN, forwardFinMsg);
+    sendForwardBlock(writer, packet, TH_FIN, forwardFinMsg);
   if (backwardFin)
-    sendBackwardBlock(capture, packet, TH_FIN, backwardFinMsg);
+    sendBackwardBlock(writer, packet, TH_FIN, backwardFinMsg);
 }
 
 void SnoopTcpBlock::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  QString captureName = xml.getStr("capture", "");
-  if (captureName != "") capture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(captureName));
+  QString writerName = xml.getStr("writer", "");
+  if (writerName != "") writer = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(writerName));
   forwardRst     = xml.getBool("forwardRst",    forwardRst);
   backwardRst    = xml.getBool("backwardRst",   backwardRst);
   forwardFin     = xml.getBool("forwardFin",    forwardFin);
@@ -222,8 +222,8 @@ void SnoopTcpBlock::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  QString captureName = capture == NULL ? "" : capture->name;
-  xml.setStr("capture",        captureName);
+  QString writerName = writer == NULL ? "" : writer->name;
+  xml.setStr("writer",         writerName);
   xml.setBool("forwardRst",    forwardRst);
   xml.setBool("backwardRst",   backwardRst);
   xml.setBool("forwardFin",    forwardFin);
@@ -237,8 +237,8 @@ void SnoopTcpBlock::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
 
-  QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
-  VOptionable::addComboBox(layout, "cbxCapture",       "Capture",         captureList, -1, capture == NULL ? "" : capture->name);
+  QStringList writerList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
+  VOptionable::addComboBox(layout, "cbxWriter",        "Writer",          writerList, -1, writer == NULL ? "" : writer->name);
   VOptionable::addCheckBox(layout, "chkForwardRst",    "Forward Rst",     forwardRst);
   VOptionable::addCheckBox(layout, "chkBackwardRst",   "Backward Rst",    backwardRst);
   VOptionable::addCheckBox(layout, "chkForwardFin",    "Forward Fin",     forwardFin);
@@ -251,7 +251,7 @@ void SnoopTcpBlock::optionSaveDlg(QDialog* dialog)
 {
   SnoopProcess::optionSaveDlg(dialog);
 
-  capture        = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxCapture")->currentText()));
+  writer         = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxWriter")->currentText()));
   forwardRst     = dialog->findChild<QCheckBox*>("chkForwardRst")->checkState() == Qt::Checked;
   backwardRst    = dialog->findChild<QCheckBox*>("chkBackwardRst")->checkState() == Qt::Checked;
   forwardFin     = dialog->findChild<QCheckBox*>("chkForwardFin")->checkState() == Qt::Checked;
