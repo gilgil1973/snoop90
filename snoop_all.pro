@@ -3,6 +3,7 @@ CONFIG  += ordered
 SUBDIRS += \
   lib/snoop.pro \
   app/enuminterface/enuminterface.pro \
+  app/httpsniff/httpsniff.pro \  
   app/rtmrecover/rtmrecover.pro \
   app/snooptest/snooptest.pro \
   app/snoopspy/snoopspy.pro \

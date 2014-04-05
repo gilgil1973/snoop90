@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QFrame" name="frameTop">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <widget class="QPushButton" name="pbSave">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>1</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&amp;Save</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="currentIndex">
+        <number>2</number>
+       </property>
+       <widget class="QWidget" name="tabPort">
+        <attribute name="title">
+         <string>Port</string>
+        </attribute>
+        <widget class="QLabel" name="lblHttpPortList">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>101</width>
+           <height>12</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>HTTP Port List</string>
+         </property>
+        </widget>
+        <widget class="QPlainTextEdit" name="pteHttpPortList">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>30</y>
+           <width>104</width>
+           <height>64</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLabel" name="lblHttpsPortList">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>10</y>
+           <width>101</width>
+           <height>12</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>HTTPS Port List</string>
+         </property>
+        </widget>
+        <widget class="QPlainTextEdit" name="pteHttpsPortList">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>30</y>
+           <width>104</width>
+           <height>64</height>
+          </rect>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tabInput">
+        <attribute name="title">
+         <string>Capture</string>
+        </attribute>
+        <widget class="QRadioButton" name="rbWinDivert">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>30</y>
+           <width>90</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>WinDivert</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rbArpSpoof">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>70</y>
+           <width>90</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>ArpSpoof</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pbCaptureOption">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>40</y>
+           <width>75</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Option</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tabProxy">
+        <attribute name="title">
+         <string>Proxy</string>
+        </attribute>
+        <widget class="QPushButton" name="pbProxy1Option">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>75</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Proxy1</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pbProxy2Option">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>50</y>
+           <width>75</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Proxy2</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
