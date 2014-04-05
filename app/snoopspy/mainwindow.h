@@ -49,7 +49,7 @@ class MainWindow;
 // ----------------------------------------------------------------------------
 // MainWindow
 // ----------------------------------------------------------------------------
-class MainWindow : public QMainWindow, VXmlable
+class MainWindow : public QMainWindow, public VXmlable
 {
   Q_OBJECT
   
