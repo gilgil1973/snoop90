@@ -213,6 +213,7 @@ SnoopArpSpoof::SnoopArpSpoof(void* owner) : SnoopAdapter(owner), sessionList(thi
 {
   virtualMac            = Mac::cleanMac();
   selfRelay             = true;
+  disableAutoRouting    = true;
   infectInterval        = 1000; // 1 sec
   sessionList.clear();
 
@@ -267,6 +268,28 @@ bool SnoopArpSpoof::doOpen()
   {
     error = bpFilter.error;
     return false;
+  }
+
+  //
+  // Disable Auto Routing
+  //
+  if (disableAutoRouting)
+  {
+    QProcess process;
+
+    process.start("sc start RemoteAccess");
+    if (!process.waitForFinished())
+    {
+      SET_ERROR(VError, "process.waitForStarted(sc start RemoteAccess) return false", VERR_RUN_PROCESS);
+      return false;
+    }
+
+    process.start("sc stop RemoteAccess");
+    if (!process.waitForFinished())
+    {
+      SET_ERROR(VError, "process.waitForStarted(sc stop RemoteAccess) return false", VERR_RUN_PROCESS);
+      return false;
+    }
   }
 
   //
@@ -773,9 +796,10 @@ void SnoopArpSpoof::load(VXml xml)
 {
   SnoopAdapter::load(xml);
 
-  virtualMac     = xml.getStr("virtualMac", virtualMac.str());
-  selfRelay      = xml.getBool("selfRelay", selfRelay);
-  infectInterval = xml.getULong("infectInterval", infectInterval);
+  virtualMac         = xml.getStr("virtualMac", virtualMac.str());
+  selfRelay          = xml.getBool("selfRelay", selfRelay);
+  disableAutoRouting = xml.getBool("disableAutoRouting", disableAutoRouting);
+  infectInterval     = xml.getULong("infectInterval", infectInterval);
   sessionList.load(xml.gotoChild("sessionList"));
 }
 
@@ -783,8 +807,9 @@ void SnoopArpSpoof::save(VXml xml)
 {
   SnoopAdapter::save(xml);
 
-  xml.setStr("virtualMac", virtualMac.str());
-  xml.setBool("selfRelay", selfRelay);
+  xml.setStr("virtualMac",          virtualMac.str());
+  xml.setBool("selfRelay",          selfRelay);
+  xml.setBool("disableAutoRouting", disableAutoRouting);
   xml.setULong("infectInterval", infectInterval);
   sessionList.save(xml.gotoChild("sessionList"));
 }
@@ -796,6 +821,7 @@ void SnoopArpSpoof::optionAddWidget(QLayout* layout)
 
   VOptionable::addLineEdit(layout, "leVirtualMac", "Virtual Mac", virtualMac.str());
   VOptionable::addCheckBox(layout, "chkSelfRelay", "Self Relay", selfRelay);
+  VOptionable::addCheckBox(layout, "chkDisableAutoRouting", "Disable Auto Routing", disableAutoRouting);
   VOptionable::addLineEdit(layout, "leInfectInterval", "Infect Interval", QString::number(infectInterval));
   sessionList.optionAddWidget(layout);
 }
@@ -806,6 +832,7 @@ void SnoopArpSpoof::optionSaveDlg(QDialog* dialog)
 
   virtualMac = dialog->findChild<QLineEdit*>("leVirtualMac")->text();
   selfRelay  = dialog->findChild<QCheckBox*>("chkSelfRelay")->checkState() == Qt::Checked;
+  disableAutoRouting  = dialog->findChild<QCheckBox*>("chkDisableAutoRouting")->checkState() == Qt::Checked;
   infectInterval = dialog->findChild<QLineEdit*>("leInfectInterval")->text().toULong();
   sessionList.optionSaveDlg(dialog);
 }

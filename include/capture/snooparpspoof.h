@@ -172,6 +172,7 @@ public:
 public:
   Mac                        virtualMac;
   bool                       selfRelay;
+  bool                       disableAutoRouting;
   VTimeout                   infectInterval;
   SnoopArpSpoofSessionList   sessionList;
 
