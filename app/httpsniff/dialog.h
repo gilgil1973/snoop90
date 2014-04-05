@@ -6,6 +6,8 @@
 #include <SnoopArpSpoof>
 #include <SnoopWinDivert>
 #include <VHttpProxy>
+#include <SnoopDump>
+#include <SnoopWriteAdapter>
 
 // ----------------------------------------------------------------------------
 // Dialog
@@ -48,6 +50,12 @@ public:
   QStringList proxyProcessNameList;
   VHttpProxy  proxy1;
   VHttpProxy  proxy2;
+
+  //
+  // Write
+  //
+  SnoopDump         dump;
+  SnoopWriteAdapter writeAdapter;
 
 public:
   void load(VXml xml);

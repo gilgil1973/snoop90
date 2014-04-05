@@ -61,8 +61,6 @@ void Dialog::load(VXml xml)
       setGeometry(rect);
     }
   }
-
-  ui->tabWidget->setCurrentIndex(xml.getInt("tabCurrentIndex", 0));
 }
 
 void Dialog::save(VXml xml)
@@ -75,6 +73,4 @@ void Dialog::save(VXml xml)
     coordXml.setInt("width",  rect.width());
     coordXml.setInt("height", rect.height());
   }
-
-  xml.setInt("tabCurrentIndex", ui->tabWidget->currentIndex());
 }
