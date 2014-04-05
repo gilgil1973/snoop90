@@ -99,6 +99,7 @@ SnoopArpSpoofSessionList::~SnoopArpSpoofSessionList()
 
 void SnoopArpSpoofSessionList::add(SnoopArpSpoofSession& session)
 {
+  VLock lock(*this);
   this->push_back(session); // gilgil temp 2014.03.27
   if (arpSpoof->active())
   {
@@ -112,6 +113,7 @@ void SnoopArpSpoofSessionList::add(SnoopArpSpoofSession& session)
 
 void SnoopArpSpoofSessionList::del(SnoopArpSpoofSession& session)
 {
+  VLock lock(*this);
   int index = this->indexOf(session);
   this->removeAt(index);
   if (arpSpoof->active())
