@@ -189,7 +189,7 @@ int SnoopTcpBlock::sendBackwardBlock(SnoopCapture* capture, SnoopPacket* packet,
 
 void SnoopTcpBlock::tcpBlock(SnoopPacket* packet)
 {
-  if (!SnoopTcp::parseAll(packet)) return;
+  if (packet->tcpHdr == NULL) return;
   if ((packet->tcpHdr->th_flags & (TH_RST | TH_FIN)) != 0) return;
   LOG_DEBUG("BLOCK!!!"); // gilgil temp 2013.11.30
 
