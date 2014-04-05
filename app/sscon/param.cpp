@@ -12,7 +12,7 @@ bool Param::parse(int argc, char* argv[])
 
 void Param::usage()
 {
-  printf("snoopspy console version 9.0\n");
+  printf("snoopspy console version 3\n");
   printf("Copyright (c) Gilbert Lee All rights reserved\n");
   printf("\n");
   printf("sscon <snoopspy file name>\n");
