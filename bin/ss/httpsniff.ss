@@ -1,29 +1,32 @@
 <httpsniff>
   <graph>
     <objectList>
-      <object _class="SnoopWinDivert" filter="(ifIdx!=1) and (tcp.DstPort==80 or tcp.DstPort==443)" priority="0" tos="0" name="WinDivertOutbound" autoParse="true" flags="0" layer="0" queueTime="1024" correctChecksum="true" enabled="true" autoRead="true" queueLen="8192"/>
-      <object _class="SnoopBpFilter" filter="dst port 80 or dst port 443" name="BpFilterOutbound" linkType="1"/>
-      <object _class="SnoopFlowMgr" ipFlowTimeout="300" name="FlowMgrOutboundProcessFilter" macFlowTimeout="3600" udpFlowTimeout="300" tcpFlowTimeout="300" checkInterval="1"/>
-      <object _class="SnoopProcessFilter" name="ProcessFilterOutbound" showStatus="true" flowMgr="FlowMgrOutboundProcessFilter">
+      <object queueTime="1024" tos="0" flags="0" layer="0" enabled="false" autoRead="true" correctChecksum="true" queueLen="8192" name="WinDivertOutbound" _class="SnoopWinDivert" autoParse="true" filter="(ifIdx!=1) and (tcp.DstPort==80 or tcp.DstPort==443)" priority="0"/>
+      <object linkType="1" name="BpFilterOutbound" _class="SnoopBpFilter" filter="dst port 80 or dst port 443"/>
+      <object checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" ipFlowTimeout="300" name="FlowMgrOutboundProcessFilter" _class="SnoopFlowMgr" macFlowTimeout="3600"/>
+      <object flowMgr="FlowMgrOutboundProcessFilter" showStatus="false" name="ProcessFilterOutbound" _class="SnoopProcessFilter">
         <policies>
           <policy processName="" ack="false"/>
           <policy processName="KakaoTalk.exe" ack="false"/>
           <policy processName="Line.exe" ack="false"/>
+          <policy processName="Wireshark.exe" ack="false"/>
           <policy processName="chrome.exe" ack="false"/>
+          <policy processName="clover.exe" ack="false"/>
           <policy processName="firefox.exe" ack="false"/>
           <policy processName="httpproxy.exe" ack="true"/>
           <policy processName="iexplore.exe" ack="false"/>
           <policy processName="netclient.exe" ack="false"/>
           <policy processName="netserver.exe" ack="true"/>
+          <policy processName="netsession_win.exe" ack="false"/>
           <policy processName="snoopspy.exe" ack="true"/>
           <policy processName="svchost.exe" ack="false"/>
         </policies>
       </object>
-      <object _class="SnoopFlowMgr" ipFlowTimeout="300" name="FlowMgrOutbound" macFlowTimeout="3600" udpFlowTimeout="300" tcpFlowTimeout="300" checkInterval="1"/>
-      <object _class="SnoopWinDivert" filter="(ifIdx==1) and (tcp.SrcPort==8080 or tcp.SrcPort==4433)" priority="0" tos="0" name="WinDivertInbound" autoParse="true" flags="0" layer="0" queueTime="1024" correctChecksum="true" enabled="true" autoRead="true" queueLen="8192"/>
-      <object _class="SnoopBpFilter" filter="src port 8080 or src port 4433" name="BpFilterInbound" linkType="1"/>
-      <object _class="SnoopFlowMgr" ipFlowTimeout="300" name="FlowMgrInboundProcessFilter" macFlowTimeout="3600" udpFlowTimeout="300" tcpFlowTimeout="300" checkInterval="1"/>
-      <object _class="SnoopProcessFilter" name="ProcessFilterInbound" showStatus="true" flowMgr="FlowMgrInboundProcessFilter">
+      <object checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" ipFlowTimeout="300" name="FlowMgrOutbound" _class="SnoopFlowMgr" macFlowTimeout="3600"/>
+      <object queueTime="1024" tos="0" flags="0" layer="0" enabled="true" autoRead="true" correctChecksum="true" queueLen="8192" name="WinDivertInbound" _class="SnoopWinDivert" autoParse="true" filter="(ifIdx==1) and (tcp.SrcPort==8080 or tcp.SrcPort==4433)" priority="0"/>
+      <object linkType="1" name="BpFilterInbound" _class="SnoopBpFilter" filter="src port 8080 or src port 4433"/>
+      <object checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" ipFlowTimeout="300" name="FlowMgrInboundProcessFilter" _class="SnoopFlowMgr" macFlowTimeout="3600"/>
+      <object flowMgr="FlowMgrInboundProcessFilter" showStatus="false" name="ProcessFilterInbound" _class="SnoopProcessFilter">
         <policies>
           <policy processName="" ack="false"/>
           <policy processName="httpproxy.exe" ack="true"/>
@@ -31,93 +34,98 @@
           <policy processName="snoopspy.exe" ack="true"/>
         </policies>
       </object>
-      <object _class="SnoopFlowMgr" ipFlowTimeout="300" name="FlowMgrInbound" macFlowTimeout="3600" udpFlowTimeout="300" tcpFlowTimeout="300" checkInterval="1"/>
-      <object _class="SnoopFlowChange" name="FlowChange1" fromFlowMgr="FlowMgrOutbound" toFlowMgr="FlowMgrInbound" tcpChange="true" udpChange="true">
+      <object checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" ipFlowTimeout="300" name="FlowMgrInbound" _class="SnoopFlowMgr" macFlowTimeout="3600"/>
+      <object udpChange="false" name="FlowChange1" _class="SnoopFlowChange" toFlowMgr="FlowMgrInbound" fromFlowMgr="FlowMgrOutbound" tcpChange="true">
         <changeItems>
-          <item srcIpMask="0.0.0.0" srcIpChangeType="1" srcPortChangeType="1" dstIp="0.0.0.0" srcIp="0.0.0.0" srcIpFixValue="127.0.0.1" srcPort="0" dstIpChangeType="1" log="false" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="8080" enabled="true" dstIpFixValue="127.0.0.1" dstPort="80" dstIpMask="0.0.0.0" protocol="0"/>
-          <item srcIpMask="0.0.0.0" srcIpChangeType="1" srcPortChangeType="1" dstIp="0.0.0.0" srcIp="0.0.0.0" srcIpFixValue="127.0.0.1" srcPort="0" dstIpChangeType="1" log="false" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="4433" enabled="true" dstIpFixValue="127.0.0.1" dstPort="443" dstIpMask="0.0.0.0" protocol="0"/>
+          <item dstIpFixValue="127.0.0.1" log="true" srcPortFixValue="0" dstPortFixValue="8080" enabled="true" dstIpMask="0.0.0.0" dstPort="80" srcIpFixValue="127.0.0.1" srcIpMask="0.0.0.0" srcPortChangeType="1" protocol="1" srcPort="0" dstIp="0.0.0.0" srcIp="0.0.0.0" srcIpChangeType="1" dstPortChangeType="2" dstIpChangeType="1"/>
+          <item dstIpFixValue="127.0.0.1" log="true" srcPortFixValue="0" dstPortFixValue="4433" enabled="true" dstIpMask="0.0.0.0" dstPort="443" srcIpFixValue="127.0.0.1" srcIpMask="0.0.0.0" srcPortChangeType="1" protocol="1" srcPort="0" dstIp="0.0.0.0" srcIp="0.0.0.0" srcIpChangeType="1" dstPortChangeType="2" dstIpChangeType="1"/>
         </changeItems>
       </object>
-      <object keepAliveTimeout="60000" _class="VHttpProxy" maxContentCacheSize="10485756" name="HttpProxy8080" tcpEnabled="true" sslEnabled="false" disableLoopbackConnection="false">
-        <outPolicy host="127.0.0.1" method="1" port="80"/>
-        <tcpServer localHost="127.0.0.1" _class="VTcpServer" port="8080" onceWriteSize="0"/>
-        <sslServer localHost="" _class="VSslServer" port="4433" certificatePath="D:\project\net\snoop90\bin\certificate\" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" methodType="4"/>
+      <object tcpEnabled="true" sslEnabled="false" disableLoopbackConnection="false" maxContentCacheSize="10485756" name="HttpProxy8080" _class="VHttpProxy" keepAliveTimeout="60000">
+        <outPolicy host="127.0.0.1" port="80" method="1"/>
+        <tcpServer onceWriteSize="0" localHost="127.0.0.1" _class="VTcpServer" port="8080"/>
+        <sslServer onceWriteSize="0" localHost="" certificatePath="D:\project\net\snoop90\bin\certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" methodType="4" port="4433"/>
         <inboundDataChange>
-          <item log="true" cs="0" syntax="2" pattern="michael" minimal="false" enabled="true" replace="GILBERT"/>
-          <item log="true" cs="1" syntax="2" pattern="hacking" minimal="false" enabled="true" replace="FUCKING"/>
+          <item syntax="2" log="true" pattern="michael" minimal="false" enabled="true" replace="GILBERT" cs="0"/>
+          <item syntax="2" log="true" pattern="hacking" minimal="false" enabled="true" replace="FUCKING" cs="1"/>
         </inboundDataChange>
         <outboundDataChange>
-          <item log="true" cs="1" syntax="2" pattern="Accept-Encoding: gzip," minimal="false" enabled="true" replace="Accept-Encoding:      "/>
+          <item syntax="2" log="true" pattern="Accept-Encoding: gzip," minimal="false" enabled="true" replace="Accept-Encoding:      " cs="1"/>
         </outboundDataChange>
       </object>
-      <object keepAliveTimeout="60000" _class="VHttpProxy" maxContentCacheSize="10485756" name="HttpProxy80" tcpEnabled="true" sslEnabled="false" disableLoopbackConnection="true">
-        <outPolicy host="" method="1" port="0"/>
-        <tcpServer localHost="127.0.0.1" _class="VTcpServer" port="80" onceWriteSize="0"/>
-        <sslServer localHost="" _class="VSslServer" port="4433" certificatePath="certificate/" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" methodType="4"/>
+      <object tcpEnabled="true" sslEnabled="false" disableLoopbackConnection="true" maxContentCacheSize="10485756" name="HttpProxy80" _class="VHttpProxy" keepAliveTimeout="60000">
+        <outPolicy host="" port="0" method="1"/>
+        <tcpServer onceWriteSize="0" localHost="127.0.0.1" _class="VTcpServer" port="80"/>
+        <sslServer onceWriteSize="0" localHost="" certificatePath="certificate/" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" methodType="4" port="4433"/>
         <inboundDataChange/>
         <outboundDataChange/>
       </object>
-      <object _class="SnoopWinDivert" filter="ifIdx==1 and outbound and (tcp.SrcPort==80 or tcp.DstPort==80 or tcp.SrcPort==443 or tcp.DstPort==443)" priority="0" tos="0" name="WinDivertProxy" autoParse="true" flags="1" layer="0" queueTime="1024" correctChecksum="true" enabled="true" autoRead="true" queueLen="8192"/>
-      <object _class="SnoopDump" name="DumpProxy" linkType="1" filePath="pcap/%04d%02d%02d.%02d%02d.%02d.%03d.pcap"/>
-      <object _class="SnoopWriteAdapter" filter="" name="WriteAdapterProxy" autoParse="true" snapLen="1600" adapterIndex="1" flags="1" srcMac="000000-000000" readTimeout="1" enabled="true" autoRead="false" dstMac="000000-000000"/>
-      <object keepAliveTimeout="60000" _class="VHttpProxy" maxContentCacheSize="10485756" name="HttpProxy4433" tcpEnabled="false" sslEnabled="true" disableLoopbackConnection="false">
-        <outPolicy host="127.0.0.1" method="1" port="443"/>
-        <tcpServer localHost="" _class="VTcpServer" port="8080" onceWriteSize="0"/>
-        <sslServer localHost="127.0.0.1" _class="VSslServer" port="4433" certificatePath="D:\project\net\snoop90\bin\certificate\" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" methodType="4"/>
+      <object queueTime="1024" tos="0" flags="1" layer="0" enabled="true" autoRead="true" correctChecksum="true" queueLen="8192" name="WinDivertProxy" _class="SnoopWinDivert" autoParse="true" filter="ifIdx==1 and outbound and (tcp.SrcPort==80 or tcp.DstPort==80 or tcp.SrcPort==443 or tcp.DstPort==443)" priority="0"/>
+      <object linkType="1" filePath="pcap/%04d%02d%02d.%02d%02d.%02d.%03d.pcap" name="DumpProxy" _class="SnoopDump"/>
+      <object flags="1" enabled="true" readTimeout="1" adapterIndex="1" srcMac="000000-000000" autoRead="false" dstMac="000000-000000" name="WriteAdapterProxy" _class="SnoopWriteAdapter" autoParse="true" filter="" snapLen="1600"/>
+      <object tcpEnabled="false" sslEnabled="true" disableLoopbackConnection="false" maxContentCacheSize="10485756" name="HttpProxy4433" _class="VHttpProxy" keepAliveTimeout="60000">
+        <outPolicy host="127.0.0.1" port="443" method="1"/>
+        <tcpServer onceWriteSize="0" localHost="" _class="VTcpServer" port="8080"/>
+        <sslServer onceWriteSize="0" localHost="127.0.0.1" certificatePath="D:\project\net\snoop90\bin\certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" methodType="4" port="4433"/>
         <inboundDataChange>
-          <item log="true" cs="1" syntax="2" pattern="hacking" minimal="false" enabled="true" replace="FUCKING"/>
-          <item log="true" cs="1" syntax="2" pattern="Michael" minimal="false" enabled="true" replace="GILBERT"/>
+          <item syntax="2" log="true" pattern="hacking" minimal="false" enabled="true" replace="FUCKING" cs="1"/>
+          <item syntax="2" log="true" pattern="Michael" minimal="false" enabled="true" replace="GILBERT" cs="1"/>
         </inboundDataChange>
         <outboundDataChange>
-          <item log="false" cs="1" syntax="2" pattern="Accept-Encoding: gzip," minimal="false" enabled="true" replace="Accept-Encoding:      "/>
+          <item syntax="2" log="false" pattern="Accept-Encoding: gzip," minimal="false" enabled="true" replace="Accept-Encoding:      " cs="1"/>
         </outboundDataChange>
       </object>
-      <object keepAliveTimeout="60000" _class="VHttpProxy" maxContentCacheSize="10485756" name="HttpProxy443" tcpEnabled="true" sslEnabled="false" disableLoopbackConnection="true">
-        <outPolicy host="" method="2" port="0"/>
-        <tcpServer localHost="127.0.0.1" _class="VTcpServer" port="443" onceWriteSize="0"/>
-        <sslServer localHost="" _class="VSslServer" port="4433" certificatePath="certificate/" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" methodType="4"/>
+      <object tcpEnabled="true" sslEnabled="false" disableLoopbackConnection="true" maxContentCacheSize="10485756" name="HttpProxy443" _class="VHttpProxy" keepAliveTimeout="60000">
+        <outPolicy host="" port="0" method="2"/>
+        <tcpServer onceWriteSize="0" localHost="127.0.0.1" _class="VTcpServer" port="443"/>
+        <sslServer onceWriteSize="0" localHost="" certificatePath="certificate/" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" methodType="4" port="4433"/>
         <inboundDataChange/>
         <outboundDataChange/>
       </object>
-      <object _class="SnoopArpSpoof" filter="tcp dst port 80 or tcp dst port 443" virtualMac="000000-000000" name="ArpSpoof1" autoParse="true" snapLen="1600" adapterIndex="0" selfRelay="true" infectInterval="1000" flags="1" readTimeout="1" disableAutoRouting="true" enabled="false" autoRead="true">
-        <sessionList/>
+      <object flags="1" enabled="true" readTimeout="1" adapterIndex="0" autoRead="true" disableAutoRouting="true" name="ArpSpoof1" _class="SnoopArpSpoof" autoParse="true" filter="tcp dst port 80 or tcp dst port 443" selfRelay="true" snapLen="1600" virtualMac="000000-000000" infectInterval="1000">
+        <sessionList>
+          <session senderIp="192.168.10.2" targetMac="002E00-1040F8" senderMac="002666-4F9E3F" targetIp="192.168.10.1"/>
+        </sessionList>
       </object>
+      <object queueTime="1024" tos="0" SubIfIdx="0" flags="1" layer="0" enabled="true" autoRead="false" correctChecksum="true" queueLen="8192" Direction="0" IfIdx="1" name="WriteWinDivert1" _class="SnoopWriteWinDivert" autoParse="true" filter="true" changeDivertAddr="true" priority="0"/>
     </objectList>
     <connectList>
-      <connect signal="captured(SnoopPacket*)" receiver="DumpProxy" sender="WinDivertProxy" slot="dump(SnoopPacket*)"/>
-      <connect signal="captured(SnoopPacket*)" receiver="WriteAdapterProxy" sender="WinDivertProxy" slot="copy(SnoopPacket*)"/>
-      <connect signal="captured(SnoopPacket*)" receiver="BpFilterOutbound" sender="WinDivertOutbound" slot="check(SnoopPacket*)"/>
-      <connect signal="captured(SnoopPacket*)" receiver="BpFilterInbound" sender="WinDivertInbound" slot="check(SnoopPacket*)"/>
-      <connect signal="ack(SnoopPacket*)" receiver="FlowMgrOutboundProcessFilter" sender="BpFilterOutbound" slot="process(SnoopPacket*)"/>
-      <connect signal="processed(SnoopPacket*)" receiver="ProcessFilterOutbound" sender="FlowMgrOutboundProcessFilter" slot="check(SnoopPacket*)"/>
-      <connect signal="nak(SnoopPacket*)" receiver="FlowMgrOutbound" sender="ProcessFilterOutbound" slot="process(SnoopPacket*)"/>
-      <connect signal="processed(SnoopPacket*)" receiver="FlowChange1" sender="FlowMgrOutbound" slot="processFromTo(SnoopPacket*)"/>
-      <connect signal="ack(SnoopPacket*)" receiver="FlowMgrInboundProcessFilter" sender="BpFilterInbound" slot="process(SnoopPacket*)"/>
-      <connect signal="processed(SnoopPacket*)" receiver="ProcessFilterInbound" sender="FlowMgrInboundProcessFilter" slot="check(SnoopPacket*)"/>
-      <connect signal="ack(SnoopPacket*)" receiver="FlowMgrInbound" sender="ProcessFilterInbound" slot="process(SnoopPacket*)"/>
-      <connect signal="processed(SnoopPacket*)" receiver="FlowChange1" sender="FlowMgrInbound" slot="processToFrom(SnoopPacket*)"/>
-      <connect signal="captured(SnoopPacket*)" receiver="FlowMgrOutbound" sender="ArpSpoof1" slot="process(SnoopPacket*)"/>
+      <connect signal="captured(SnoopPacket*)" receiver="DumpProxy" slot="dump(SnoopPacket*)" sender="WinDivertProxy"/>
+      <connect signal="captured(SnoopPacket*)" receiver="WriteAdapterProxy" slot="copy(SnoopPacket*)" sender="WinDivertProxy"/>
+      <connect signal="captured(SnoopPacket*)" receiver="BpFilterOutbound" slot="check(SnoopPacket*)" sender="WinDivertOutbound"/>
+      <connect signal="captured(SnoopPacket*)" receiver="BpFilterInbound" slot="check(SnoopPacket*)" sender="WinDivertInbound"/>
+      <connect signal="ack(SnoopPacket*)" receiver="FlowMgrOutboundProcessFilter" slot="process(SnoopPacket*)" sender="BpFilterOutbound"/>
+      <connect signal="processed(SnoopPacket*)" receiver="ProcessFilterOutbound" slot="check(SnoopPacket*)" sender="FlowMgrOutboundProcessFilter"/>
+      <connect signal="nak(SnoopPacket*)" receiver="FlowMgrOutbound" slot="process(SnoopPacket*)" sender="ProcessFilterOutbound"/>
+      <connect signal="processed(SnoopPacket*)" receiver="FlowChange1" slot="processFromTo(SnoopPacket*)" sender="FlowMgrOutbound"/>
+      <connect signal="ack(SnoopPacket*)" receiver="FlowMgrInboundProcessFilter" slot="process(SnoopPacket*)" sender="BpFilterInbound"/>
+      <connect signal="processed(SnoopPacket*)" receiver="ProcessFilterInbound" slot="check(SnoopPacket*)" sender="FlowMgrInboundProcessFilter"/>
+      <connect signal="ack(SnoopPacket*)" receiver="FlowMgrInbound" slot="process(SnoopPacket*)" sender="ProcessFilterInbound"/>
+      <connect signal="processed(SnoopPacket*)" receiver="FlowChange1" slot="processToFrom(SnoopPacket*)" sender="FlowMgrInbound"/>
+      <connect signal="captured(SnoopPacket*)" receiver="FlowMgrOutbound" slot="process(SnoopPacket*)" sender="ArpSpoof1"/>
+      <connect signal="changedFromTo(SnoopPacket*)" receiver="WriteWinDivert1" slot="move(SnoopPacket*)" sender="FlowChange1"/>
     </connectList>
   </graph>
   <coord>
-    <object name="WinDivertOutbound" x="-171" y="-143"/>
-    <object name="BpFilterOutbound" x="-165" y="-101"/>
-    <object name="FlowMgrOutboundProcessFilter" x="-202" y="-64"/>
-    <object name="ProcessFilterOutbound" x="-181" y="-25"/>
-    <object name="FlowMgrOutbound" x="-161" y="14"/>
-    <object name="WinDivertInbound" x="33" y="-142"/>
-    <object name="BpFilterInbound" x="37" y="-105"/>
-    <object name="FlowMgrInboundProcessFilter" x="6" y="-66"/>
-    <object name="ProcessFilterInbound" x="23" y="-27"/>
-    <object name="FlowMgrInbound" x="23" y="11"/>
-    <object name="FlowChange1" x="-51" y="53"/>
-    <object name="HttpProxy8080" x="-116" y="98"/>
-    <object name="HttpProxy80" x="-104" y="128"/>
-    <object name="WinDivertProxy" x="-51" y="166"/>
-    <object name="DumpProxy" x="-98" y="203"/>
-    <object name="WriteAdapterProxy" x="-3" y="200"/>
-    <object name="HttpProxy4433" x="13" y="97"/>
-    <object name="HttpProxy443" x="17" y="127"/>
-    <object name="ArpSpoof1" x="-273" y="17"/>
+    <object x="-171" y="-143" name="WinDivertOutbound"/>
+    <object x="-165" y="-101" name="BpFilterOutbound"/>
+    <object x="-202" y="-64" name="FlowMgrOutboundProcessFilter"/>
+    <object x="-181" y="-25" name="ProcessFilterOutbound"/>
+    <object x="-161" y="14" name="FlowMgrOutbound"/>
+    <object x="33" y="-142" name="WinDivertInbound"/>
+    <object x="37" y="-105" name="BpFilterInbound"/>
+    <object x="6" y="-66" name="FlowMgrInboundProcessFilter"/>
+    <object x="23" y="-27" name="ProcessFilterInbound"/>
+    <object x="23" y="11" name="FlowMgrInbound"/>
+    <object x="-51" y="53" name="FlowChange1"/>
+    <object x="-116" y="98" name="HttpProxy8080"/>
+    <object x="-104" y="128" name="HttpProxy80"/>
+    <object x="-51" y="166" name="WinDivertProxy"/>
+    <object x="-98" y="203" name="DumpProxy"/>
+    <object x="-3" y="200" name="WriteAdapterProxy"/>
+    <object x="13" y="97" name="HttpProxy4433"/>
+    <object x="17" y="127" name="HttpProxy443"/>
+    <object x="-273" y="17" name="ArpSpoof1"/>
+    <object x="-168" y="70" name="WriteWinDivert1"/>
   </coord>
 </httpsniff>
