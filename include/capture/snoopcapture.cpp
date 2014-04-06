@@ -6,7 +6,8 @@
 // ----------------------------------------------------------------------------
 SnoopCapture::SnoopCapture(void* owner) : VObject(owner)
 {
-  autoRead = true;
+  enabled   = true;
+  autoRead  = true;
   autoParse = true;
   packet.clear();
 }
@@ -17,6 +18,12 @@ SnoopCapture::~SnoopCapture()
 
 bool SnoopCapture::doOpen()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+
   if (autoRead)
   {
     // ----- by gilgil 2009.08.31 -----
@@ -140,6 +147,7 @@ void SnoopCapture::load(VXml xml)
 {
   VObject::load(xml);
 
+  enabled   = xml.getBool("enabled",   enabled);
   autoRead  = xml.getBool("autoRead",  autoRead);
   autoParse = xml.getBool("autoParse", autoParse);
 }
@@ -148,6 +156,7 @@ void SnoopCapture::save(VXml xml)
 {
   VObject::save(xml);
 
+  xml.setBool("enabled",   enabled);
   xml.setBool("autoRead",  autoRead);
   xml.setBool("autoParse", autoParse);
 }
@@ -155,11 +164,15 @@ void SnoopCapture::save(VXml xml)
 #ifdef QT_GUI_LIB
 void SnoopCapture::optionAddWidget(QLayout* layout)
 {
-  VOptionable::addCheckBox(layout, "chkAutoRead", "Auto Read", autoRead);
+  VOptionable::addCheckBox(layout, "chkEnabled",   "Enabled",    enabled);
+  VOptionable::addCheckBox(layout, "chkAutoRead",  "Auto Read",  autoRead);
+  VOptionable::addCheckBox(layout, "chkAutoParse", "Auto Parse", autoParse);
 }
 
 void SnoopCapture::optionSaveDlg(QDialog* dialog)
 {
-  autoRead = dialog->findChild<QCheckBox*>("chkAutoRead")->checkState() == Qt::Checked;
+  enabled   = dialog->findChild<QCheckBox*>("chkEnabled")->checkState() == Qt::Checked;
+  autoRead  = dialog->findChild<QCheckBox*>("chkAutoRead")->checkState() == Qt::Checked;
+  autoParse = dialog->findChild<QCheckBox*>("chkAutoParse")->checkState() == Qt::Checked;
 }
 #endif // QT_GUI_LIB

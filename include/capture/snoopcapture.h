@@ -49,8 +49,9 @@ public:
   // Properties
   //
 public:
-  bool         autoRead;
-  bool         autoParse;
+  bool enabled;
+  bool autoRead;
+  bool autoParse;
 
 protected:
   virtual void run();
