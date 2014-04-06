@@ -215,7 +215,7 @@ typedef DWORD (WINAPI *AllocateAndGetUdpExTableFromStack_t)(PVOID *ppUDPTable, B
 // ----------------------------------------------------------------------------
 // SnoopNetStatWin
 // ----------------------------------------------------------------------------
-class SnoopNetStatWin : public SnoopNetStat
+class SnoopNetStatWin : public SnoopNetStat, public VLockable
 {
   friend class SnoopNetStat;
 protected:

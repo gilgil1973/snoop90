@@ -94,6 +94,8 @@ SnoopNetStatWin::~SnoopNetStatWin()
 
 quint32 SnoopNetStatWin::getPID(SnoopTupleFlowKey &infoKey)
 {
+  VLock lock(*this);
+
   quint32 pid = UNKNOWN_PROCESS_ID;
 
   bool outbound = false;
@@ -217,6 +219,8 @@ quint32 SnoopNetStatWin::getPID(SnoopTupleFlowKey &infoKey)
 
 QString SnoopNetStatWin::getProcessName(quint32 pid)
 {
+  VLock lock(*this);
+
   HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
   if (hSnapshot == INVALID_HANDLE_VALUE)
   {
