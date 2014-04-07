@@ -9,6 +9,7 @@ SnoopWriteAdapter::SnoopWriteAdapter(void* owner) : SnoopAdapter(owner)
 {
   adapterIndex = snoop::INVALID_ADAPTER_INDEX;
   autoRead     = false;
+  autoParse    = false;
   srcMac       = Mac::cleanMac();
   dstMac       = Mac::cleanMac();
 }

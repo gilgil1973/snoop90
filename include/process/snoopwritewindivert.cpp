@@ -8,6 +8,7 @@ REGISTER_METACLASS(SnoopWriteWinDivert, SnoopProcess)
 SnoopWriteWinDivert::SnoopWriteWinDivert(void* owner) : SnoopWinDivert(owner)
 {
   autoRead             = false;
+  autoParse            = false;
   flags                = WINDIVERT_FLAG_SNIFF;
 
   changeDivertAddr     = false;
