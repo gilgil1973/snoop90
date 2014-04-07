@@ -232,6 +232,12 @@ SnoopArpSpoof::~SnoopArpSpoof()
 
 bool SnoopArpSpoof::doOpen()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   //
   // Inherited open
   //
@@ -321,6 +327,12 @@ bool SnoopArpSpoof::doOpen()
 
 bool SnoopArpSpoof::doClose()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   bpFilter.close();
   SAFE_DELETE(infectThread);
   for (int i = 0; i < 3; i++)

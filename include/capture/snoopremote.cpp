@@ -23,7 +23,13 @@ SnoopRemote::~SnoopRemote()
 }
 
 bool SnoopRemote::doOpen()
-{
+{ 
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   int i;
   QString source;
   pcap_rmtauth* auth = NULL;
@@ -104,6 +110,12 @@ _error:
 
 bool SnoopRemote::doClose()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   return SnoopPcap::doClose();
 }
 

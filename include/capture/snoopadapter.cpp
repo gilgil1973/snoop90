@@ -49,6 +49,12 @@ SnoopAdapter::~SnoopAdapter()
 
 bool SnoopAdapter::doOpen()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   if (adapterIndex == snoop::INVALID_ADAPTER_INDEX)
   {
     SET_ERROR(SnoopError, "invalid adapter index(-1)", VERR_INVALID_INDEX);
@@ -70,6 +76,12 @@ bool SnoopAdapter::doOpen()
 
 bool SnoopAdapter::doClose()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   return SnoopPcap::doClose();
 }
 

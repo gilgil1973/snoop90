@@ -21,6 +21,12 @@ SnoopVirtualNat::~SnoopVirtualNat()
 
 bool SnoopVirtualNat::doOpen()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   virAdapter.adapterIndex = virAdapterIndex;
   if (!virAdapter.open())
   {
@@ -48,6 +54,12 @@ bool SnoopVirtualNat::doOpen()
 
 bool SnoopVirtualNat::doClose()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   virAdapter.close();
   realAdapter.close();
   recoverRouteTable();

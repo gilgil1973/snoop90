@@ -23,6 +23,12 @@ SnoopFile::~SnoopFile()
 
 bool SnoopFile::doOpen()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   if (fileName == "")
   {
     SET_ERROR(VFileError, "file name not specified", VERR_FILENAME_NOT_SPECIFIED);
@@ -50,6 +56,12 @@ bool SnoopFile::doOpen()
 
 bool SnoopFile::doClose()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   return SnoopPcap::doClose();
 }
 

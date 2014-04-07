@@ -123,6 +123,12 @@ SnoopWinDivert::~SnoopWinDivert()
 
 bool SnoopWinDivert::doOpen()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
   if (!lib.ok)
   {
@@ -168,6 +174,12 @@ bool SnoopWinDivert::doOpen()
 
 bool SnoopWinDivert::doClose()
 {
+  if (!enabled)
+  {
+    LOG_DEBUG("enabled is false");
+    return true;
+  }
+  
   SnoopWinDivertLib& lib = SnoopWinDivertLib::instance();
   if (!lib.ok)
   {

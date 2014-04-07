@@ -18,12 +18,6 @@ SnoopCapture::~SnoopCapture()
 
 bool SnoopCapture::doOpen()
 {
-  if (!enabled)
-  {
-    LOG_DEBUG("enabled is false");
-    return true;
-  }
-
   if (autoRead)
   {
     // ----- by gilgil 2009.08.31 -----
