@@ -1,11 +1,15 @@
 #ifndef __V_HTTP_SNIFF_CONFIG_H__
 #define __V_HTTP_SNIFF_CONFIG_H__
 
+#include <VHttpProxy>
 #include <SnoopWinDivert>
 #include <SnoopArpSpoof>
-#include <VHttpProxy>
+#include <SnoopProcessFilter>
+#include <SnoopFlowChange>
+
 #include <SnoopDump>
 #include <SnoopWriteAdapter>
+
 #include <VGraph>
 
 // ----------------------------------------------------------------------------
@@ -22,6 +26,9 @@ public:
 public:
   HttpSniffConfig();
   virtual ~HttpSniffConfig();
+
+public:
+  VError error;
 
 public:
   //
@@ -56,12 +63,8 @@ public:
   SnoopAdapterIndex writeAdapterIndex;
 
 public:
-  void loadFromFile(QString fileName);
-  void saveToFile(QString fileName);
-
-  void loadFromGraph(VGraph graph);
-  void setGraph(VGraph graph);
-  void saveToGraph(VGraph graph);
+  bool saveToFile(QString fileName);
+  bool saveToGraph(VGraph& graph);
 
 public:
   virtual void load(VXml xml);

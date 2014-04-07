@@ -35,7 +35,8 @@ bool Param::parse(int argc, char* argv[])
 // ----------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
-  ui(new Ui::MainWindow)
+  ui(new Ui::MainWindow),
+  fileDialog(this)
 {
   ui->setupUi(this);
   aboutDlg = NULL;
@@ -92,8 +93,7 @@ void MainWindow::initializeControl()
 
   m_changed = false;
   fileName  = "";
-  QStringList filters;
-  filters << "snoopspy files(*.ss)" << "any files(*)";
+  QStringList filters; filters << "snoopspy files(*.ss)" << "any files(*)";
   fileDialog.setNameFilters(filters);
   fileDialog.setDefaultSuffix("ss");
   fileDialog.setViewMode(QFileDialog::Detail);

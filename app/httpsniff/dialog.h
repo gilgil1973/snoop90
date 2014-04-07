@@ -2,6 +2,9 @@
 #define DIALOG_H
 
 #include <QDialog>
+#include <QFileDialog>
+#include <QDesktopServices>
+#include <QMessageBox>
 #include "httpsniffconfig.h"
 
 // ----------------------------------------------------------------------------
@@ -29,19 +32,26 @@ public:
 public:
   HttpSniffConfig config;
 
+protected:
+  QFileDialog saveDialog;
+
 public:
   void load(VXml xml);
   void save(VXml xml);
 
 private slots:
 
+  void on_pbOutboundDataChange_clicked();
+
+  void on_pbInboundDataChange_clicked();
+
   void on_chkDump_clicked();
 
   void on_chkWriteAdapter_clicked();
 
-  void on_pbOutboundDataChange_clicked();
+  void on_pbRun_clicked();
 
-  void on_pbInboundDataChange_clicked();
+  void on_pbSave_clicked();
 
 private:
   Ui::Dialog *ui;

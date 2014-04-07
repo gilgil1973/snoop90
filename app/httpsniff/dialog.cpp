@@ -6,7 +6,8 @@
 // ----------------------------------------------------------------------------
 Dialog::Dialog(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::Dialog)
+  ui(new Ui::Dialog),
+  saveDialog(this)
 {
   ui->setupUi(this);
   initializeControl();
@@ -24,7 +25,7 @@ Dialog::~Dialog()
 
 void Dialog::initializeControl()
 {
-  move(0, 0); resize(640, 480);
+  move(0, 0);
 
   SnoopInterfaces& intfs = SnoopInterfaces::instance();
   int _count = intfs.count();
@@ -35,6 +36,11 @@ void Dialog::initializeControl()
     if (value == "") value = intf.name;
     ui->cbxAdapterIndex->addItem(value);
   }
+
+  QStringList filters; filters << "snoopspy files(*.ss)" << "any files(*)";
+  saveDialog.setNameFilters(filters);
+  saveDialog.setDefaultSuffix("ss");
+  saveDialog.setViewMode(QFileDialog::Detail);
 }
 
 void Dialog::finalizeControl()
@@ -52,13 +58,13 @@ void Dialog::loadControl()
   ui->pteHttpPortList->clear();
   foreach (int port, config.httpPortList)
   {
-    ui->pteHttpPortList->insertPlainText(QString::number(port) + "\r\n");
+    ui->pteHttpPortList->insertPlainText(QString::number(port) + "\n");
   }
 
   ui->pteHttpsPortList->clear();
   foreach (int port, config.httpsPortList)
   {
-    ui->pteHttpsPortList->insertPlainText(QString::number(port) + "\r\n");
+    ui->pteHttpsPortList->insertPlainText(QString::number(port) + "\n");
   }
 
   //
@@ -73,7 +79,7 @@ void Dialog::loadControl()
   ui->pteProxyProcessNameList->clear();
   foreach (QString processName, config.proxyProcessNameList)
   {
-    ui->pteProxyProcessNameList->insertPlainText(processName + "\r\n");
+    ui->pteProxyProcessNameList->insertPlainText(processName + "\n");
   }
   ui->leTcpInPort->setText(QString::number(config.proxyTcpInPort));
   ui->leTcpOutPort->setText(QString::number(config.proxyTcpOutPort));
@@ -91,6 +97,54 @@ void Dialog::loadControl()
 
 void Dialog::saveControl()
 {
+  //
+  // Port
+  //
+  QStringList sl = ui->pteHttpPortList->toPlainText().split("\n");
+  config.httpPortList.clear();
+  foreach (QString port, sl)
+  {
+    if (port == "") continue;
+    config.httpPortList.push_back(port.toInt());
+  }
+
+  sl = ui->pteHttpsPortList->toPlainText().split("\n");
+  config.httpsPortList.clear();
+  foreach (QString port, sl)
+  {
+    if (port == "") continue;
+    config.httpsPortList.push_back(port.toInt());
+  }
+
+  //
+  // Capture
+  //
+  if (ui->rbWinDivert->isChecked()) config.captureType = HttpSniffConfig::WinDivert;
+  else if (ui->rbArpSpoof->isChecked()) config.captureType = HttpSniffConfig::ArpSpoof;
+
+  //
+  // Proxy
+  //
+  sl = ui->pteProxyProcessNameList->toPlainText().split("\n");
+  config.proxyProcessNameList.clear();
+  foreach (QString processName, sl)
+  {
+    if (processName == "") continue;
+    config.proxyProcessNameList.push_back(processName);
+  }
+  config.proxyTcpInPort = ui->leTcpInPort->text().toInt();
+  config.proxyTcpOutPort = ui->leTcpOutPort->text().toInt();
+  config.proxySslInPort = ui->leSslInPort->text().toInt();
+  config.proxySslOutPort = ui->leSslOutPort->text().toInt();
+
+  //
+  // Write
+  //
+  config.dumpEnabled = ui->chkDump->checkState() == Qt::Checked;
+  config.dumpFilePath = ui->leDumpFilePath->text();
+  config.writeAdapterEnabled = ui->chkWriteAdapter->isChecked();
+  config.writeAdapterIndex = ui->cbxAdapterIndex->currentIndex();
+
   this->saveToDefaultDoc("Dialog");
 }
 
@@ -150,4 +204,37 @@ void Dialog::on_chkDump_clicked()
 void Dialog::on_chkWriteAdapter_clicked()
 {
   setControl();
+}
+
+void Dialog::on_pbRun_clicked()
+{
+  QString fileName = "ss/httpsniff_temp.ss";
+  saveControl();
+  if (!config.saveToFile(fileName))
+  {
+    QMessageBox::warning(this, "Error", config.error.msg);
+    return;
+  }
+  QString url = "sscon.exe " + fileName;
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
+void Dialog::on_pbSave_clicked()
+{
+  saveDialog.setAcceptMode(QFileDialog::AcceptSave);
+  saveDialog.setFileMode(QFileDialog::AnyFile);
+
+  if (saveDialog.exec() == QDialog::Accepted)
+  {
+    QString fileName = saveDialog.selectedFiles().first();
+    saveControl();
+    if (!config.saveToFile(fileName))
+    {
+      QMessageBox::warning(this, "Error", config.error.msg);
+      return;
+    }
+  }
 }
