@@ -2,12 +2,7 @@
 #define DIALOG_H
 
 #include <QDialog>
-
-#include <SnoopArpSpoof>
-#include <SnoopWinDivert>
-#include <VHttpProxy>
-#include <SnoopDump>
-#include <SnoopWriteAdapter>
+#include "httpsniffconfig.h"
 
 // ----------------------------------------------------------------------------
 // Dialog
@@ -32,34 +27,21 @@ public:
   void setControl();
 
 public:
-  //
-  // Port
-  //
-  QList<int> httpPortList;
-  QList<int> httpsPortList;
-
-  //
-  // Capture
-  //
-  SnoopWinDivert winDivert;
-  SnoopArpSpoof  arpSpoof;
-
-  //
-  // Proxy
-  //
-  QStringList proxyProcessNameList;
-  VHttpProxy  proxy1;
-  VHttpProxy  proxy2;
-
-  //
-  // Write
-  //
-  SnoopDump         dump;
-  SnoopWriteAdapter writeAdapter;
+  HttpSniffConfig config;
 
 public:
   void load(VXml xml);
   void save(VXml xml);
+
+private slots:
+
+  void on_chkDump_clicked();
+
+  void on_chkWriteAdapter_clicked();
+
+  void on_pbOutboundDataChange_clicked();
+
+  void on_pbInboundDataChange_clicked();
 
 private:
   Ui::Dialog *ui;

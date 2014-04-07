@@ -16,9 +16,11 @@ DESTDIR  = ../../bin
 
 SOURCES += main.cpp\
     dialog.cpp \
-    explicit_link.cpp
+    explicit_link.cpp \
+    httpsniffconfig.cpp
 
 HEADERS  += dialog.h \
-    explicit_link.h
+    explicit_link.h \
+    httpsniffconfig.h
 
 FORMS    += dialog.ui
