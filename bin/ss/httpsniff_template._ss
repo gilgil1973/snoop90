@@ -21,22 +21,23 @@
       <object _class="SnoopWriteAdapter" name="waProxy"/>
     </objectList>
     <connectList>
+      <connect signal="captured(SnoopPacket*)" sender="wdOutbound" slot="process(SnoopPacket*)" receiver="fmOutboundProcessFilter"/>
+      <connect signal="captured(SnoopPacket*)" sender="as" slot="process(SnoopPacket*)" receiver="fmOutbound"/>
       <connect signal="processed(SnoopPacket*)" sender="fmOutboundProcessFilter" slot="check(SnoopPacket*)" receiver="pfOutbound"/>
       <connect signal="nak(SnoopPacket*)" sender="pfOutbound" slot="process(SnoopPacket*)" receiver="fmOutbound"/>
+      <connect signal="processed(SnoopPacket*)" sender="fmOutbound" slot="processFromTo(SnoopPacket*)" receiver="fc"/>
       <connect signal="captured(SnoopPacket*)" sender="wdInbound" slot="process(SnoopPacket*)" receiver="fmInboundProcessFilter"/>
       <connect signal="processed(SnoopPacket*)" sender="fmInboundProcessFilter" slot="check(SnoopPacket*)" receiver="pfInbound"/>
       <connect signal="ack(SnoopPacket*)" sender="pfInbound" slot="process(SnoopPacket*)" receiver="fmInbound"/>
-      <connect signal="captured(SnoopPacket*)" sender="wdProxy" slot="dump(SnoopPacket*)" receiver="dProxy"/>
-      <connect signal="captured(SnoopPacket*)" sender="wdProxy" slot="copy(SnoopPacket*)" receiver="waProxy"/>
-      <connect signal="captured(SnoopPacket*)" sender="as" slot="process(SnoopPacket*)" receiver="fmOutbound"/>
-      <connect signal="processed(SnoopPacket*)" sender="fmOutbound" slot="processFromTo(SnoopPacket*)" receiver="fc"/>
       <connect signal="processed(SnoopPacket*)" sender="fmInbound" slot="processToFrom(SnoopPacket*)" receiver="fc"/>
       <connect signal="changedFromTo(SnoopPacket*)" sender="fc" slot="move(SnoopPacket*)" receiver="wwdOutbound"/>
-      <connect signal="captured(SnoopPacket*)" sender="wdOutbound" slot="process(SnoopPacket*)" receiver="fmOutboundProcessFilter"/>
+      <connect signal="captured(SnoopPacket*)" sender="wdProxy" slot="dump(SnoopPacket*)" receiver="dProxy"/>
+      <connect signal="captured(SnoopPacket*)" sender="wdProxy" slot="copy(SnoopPacket*)" receiver="waProxy"/>
     </connectList>
   </graph>
   <coord>
     <object x="-165" y="-115" name="wdOutbound"/>
+    <object x="-237" y="2" name="as"/>
     <object x="-202" y="-77" name="fmOutboundProcessFilter"/>
     <object x="-164" y="-38" name="pfOutbound"/>
     <object x="-165" y="2" name="fmOutbound"/>
@@ -45,14 +46,13 @@
     <object x="2" y="-39" name="pfInbound"/>
     <object x="-1" y="1" name="fmInbound"/>
     <object x="-55" y="36" name="fc"/>
+	<object x="-175" y="74" name="wwdOutbound"/>
     <object x="-154" y="118" name="hpTcpIn"/>
     <object x="-160" y="154" name="hpTcpOut"/>
+    <object x="12" y="115" name="hpSslIn"/>
+    <object x="5" y="149" name="hpSslOut"/>
     <object x="-129" y="224" name="wdProxy"/>
     <object x="6" y="199" name="dProxy"/>
     <object x="6" y="238" name="waProxy"/>
-    <object x="12" y="115" name="hpSslIn"/>
-    <object x="5" y="149" name="hpSslOut"/>
-    <object x="-237" y="2" name="as"/>
-    <object x="-175" y="74" name="wwdOutbound"/>
   </coord>
 </httpsniff>
