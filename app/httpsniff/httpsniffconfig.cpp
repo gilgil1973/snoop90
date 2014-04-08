@@ -231,6 +231,9 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
+    pfOutbound->showStatus = false;
+    pfInbound->showStatus = false;
+
     pfOutbound->policyMap.clear();
     pfInbound->policyMap.clear();
     foreach (QString processName, proxyProcessNameList)
