@@ -1,12 +1,12 @@
 #ifndef __V_HTTP_SNIFF_CONFIG_H__
 #define __V_HTTP_SNIFF_CONFIG_H__
 
-#include <VHttpProxy>
 #include <SnoopWinDivert>
 #include <SnoopArpSpoof>
 #include <SnoopProcessFilter>
 #include <SnoopFlowChange>
-
+#include <SnoopWriteWinDivert>
+#include <VHttpProxy>
 #include <SnoopDump>
 #include <SnoopWriteAdapter>
 

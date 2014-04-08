@@ -59,7 +59,7 @@ HttpSniffConfig::~HttpSniffConfig()
 
 bool HttpSniffConfig::saveToFile(QString fileName)
 {
-  QString srcFileName = "ss/httpsniff.ss";
+  QString srcFileName = "ss/httpsniff_template._ss";
   if (QFile::exists(fileName))
   {
     if (!QFile::remove(fileName))
@@ -127,8 +127,43 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       filter += oneFilter;
     }
 
-    wdOutbound->filter = qformat("(ifIdx!=1) and (%s)", qPrintable(filter));
+    wdOutbound->filter = qformat("(ifIdx!=1) and outbound and (%s)", qPrintable(filter));
     LOG_INFO("wdOutbound->filter = \"%s\"", qPrintable(wdOutbound->filter));
+  }
+
+  {
+    //
+    // wdInbound
+    //
+    SnoopWinDivert* wdInbound = dynamic_cast<SnoopWinDivert*>(graph.objectList.findByName("wdInbound"));
+    if (wdInbound == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find wdInbound", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
+
+    wdInbound->enabled = true;
+
+    QString filter;
+
+    int count = httpPortList.count();
+    for (int i = 0; i < count; i++)
+    {
+      if (filter != "") filter += " or ";
+      QString oneFilter = qformat("tcp.SrcPort==%d", httpPortList.at(i));
+      filter += oneFilter;
+    }
+
+    count = httpsPortList.count();
+    for (int i = 0; i < count; i++)
+    {
+      if (filter != "") filter += " or ";
+      QString oneFilter = qformat("tcp.SrcPort==%d", httpsPortList.at(i));
+      filter += oneFilter;
+    }
+
+    wdInbound->filter = qformat("(ifIdx==1) and (%s)", qPrintable(filter));
+    LOG_INFO("wdInbound->filter = \"%s\"", qPrintable(wdInbound->filter));
   }
 
   //
@@ -183,8 +218,18 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    pfOutbound->showStatus = false;
-    pfInbound->showStatus  = false;
+    pfOutbound->flowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmOutboundProcessFilter"));
+    if (pfOutbound->flowMgr == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find fmOutboundProcessFilter", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
+    pfInbound->flowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmInboundProcessFilter"));
+    if (pfInbound->flowMgr == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find fmInboundProcessFilter", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
 
     pfOutbound->policyMap.clear();
     pfInbound->policyMap.clear();
@@ -206,8 +251,23 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    fc->changeItems.clear();
+    fc->fromFlowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmOutbound"));
+    if (fc->fromFlowMgr == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find fmOutbound", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
+    fc->toFlowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmInbound"));
+    if (fc->toFlowMgr == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find fmInbound", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
 
+    fc->tcpChange = true;
+    fc->udpChange = false;
+
+    fc->changeItems.clear();
     foreach (int port, httpPortList)
     {
       SnoopFlowChangeItem item;
@@ -239,6 +299,22 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       item.dstPortFixValue   = this->proxySslInPort;
       fc->changeItems.push_back(item);
     }
+  }
+
+  //
+  // wwdOutbound
+  //
+  {
+    SnoopWriteWinDivert* wwdOutbound = dynamic_cast<SnoopWriteWinDivert*>(graph.objectList.findByName("wwdOutbound"));
+    if (wwdOutbound == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find wwdOutbound", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
+
+    wwdOutbound->autoRead = false;
+    wwdOutbound->changeDivertAddr = true;
+    wwdOutbound->divertAddr.IfIdx = 1;
   }
 
   //
