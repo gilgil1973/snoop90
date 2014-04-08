@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include <QFileDialog>
-#include <QDesktopServices>
 #include <QMessageBox>
 #include "httpsniffconfig.h"
 

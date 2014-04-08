@@ -215,10 +215,11 @@ void Dialog::on_pbRun_clicked()
     QMessageBox::warning(this, "Error", config.error.msg);
     return;
   }
-  QString url = "sscon.exe " + fileName;
-  if (!QDesktopServices::openUrl(QUrl(url)))
+  QString command = "sscon.exe " + fileName;
+  UINT res = WinExec(qPrintable(command), SW_SHOW);
+  if (res < 31)
   {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
+    LOG_ERROR("WinExecu return %u (%s) retu", res, qPrintable(command));
   }
 }
 
