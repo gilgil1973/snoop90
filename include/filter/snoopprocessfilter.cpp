@@ -176,7 +176,7 @@ void SnoopProcessFilter::__tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* v
 
 void SnoopProcessFilter::__tcpFlowDelete(SnoopTcpFlowKey* key, SnoopFlowValue* value)
 {
-  LOG_DEBUG(""); // gilgil temp 2014.03.11
+  // LOG_DEBUG(""); // gilgil temp 2014.03.11
   Q_UNUSED(key)
   Q_UNUSED(value)
 }
@@ -192,7 +192,7 @@ void SnoopProcessFilter::__udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* v
 
 void SnoopProcessFilter::__udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
-  LOG_DEBUG(""); // gilgil temp 2014.03.11
+  // LOG_DEBUG(""); // gilgil temp 2014.03.11
   Q_UNUSED(key)
   Q_UNUSED(value)
 }
@@ -219,7 +219,7 @@ void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFil
     LOG_DEBUG("onNewProcess %s", qPrintable(processName));
     pit = policyMap.insert(processName, false);
 #ifdef QT_GUI_LIB
-    QCoreApplication::postEvent(widget, new QShowPolicyMapEvent);
+    if (widget != NULL) QCoreApplication::postEvent(widget, new QShowPolicyMapEvent);
 #endif // QT_GUI_LIB
   }
 
