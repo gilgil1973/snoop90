@@ -205,7 +205,7 @@ void SnoopProcessFilter::_checkProcess(SnoopTupleFlowKey* tuple, SnoopProcessFil
   QString processName;
   if (!getProcessInfo(*tuple, flowItem->pid, processName))
   {
-    LOG_ERROR("getProcessInfo %u (%s:%d > %s:%d) return false",
+    LOG_DEBUG("getProcessInfo %u (%s:%d > %s:%d) return false",
       tuple->proto,
       qPrintable(tuple->flow.srcIp.str()), tuple->flow.srcPort,
       qPrintable(tuple->flow.dstIp.str()), tuple->flow.dstPort);
