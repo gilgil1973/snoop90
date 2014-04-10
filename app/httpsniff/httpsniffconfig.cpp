@@ -33,15 +33,8 @@ HttpSniffConfig::HttpSniffConfig()
   proxySslInPort  = VHttpProxy::SSL_PROXY_PORT;      // 4433
   proxySslOutPort = VHttpProxy::SSL_PROXY_PORT + 1;  // 4434
 
-  VDataChangeItem changeItem;
-  changeItem.pattern = "Accept-Encoding: gzip,";
-  changeItem.syntax  = QRegExp::FixedString;
-  changeItem.cs      = Qt::CaseSensitive;
-  changeItem.minimal = false;
-  changeItem.enabled = true;
-  changeItem.log     = false;
-  changeItem.replace = "Accept-Encoding:      ";
-  proxyOutboundDataChange.push_back(changeItem);
+  VXmlDoc doc; VXml xml = doc.createRoot("temp");
+  VHttpProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
 
   //
   // Write
