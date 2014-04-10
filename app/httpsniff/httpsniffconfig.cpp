@@ -49,7 +49,7 @@ HttpSniffConfig::~HttpSniffConfig()
 
 bool HttpSniffConfig::saveToFile(QString fileName)
 {
-  QString srcFileName = "ss/httpsniff_template._ss";
+  QString srcFileName = "ss/httpsniff._ss";
   if (QFile::exists(fileName))
   {
     if (!QFile::remove(fileName))
