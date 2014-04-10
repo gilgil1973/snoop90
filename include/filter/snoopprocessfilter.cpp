@@ -136,7 +136,7 @@ bool SnoopProcessFilter::getProcessInfo(/*in*/ SnoopTupleFlowKey& tuple, /*out*/
   pid = SnoopNetStat::instance().getPID(tuple);
   if (pid == SnoopNetStat::UNKNOWN_PROCESS_ID)
   {
-    LOG_ERROR("getPID return UNKNOWN_PROCESS_ID(%s %s:%u > %s:%u)",
+    LOG_DEBUG("getPID return UNKNOWN_PROCESS_ID(%s %s:%u > %s:%u)",
       tuple.proto == IPPROTO_TCP ? "TCP" : "UDP",
       qPrintable(tuple.flow.srcIp.str()), tuple.flow.srcPort,
       qPrintable(tuple.flow.dstIp.str()), tuple.flow.dstPort
