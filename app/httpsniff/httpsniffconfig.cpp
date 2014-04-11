@@ -28,10 +28,10 @@ HttpSniffConfig::HttpSniffConfig()
   proxyProcessNameList.push_back("snoopspy.exe");
   proxyProcessNameList.push_back("sscon.exe");
 
-  proxyTcpInPort  = VHttpProxy::HTTP_PROXY_PORT;     // 8080
-  proxyTcpOutPort = VHttpProxy::HTTP_PROXY_PORT + 1; // 8081
-  proxySslInPort  = VHttpProxy::SSL_PROXY_PORT;      // 4433
-  proxySslOutPort = VHttpProxy::SSL_PROXY_PORT + 1;  // 4434
+  proxyTcpInPort  = VHttpProxy::HTTP_PROXY_PORT - 1; // 8080
+  proxyTcpOutPort = VHttpProxy::HTTP_PROXY_PORT;     // 8080
+  proxySslInPort  = VHttpProxy::SSL_PROXY_PORT  - 1; // 4432
+  proxySslOutPort = VHttpProxy::SSL_PROXY_PORT;      // 4433
 
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
   VHttpProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
@@ -137,25 +137,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
 
     wdInbound->enabled = true;
 
-    QString filter;
-
-    int count = httpPortList.count();
-    for (int i = 0; i < count; i++)
-    {
-      if (filter != "") filter += " or ";
-      QString oneFilter = qformat("tcp.SrcPort==%d", httpPortList.at(i));
-      filter += oneFilter;
-    }
-
-    count = httpsPortList.count();
-    for (int i = 0; i < count; i++)
-    {
-      if (filter != "") filter += " or ";
-      QString oneFilter = qformat("tcp.SrcPort==%d", httpsPortList.at(i));
-      filter += oneFilter;
-    }
-
-    wdInbound->filter = qformat("(ifIdx==1) and (%s)", qPrintable(filter));
+    wdInbound->filter = qformat("(ifIdx==1) and (tcp.SrcPort=%d or tcp.SrcPort=%d)", proxyTcpInPort, proxySslInPort);
     LOG_INFO("wdInbound->filter = \"%s\"", qPrintable(wdInbound->filter));
   }
 
