@@ -1,6 +1,7 @@
 옵션
 SSLSTRIP_VIRTUAL_IP : 80.43.80.43
 SSLSTRIP_PROTY_IP   : 8043
+SSLSTRIP_DOMAIN_PREFIX : ss.
 
 1. https:// 를 http:// 로 변경
   hpTcpPout
@@ -9,6 +10,9 @@ SSLSTRIP_PROTY_IP   : 8043
 2. ss.* 도메인의 IP 변경
   wdOutbound
     "udp.DstPort==53" filter 추가
+	
+  ar
+    "udp dst port 53" filter 추가
 	
   wdInbound
     "tcp.SrcPort=8042" filter 추가

