@@ -42,6 +42,7 @@ Source: "..\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\httpsniff.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\ss\*"; DestDir: "{app}\ss"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; vdream
 Source: "..\..\..\vdream\vdream90\bin\getline.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\httpproxy.exe"; DestDir: "{app}"; Flags: ignoreversion
