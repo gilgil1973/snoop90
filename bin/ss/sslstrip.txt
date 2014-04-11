@@ -1,0 +1,55 @@
+옵션
+SSLSTRIP_VIRTUAL_IP : 80.43.80.43
+SSLSTRIP_PROTY_IP   : 8043
+
+1. https:// 를 http:// 로 변경
+  hpTcpPout
+    inboundDataChange에 "https://" > "http:ss." 추가
+
+2. ss.* 도메인의 IP 변경
+  wdOutbound
+    "udp.DstPort==53" filter 추가
+	
+  wdInbound
+    "tcp.SrcPort=8042" filter 추가
+	
+  BpFilter
+    filter 에 "udp dst port 53"로 설정
+  dc
+    Capture를 wdOutbound 혹은 as로 설정
+	"ss.*"/Wilecard/IP는 80.43.80.43으로 설정
+  fc
+    SrcIpChange-Fix / SrcIPfixValue-127.0.0.1 / SrcPortChange-AutoInc / DstIp-80.43.80.43 / DstIPMask-255.255.255.255 / DstIpChange-Fix / DstIpFixValue-127.0.0.1 / dstPort-80 / DstPortChange-Fix / dstPort 8042
+	80뿐만 아니라 8080, 8888도 추가
+	
+3. proxy 추가
+  hpStripIn
+    Internal
+      TCP Enabled:true
+	  Port:8042
+	  Local Host: 127.0.0.1
+	  SSL Enabled : false
+	External
+	  Method-TCP
+	  Host: 127.0.0.1
+	  Port: 8043
+	DataChange
+	  Outbound : "Host: ss." > "Host: " 추가
+	Other
+	  Disable Loopback Connection 해제
+	
+  hpStripOut
+    Internal
+	  TCP Enabled : true
+	  Port : 8043
+	  Local Host: 127.0.0.1
+	  SSL Enabled : false
+	External
+	  Method : SSL
+	DataChange
+	  Inboud : "https://" > "http://ss." 추가
+
+4. 출력
+  wdProxy : "tcp.SrcPort==8043 or tcp.DstPort==8043" 추가
+    
+	  
