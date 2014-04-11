@@ -39,6 +39,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 ; snoop
 Source: "..\bin\snoopspy.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\httpsniff.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; vdream
