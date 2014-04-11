@@ -60,8 +60,8 @@ Source: "C:\OpenSSL-Win32\bin\ssleay32.dll"; DestDir: "{app}\certificate"; Flags
 Source: "C:\OpenSSL-Win32\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\OpenSSL-Win32\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; windivert
-Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\windivert\1.1.2-rc\mingw\x86\WinDivert32.sys"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.4\mingw\x86\WinDivert.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\windivert\1.1.4\mingw\x86\WinDivert32.sys"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
