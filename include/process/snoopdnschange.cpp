@@ -130,7 +130,7 @@ void SnoopDnsChangeItems::optionSaveDlg(QDialog* dialog)
 // ----------------------------------------------------------------------------
 SnoopDnsChange::SnoopDnsChange(void* owner) : SnoopProcess(owner)
 {
-  capture = NULL;
+  writer = NULL;
   changeItems.clear();
 }
 
@@ -141,9 +141,9 @@ SnoopDnsChange::~SnoopDnsChange()
 
 bool SnoopDnsChange::doOpen()
 {
-  if (capture == NULL)
+  if (writer == NULL)
   {
-    SET_ERROR(SnoopError, "capture is null", VERR_OBJECT_IS_NULL);
+    SET_ERROR(SnoopError, "writer is null", VERR_OBJECT_IS_NULL);
     return false;
   }
 
@@ -266,7 +266,7 @@ void SnoopDnsChange::check(SnoopPacket* packet)
     udpHdr->uh_sum = htons(SnoopUdp::checksum(ipHdr, udpHdr));
     ipHdr->ip_sum  = htons(SnoopIp::checksum(ipHdr));
 
-    capture->write(buf, bufSize, &responseDivertAddr);
+    writer->write(buf, bufSize, &responseDivertAddr);
     packet->drop = true;
 
     if (changeItem.log)
@@ -285,16 +285,16 @@ void SnoopDnsChange::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  QString captureName = xml.getStr("capture", "");
-  if (captureName != "") capture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(captureName));
+  QString writerName = xml.getStr("writer", "");
+  if (writerName != "") writer = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(writerName));
   changeItems.load(xml.gotoChild("changeItems"));
 }
 
 void SnoopDnsChange::save(VXml xml)
 {
   SnoopProcess::save(xml);
-  QString captureName = capture == NULL ? "" : capture->name;
-  xml.setStr("capture", captureName);
+  QString writerName = writer == NULL ? "" : writer->name;
+  xml.setStr("writer", writerName);
   changeItems.save(xml.gotoChild("changeItems"));
 }
 
@@ -303,8 +303,8 @@ void SnoopDnsChange::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
 
-  QStringList captureList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
-  VOptionable::addComboBox(layout, "cbxCapture", "Capture", captureList, -1, capture == NULL ? "" : capture->name);
+  QStringList writerList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
+  VOptionable::addComboBox(layout, "cbxWriter", "Writer", writerList, -1, writer == NULL ? "" : writer->name);
   changeItems.optionAddWidget(layout);
 }
 
@@ -312,7 +312,7 @@ void SnoopDnsChange::optionSaveDlg(QDialog* dialog)
 {
   SnoopProcess::optionSaveDlg(dialog);
 
-  capture = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxCapture")->currentText()));
+  writer = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxWriter")->currentText()));
   changeItems.optionSaveDlg(dialog);
 }
 #endif // QT_GUI_LIB

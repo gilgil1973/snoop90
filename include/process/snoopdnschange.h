@@ -90,7 +90,7 @@ public:
   virtual ~SnoopDnsChange();
 
 public:
-  SnoopCapture*       capture;
+  SnoopCapture*       writer;
   SnoopDnsChangeItems changeItems;
 
 protected:
