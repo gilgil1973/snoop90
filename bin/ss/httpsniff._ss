@@ -3,11 +3,11 @@
     <objectList>
       <object _class="SnoopWinDivert" name="wdOutbound"/>
       <object _class="SnoopArpSpoof" name="as"/>
-      <object _class="SnoopFlowMgr" name="fmOutboundProcessFilter"/>
+      <object _class="SnoopFlowMgr" name="fmOutboundProcess"/>
       <object _class="SnoopProcessFilter" name="pfOutbound"/>
       <object _class="SnoopFlowMgr" name="fmOutbound"/>
       <object _class="SnoopWinDivert" name="wdInbound"/>
-      <object _class="SnoopFlowMgr" name="fmInboundProcessFilter"/>
+      <object _class="SnoopFlowMgr" name="fmInboundProcess"/>
       <object _class="SnoopProcessFilter" name="pfInbound"/>
       <object _class="SnoopFlowMgr" name="fmInbound"/>
       <object _class="SnoopFlowChange" name="fc"/>
@@ -21,13 +21,13 @@
       <object _class="SnoopWriteAdapter" name="waProxy"/>
     </objectList>
     <connectList>
-      <connect signal="captured(SnoopPacket*)" sender="wdOutbound" slot="process(SnoopPacket*)" receiver="fmOutboundProcessFilter"/>
+      <connect signal="captured(SnoopPacket*)" sender="wdOutbound" slot="process(SnoopPacket*)" receiver="fmOutboundProcess"/>
       <connect signal="captured(SnoopPacket*)" sender="as" slot="process(SnoopPacket*)" receiver="fmOutbound"/>
-      <connect signal="processed(SnoopPacket*)" sender="fmOutboundProcessFilter" slot="check(SnoopPacket*)" receiver="pfOutbound"/>
+      <connect signal="processed(SnoopPacket*)" sender="fmOutboundProcess" slot="check(SnoopPacket*)" receiver="pfOutbound"/>
       <connect signal="nak(SnoopPacket*)" sender="pfOutbound" slot="process(SnoopPacket*)" receiver="fmOutbound"/>
       <connect signal="processed(SnoopPacket*)" sender="fmOutbound" slot="processFromTo(SnoopPacket*)" receiver="fc"/>
-      <connect signal="captured(SnoopPacket*)" sender="wdInbound" slot="process(SnoopPacket*)" receiver="fmInboundProcessFilter"/>
-      <connect signal="processed(SnoopPacket*)" sender="fmInboundProcessFilter" slot="check(SnoopPacket*)" receiver="pfInbound"/>
+      <connect signal="captured(SnoopPacket*)" sender="wdInbound" slot="process(SnoopPacket*)" receiver="fmInboundProcess"/>
+      <connect signal="processed(SnoopPacket*)" sender="fmInboundProcess" slot="check(SnoopPacket*)" receiver="pfInbound"/>
       <connect signal="ack(SnoopPacket*)" sender="pfInbound" slot="process(SnoopPacket*)" receiver="fmInbound"/>
       <connect signal="processed(SnoopPacket*)" sender="fmInbound" slot="processToFrom(SnoopPacket*)" receiver="fc"/>
       <connect signal="changedFromTo(SnoopPacket*)" sender="fc" slot="move(SnoopPacket*)" receiver="wwdOutbound"/>
@@ -38,11 +38,11 @@
   <coord>
     <object x="-165" y="-115" name="wdOutbound"/>
     <object x="-237" y="2" name="as"/>
-    <object x="-202" y="-77" name="fmOutboundProcessFilter"/>
+    <object x="-202" y="-77" name="fmOutboundProcess"/>
     <object x="-164" y="-38" name="pfOutbound"/>
     <object x="-165" y="2" name="fmOutbound"/>
     <object x="1" y="-115" name="wdInbound"/>
-    <object x="-36" y="-76" name="fmInboundProcessFilter"/>
+    <object x="-36" y="-76" name="fmInboundProcess"/>
     <object x="2" y="-39" name="pfInbound"/>
     <object x="-1" y="1" name="fmInbound"/>
     <object x="-55" y="36" name="fc"/>
