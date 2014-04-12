@@ -26,7 +26,7 @@
         <changeItems/>
       </object>
       <object Direction="0" correctChecksum="true" SubIfIdx="0" autoParse="false" tos="0" IfIdx="0" autoRead="false" queueTime="1024" queueLen="8192" changeDivertAddr="true" _class="SnoopWriteWinDivert" name="wwdOutbound" filter="true" enabled="true" flags="1" priority="0" layer="0"/>
-      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VHttpProxy" name="hpTcpIn" keepAliveTimeout="60000">
+      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VWebProxy" name="hpTcpIn" keepAliveTimeout="60000">
         <outPolicy method="0" port="0" host=""/>
         <tcpServer port="8080" onceWriteSize="0" _class="VTcpServer" localHost=""/>
         <sslServer port="4433" onceWriteSize="0" methodType="4" certificatePath="certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" localHost=""/>
@@ -35,7 +35,7 @@
           <item replace="Accept-Encoding:      " syntax="2" cs="1" log="false" pattern="Accept-Encoding: gzip," minimal="false" enabled="true"/>
         </outboundDataChange>
       </object>
-      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VHttpProxy" name="hpTcpOut" keepAliveTimeout="60000">
+      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VWebProxy" name="hpTcpOut" keepAliveTimeout="60000">
         <outPolicy method="0" port="0" host=""/>
         <tcpServer port="8080" onceWriteSize="0" _class="VTcpServer" localHost=""/>
         <sslServer port="4433" onceWriteSize="0" methodType="4" certificatePath="certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" localHost=""/>
@@ -44,7 +44,7 @@
           <item replace="Accept-Encoding:      " syntax="2" cs="1" log="false" pattern="Accept-Encoding: gzip," minimal="false" enabled="true"/>
         </outboundDataChange>
       </object>
-      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VHttpProxy" name="hpSslIn" keepAliveTimeout="60000">
+      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VWebProxy" name="hpSslIn" keepAliveTimeout="60000">
         <outPolicy method="0" port="0" host=""/>
         <tcpServer port="8080" onceWriteSize="0" _class="VTcpServer" localHost=""/>
         <sslServer port="4433" onceWriteSize="0" methodType="4" certificatePath="certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" localHost=""/>
@@ -53,7 +53,7 @@
           <item replace="Accept-Encoding:      " syntax="2" cs="1" log="false" pattern="Accept-Encoding: gzip," minimal="false" enabled="true"/>
         </outboundDataChange>
       </object>
-      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VHttpProxy" name="hpSslOut" keepAliveTimeout="60000">
+      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VWebProxy" name="hpSslOut" keepAliveTimeout="60000">
         <outPolicy method="0" port="0" host=""/>
         <tcpServer port="8080" onceWriteSize="0" _class="VTcpServer" localHost=""/>
         <sslServer port="4433" onceWriteSize="0" methodType="4" certificatePath="certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" localHost=""/>
@@ -70,7 +70,7 @@
           <item syntax="1" cs="1" log="true" pattern="ss.*" minimal="false" enabled="true" ip="80.43.80.43"/>
         </changeItems>
       </object>
-      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VHttpProxy" name="hpStripIn" keepAliveTimeout="60000">
+      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VWebProxy" name="hpStripIn" keepAliveTimeout="60000">
         <outPolicy method="0" port="0" host=""/>
         <tcpServer port="8080" onceWriteSize="0" _class="VTcpServer" localHost=""/>
         <sslServer port="4433" onceWriteSize="0" methodType="4" certificatePath="certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" localHost=""/>
@@ -79,7 +79,7 @@
           <item replace="Accept-Encoding:      " syntax="2" cs="1" log="false" pattern="Accept-Encoding: gzip," minimal="false" enabled="true"/>
         </outboundDataChange>
       </object>
-      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VHttpProxy" name="hpStripOut" keepAliveTimeout="60000">
+      <object disableLoopbackConnection="true" tcpEnabled="true" outInThreadTimeout="30000" sslEnabled="true" maxContentCacheSize="10485756" _class="VWebProxy" name="hpStripOut" keepAliveTimeout="60000">
         <outPolicy method="0" port="0" host=""/>
         <tcpServer port="8080" onceWriteSize="0" _class="VTcpServer" localHost=""/>
         <sslServer port="4433" onceWriteSize="0" methodType="4" certificatePath="certificate\" processConnectMessage="false" defaultKeyCrtFileName="default.pem" _class="VSslServer" localHost=""/>
