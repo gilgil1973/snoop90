@@ -407,6 +407,8 @@ int SnoopArpSpoof::write(SnoopPacket* packet)
 
 int SnoopArpSpoof::write(u_char* buf, int size, WINDIVERT_ADDRESS* divertAddr)
 {
+  ETH_HDR* ethHdr     = (ETH_HDR*)buf;
+  ethHdr->ether_shost = realVirtualMac;
   return SnoopAdapter::write(buf, size, divertAddr);
 }
 
@@ -421,7 +423,6 @@ bool SnoopArpSpoof::relay(SnoopPacket* packet)
     packet->tcpHdr->th_sum = htons(newChecksum);
   }
   // --------------------------------
-  packet->ethHdr->ether_shost = realVirtualMac;
   return write(packet);
 }
 
