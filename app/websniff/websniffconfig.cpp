@@ -1,4 +1,4 @@
-#include "httpsniffconfig.h"
+#include "websniffconfig.h"
 
 // ----------------------------------------------------------------------------
 // HttpSniffPortsConfig
@@ -117,14 +117,14 @@ HttpSniffConfig::HttpSniffConfig()
   proxyProcessNameList.push_back("snoopspy.exe");
   proxyProcessNameList.push_back("sscon.exe");
 
-  tcpProxy.inPort   = VHttpProxy::HTTP_PROXY_PORT - 1; // 8079
-  tcpProxy.outPort  = VHttpProxy::HTTP_PROXY_PORT;     // 8080
-  sslProxy.inPort   = VHttpProxy::SSL_PROXY_PORT  - 1; // 4432
-  sslProxy.outPort  = VHttpProxy::SSL_PROXY_PORT;      // 4433;
+  tcpProxy.inPort   = VWebProxy::HTTP_PROXY_PORT - 1; // 8079
+  tcpProxy.outPort  = VWebProxy::HTTP_PROXY_PORT;     // 8080
+  sslProxy.inPort   = VWebProxy::SSL_PROXY_PORT  - 1; // 4432
+  sslProxy.outPort  = VWebProxy::SSL_PROXY_PORT;      // 4433;
   stripProxy.inPort = STRIP_PROXY_VIRTUAL_PORT;
 
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
-  VHttpProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
+  VWebProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
 
   //
   // Write
@@ -389,7 +389,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   // hpTcpIn
   //
   {
-    VHttpProxy* hpTcpIn = dynamic_cast<VHttpProxy*>(graph.objectList.findByName("hpTcpIn"));
+    VWebProxy* hpTcpIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpTcpIn"));
     if (hpTcpIn == NULL)
     {
       SET_ERROR(SnoopError, "can not find hpTcpIn", VERR_CAN_NOT_FIND_OBJECT);
@@ -400,7 +400,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     hpTcpIn->tcpServer.port      = this->proxyTcpInPort;
     hpTcpIn->tcpServer.localHost = "127.0.0.1";
     hpTcpIn->sslEnabled          = false;
-    hpTcpIn->outPolicy.method    = VHttpProxyOutPolicy::Tcp;
+    hpTcpIn->outPolicy.method    = VWebProxyOutPolicy::Tcp;
     hpTcpIn->outPolicy.host      = "127.0.0.1";
     hpTcpIn->outPolicy.port      = this->proxyTcpOutPort;
 
@@ -413,7 +413,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   // hpTcpOut
   //
   {
-    VHttpProxy* hpTcpOut = dynamic_cast<VHttpProxy*>(graph.objectList.findByName("hpTcpOut"));
+    VWebProxy* hpTcpOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpTcpOut"));
     if (hpTcpOut == NULL)
     {
       SET_ERROR(SnoopError, "can not find hpTcpOut", VERR_CAN_NOT_FIND_OBJECT);
@@ -424,7 +424,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     hpTcpOut->tcpServer.port      = this->proxyTcpOutPort;
     hpTcpOut->tcpServer.localHost = "127.0.0.1";
     hpTcpOut->sslEnabled          = false;
-    hpTcpOut->outPolicy.method    = VHttpProxyOutPolicy::Tcp;
+    hpTcpOut->outPolicy.method    = VWebProxyOutPolicy::Tcp;
     hpTcpOut->outPolicy.host      = "";
     hpTcpOut->outPolicy.port      = 0;
 
@@ -437,7 +437,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   // hpSslIn
   //
   {
-    VHttpProxy* hpSslIn = dynamic_cast<VHttpProxy*>(graph.objectList.findByName("hpSslIn"));
+    VWebProxy* hpSslIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpSslIn"));
     if (hpSslIn == NULL)
     {
       SET_ERROR(SnoopError, "can not find hpSslIn", VERR_CAN_NOT_FIND_OBJECT);
@@ -449,7 +449,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     hpSslIn->sslServer.port      = this->proxySslInPort;
     hpSslIn->sslServer.localHost = "127.0.0.1";
     hpSslIn->sslServer.processConnectMessage = false;
-    hpSslIn->outPolicy.method    = VHttpProxyOutPolicy::Tcp;
+    hpSslIn->outPolicy.method    = VWebProxyOutPolicy::Tcp;
     hpSslIn->outPolicy.host      = "127.0.0.1";
     hpSslIn->outPolicy.port      = this->proxySslOutPort;
 
@@ -462,7 +462,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   // hpSslOut
   //
   {
-    VHttpProxy* hpSslOut = dynamic_cast<VHttpProxy*>(graph.objectList.findByName("hpSslOut"));
+    VWebProxy* hpSslOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpSslOut"));
     if (hpSslOut == NULL)
     {
       SET_ERROR(SnoopError, "can not find hpSslOut", VERR_CAN_NOT_FIND_OBJECT);
@@ -473,7 +473,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     hpSslOut->tcpServer.port      = this->proxySslOutPort;
     hpSslOut->tcpServer.localHost = "127.0.0.1";
     hpSslOut->sslEnabled          = false;
-    hpSslOut->outPolicy.method    = VHttpProxyOutPolicy::Ssl;
+    hpSslOut->outPolicy.method    = VWebProxyOutPolicy::Ssl;
     hpSslOut->outPolicy.host      = "";
     hpSslOut->outPolicy.port      = 0;
 

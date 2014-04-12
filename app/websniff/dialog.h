@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QFileDialog>
 #include <QMessageBox>
-#include "httpsniffconfig.h"
+#include "websniffconfig.h"
 
 // ----------------------------------------------------------------------------
 // Dialog

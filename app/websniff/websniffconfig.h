@@ -6,7 +6,7 @@
 #include <SnoopProcessFilter>
 #include <SnoopFlowChange>
 #include <SnoopWriteWinDivert>
-#include <VHttpProxy>
+#include <VWebProxy>
 #include <SnoopDump>
 #include <SnoopWriteAdapter>
 

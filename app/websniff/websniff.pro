@@ -10,17 +10,17 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 include(../../lib/snoop.pri)
 
-TARGET   = httpsniff
+TARGET   = websniff
 TEMPLATE = app
 DESTDIR  = ../../bin
 
 SOURCES += main.cpp\
     dialog.cpp \
     explicit_link.cpp \
-    httpsniffconfig.cpp
+    websniffconfig.cpp
 
 HEADERS  += dialog.h \
     explicit_link.h \
-    httpsniffconfig.h
+    websniffconfig.h
 
 FORMS    += dialog.ui
