@@ -1,24 +1,113 @@
 #include "httpsniffconfig.h"
 
 // ----------------------------------------------------------------------------
+// HttpSniffPortsConfig
+// ----------------------------------------------------------------------------
+HttpSniffPortsConfig::HttpSniffPortsConfig()
+{
+  enabled = true;
+}
+
+void HttpSniffPortsConfig::load(VXml xml)
+{
+  enabled = xml.getBool("enabled", enabled);
+  if (!xml.findChild("ports").isNull())
+  {
+    VXml childXml = xml.gotoChild("ports");
+    QList<int>::clear();
+    xml_foreach (portXml, childXml.childs())
+    {
+      int port = portXml.getInt("port");
+      push_back(port);
+    }
+  }
+}
+
+void HttpSniffPortsConfig::save(VXml xml)
+{
+  xml.setBool("enabled", enabled);
+  {
+    VXml childXml = xml.gotoChild("ports");
+    childXml.clearChild();
+    foreach (int port, *this)
+    {
+      childXml.addChild("port").setInt("port", port);
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// HttpSniffCaptureConfig
+// ----------------------------------------------------------------------------
+HttpSniffCaptureConfig::HttpSniffCaptureConfig()
+{
+
+}
+void HttpSniffCaptureConfig::load(VXml xml)
+{
+
+}
+void HttpSniffCaptureConfig::save(VXml xml)
+{
+
+}
+
+// ----------------------------------------------------------------------------
+// HttpSniffProxyConfig
+// ----------------------------------------------------------------------------
+HttpSniffProxyConfig::HttpSniffProxyConfig()
+{
+
+}
+void HttpSniffProxyConfig::load(VXml xml)
+{
+
+}
+void HttpSniffProxyConfig::save(VXml xml)
+{
+
+}
+
+// ----------------------------------------------------------------------------
+// HttpWriteConfig
+// ----------------------------------------------------------------------------
+HttpWriteConfig::HttpWriteConfig()
+{
+
+}
+void HttpWriteConfig::load(VXml xml)
+{
+
+}
+void HttpWriteConfig::save(VXml xml)
+{
+
+}
+
+// ----------------------------------------------------------------------------
 // HttpSniffConfig
 // ----------------------------------------------------------------------------
+const QString HttpSniffConfig::STRIP_PROXY_VIRTUAL_IP = "80.43.80.43";
+
 HttpSniffConfig::HttpSniffConfig()
 {
   //
   // Port
   //
-  httpPortList.push_back(80);
-  httpPortList.push_back(8080);
-  httpPortList.push_back(8888);
+  tcpPorts.push_back(80);
+  tcpPorts.push_back(8080);
+  tcpPorts.push_back(8888);
 
-  httpsPortList.push_back(443);
-  httpsPortList.push_back(4433); // gilgil temp 2014.04.08
+  sslPorts.push_back(443);
+  sslPorts.push_back(4433);
+
+  stripPorts.push_back(80);
+  stripPorts.push_back(8080);
+  stripPorts.push_back(8888);
 
   //
   // Capture
   //
-  captureType = WinDivert;
 
   //
   // Proxy
@@ -28,10 +117,11 @@ HttpSniffConfig::HttpSniffConfig()
   proxyProcessNameList.push_back("snoopspy.exe");
   proxyProcessNameList.push_back("sscon.exe");
 
-  proxyTcpInPort  = VHttpProxy::HTTP_PROXY_PORT - 1; // 8080
-  proxyTcpOutPort = VHttpProxy::HTTP_PROXY_PORT;     // 8080
-  proxySslInPort  = VHttpProxy::SSL_PROXY_PORT  - 1; // 4432
-  proxySslOutPort = VHttpProxy::SSL_PROXY_PORT;      // 4433
+  tcpProxy.inPort   = VHttpProxy::HTTP_PROXY_PORT - 1; // 8079
+  tcpProxy.outPort  = VHttpProxy::HTTP_PROXY_PORT;     // 8080
+  sslProxy.inPort   = VHttpProxy::SSL_PROXY_PORT  - 1; // 4432
+  sslProxy.outPort  = VHttpProxy::SSL_PROXY_PORT;      // 4433;
+  stripProxy.inPort = STRIP_PROXY_VIRTUAL_PORT;
 
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
   VHttpProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
@@ -444,30 +534,6 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
 
 void HttpSniffConfig::load(VXml xml)
 {
-  //
-  // Port
-  //
-  if (!xml.findChild("httpPortList").isNull())
-  {
-    VXml childXml = xml.gotoChild("httpPortList");
-    httpPortList.clear();
-    xml_foreach (portXml, childXml.childs())
-    {
-      int port = portXml.getInt("port");
-      httpPortList.push_back(port);
-    }
-  }
-
-  if (!xml.findChild("httpsPortList").isNull())
-  {
-    VXml childXml = xml.gotoChild("httpsPortList");
-    httpsPortList.clear();
-    xml_foreach (portXml, childXml.childs())
-    {
-      int port = portXml.getInt("port");
-      httpsPortList.push_back(port);
-    }
-  }
 
   //
   // Capture
@@ -498,26 +564,7 @@ void HttpSniffConfig::load(VXml xml)
 
 void HttpSniffConfig::save(VXml xml)
 {
-  //
-  // Port
-  //
-  {
-    VXml childXml = xml.gotoChild("httpPortList");
-    childXml.clearChild();
-    foreach (int port, httpPortList)
-    {
-      childXml.addChild("port").setInt("port", port);
-    }
-  }
 
-  {
-    VXml childXml = xml.gotoChild("httpsPortList");
-    childXml.clearChild();
-    foreach (int port, httpsPortList)
-    {
-      childXml.addChild("port").setInt("port", port);
-    }
-  }
 
   //
   // Capture
