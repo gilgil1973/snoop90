@@ -13,91 +13,15 @@
 #include <VGraph>
 
 // ----------------------------------------------------------------------------
-// HttpSniffPortsConfig
+// HttpSniffConfig
 // ----------------------------------------------------------------------------
-class HttpSniffPortsConfig : public QList<int>, public VXmlable
-{
-public:
-  bool enabled;
-
-public:
-  HttpSniffPortsConfig();
-
-public:
-  virtual void load(VXml xml);
-  virtual void save(VXml xml);
-};
-
-// ----------------------------------------------------------------------------
-// HttpSniffCaptureConfig
-// ----------------------------------------------------------------------------
-class HttpSniffCaptureConfig : public VXmlable
+class HttpSniffConfig : public VXmlable
 {
 public:
   typedef enum {
     WinDivert, // 0
     ArpSpoof   // 1
   } CaptureType;
-
-public:
-  CaptureType    type;
-  SnoopWinDivert winDivert;
-  SnoopArpSpoof  arpSpoof;
-
-public:
-  HttpSniffCaptureConfig();
-
-public:
-  virtual void load(VXml xml);
-  virtual void save(VXml xml);
-};
-
-// ----------------------------------------------------------------------------
-// HttpSniffProxyConfig
-// ----------------------------------------------------------------------------
-class HttpSniffProxyConfig : public VXmlable
-{
-public:
-  int         inPort;
-  int         outPort;
-  VDataChange proxyInboundDataChange;
-  VDataChange proxyOutboundDataChange;
-
-public:
-  HttpSniffProxyConfig();
-
-public:
-  virtual void load(VXml xml);
-  virtual void save(VXml xml);
-};
-
-// ----------------------------------------------------------------------------
-// HttpWriteConfig
-// ----------------------------------------------------------------------------
-class HttpWriteConfig : public VXmlable
-{
-public:
-  bool              dumpEnabled;
-  QString           dumpFilePath;
-  bool              writeAdapterEnabled;
-  SnoopAdapterIndex writeAdapterIndex;
-
-public:
-  HttpWriteConfig();
-
-public:
-  virtual void load(VXml xml);
-  virtual void save(VXml xml);
-};
-
-// ----------------------------------------------------------------------------
-// HttpSniffConfig
-// ----------------------------------------------------------------------------
-class HttpSniffConfig : public VXmlable
-{
-public:
-  static const QString STRIP_PROXY_VIRTUAL_IP; // "80.43.80.43";
-  static const int     STRIP_PROXY_PORT = 8043;
 
 public:
   HttpSniffConfig();
@@ -110,27 +34,33 @@ public:
   //
   // Port
   //
-  HttpSniffPortsConfig tcpPorts;
-  HttpSniffPortsConfig sslPorts;
-  HttpSniffPortsConfig stripPorts;
+  QList<int> httpPortList;
+  QList<int> httpsPortList;
 
   //
   // Capture
   //
-  HttpSniffCaptureConfig capture;
+  CaptureType   captureType;
+  SnoopArpSpoof arpSpoof;
 
   //
   // Proxy
   //
-  QStringList          proxyProcessNameList;
-  HttpSniffProxyConfig tcpProxy;
-  HttpSniffProxyConfig sslProxy;
-  HttpSniffProxyConfig stripProxy;
+  QStringList proxyProcessNameList;
+  int         proxyTcpInPort;
+  int         proxyTcpOutPort;
+  int         proxySslInPort;
+  int         proxySslOutPort;
+  VDataChange proxyInboundDataChange;
+  VDataChange proxyOutboundDataChange;
 
   //
   // Write
   //
-  HttpWriteConfig write;
+  bool              dumpEnabled;
+  QString           dumpFilePath;
+  bool              writeAdapterEnabled;
+  SnoopAdapterIndex writeAdapterIndex;
 
 public:
   bool saveToFile(QString fileName);

@@ -1,113 +1,24 @@
 #include "websniffconfig.h"
 
 // ----------------------------------------------------------------------------
-// HttpSniffPortsConfig
-// ----------------------------------------------------------------------------
-HttpSniffPortsConfig::HttpSniffPortsConfig()
-{
-  enabled = true;
-}
-
-void HttpSniffPortsConfig::load(VXml xml)
-{
-  enabled = xml.getBool("enabled", enabled);
-  if (!xml.findChild("ports").isNull())
-  {
-    VXml childXml = xml.gotoChild("ports");
-    QList<int>::clear();
-    xml_foreach (portXml, childXml.childs())
-    {
-      int port = portXml.getInt("port");
-      push_back(port);
-    }
-  }
-}
-
-void HttpSniffPortsConfig::save(VXml xml)
-{
-  xml.setBool("enabled", enabled);
-  {
-    VXml childXml = xml.gotoChild("ports");
-    childXml.clearChild();
-    foreach (int port, *this)
-    {
-      childXml.addChild("port").setInt("port", port);
-    }
-  }
-}
-
-// ----------------------------------------------------------------------------
-// HttpSniffCaptureConfig
-// ----------------------------------------------------------------------------
-HttpSniffCaptureConfig::HttpSniffCaptureConfig()
-{
-
-}
-void HttpSniffCaptureConfig::load(VXml xml)
-{
-
-}
-void HttpSniffCaptureConfig::save(VXml xml)
-{
-
-}
-
-// ----------------------------------------------------------------------------
-// HttpSniffProxyConfig
-// ----------------------------------------------------------------------------
-HttpSniffProxyConfig::HttpSniffProxyConfig()
-{
-
-}
-void HttpSniffProxyConfig::load(VXml xml)
-{
-
-}
-void HttpSniffProxyConfig::save(VXml xml)
-{
-
-}
-
-// ----------------------------------------------------------------------------
-// HttpWriteConfig
-// ----------------------------------------------------------------------------
-HttpWriteConfig::HttpWriteConfig()
-{
-
-}
-void HttpWriteConfig::load(VXml xml)
-{
-
-}
-void HttpWriteConfig::save(VXml xml)
-{
-
-}
-
-// ----------------------------------------------------------------------------
 // HttpSniffConfig
 // ----------------------------------------------------------------------------
-const QString HttpSniffConfig::STRIP_PROXY_VIRTUAL_IP = "80.43.80.43";
-
 HttpSniffConfig::HttpSniffConfig()
 {
   //
   // Port
   //
-  tcpPorts.push_back(80);
-  tcpPorts.push_back(8080);
-  tcpPorts.push_back(8888);
+  httpPortList.push_back(80);
+  httpPortList.push_back(8080);
+  httpPortList.push_back(8888);
 
-  sslPorts.push_back(443);
-  sslPorts.push_back(4433);
-
-  stripPorts.push_back(80);
-  stripPorts.push_back(8080);
-  stripPorts.push_back(8888);
+  httpsPortList.push_back(443);
+  httpsPortList.push_back(4433); // gilgil temp 2014.04.08
 
   //
   // Capture
   //
+  captureType = WinDivert;
 
   //
   // Proxy
@@ -117,11 +28,10 @@ HttpSniffConfig::HttpSniffConfig()
   proxyProcessNameList.push_back("snoopspy.exe");
   proxyProcessNameList.push_back("sscon.exe");
 
-  tcpProxy.inPort   = VWebProxy::HTTP_PROXY_PORT - 1; // 8079
-  tcpProxy.outPort  = VWebProxy::HTTP_PROXY_PORT;     // 8080
-  sslProxy.inPort   = VWebProxy::SSL_PROXY_PORT  - 1; // 4432
-  sslProxy.outPort  = VWebProxy::SSL_PROXY_PORT;      // 4433;
-  stripProxy.inPort = STRIP_PROXY_VIRTUAL_PORT;
+  proxyTcpInPort  = VWebProxy::HTTP_PROXY_PORT - 1; // 8079
+  proxyTcpOutPort = VWebProxy::HTTP_PROXY_PORT;     // 8080
+  proxySslInPort  = VWebProxy::SSL_PROXY_PORT  - 1; // 4432
+  proxySslOutPort = VWebProxy::SSL_PROXY_PORT;      // 4433
 
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
   VWebProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
@@ -142,7 +52,7 @@ HttpSniffConfig::~HttpSniffConfig()
 
 bool HttpSniffConfig::saveToFile(QString fileName)
 {
-  QString srcFileName = "ss/httpsniff._ss";
+  QString srcFileName = "ss/websniff_work.ss"; // gilgil temp 2014.04.12
   if (QFile::exists(fileName))
   {
     if (!QFile::remove(fileName))
@@ -232,17 +142,17 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   }
 
   //
-  // as
+  // asOutbound
   //
   {
-    SnoopArpSpoof* as = dynamic_cast<SnoopArpSpoof*>(graph.objectList.findByName("as"));
-    if (as == NULL)
+    SnoopArpSpoof* asOutbound = dynamic_cast<SnoopArpSpoof*>(graph.objectList.findByName("asOutbound"));
+    if (asOutbound == NULL)
     {
-      SET_ERROR(SnoopError, "can not find as", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find asOutbound", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    as->enabled = captureType == ArpSpoof;
+    asOutbound->enabled = captureType == ArpSpoof;
 
     QString filter;
 
@@ -262,8 +172,8 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       filter += oneFilter;
     }
 
-    as->filter = filter;
-    LOG_INFO("ap->filter = \"%s\"", qPrintable(as->filter));
+    asOutbound->filter = filter;
+    LOG_INFO("ap->filter = \"%s\"", qPrintable(asOutbound->filter));
   }
 
   //
@@ -283,16 +193,16 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    pfOutbound->flowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmOutboundProcessFilter"));
+    pfOutbound->flowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmOutboundProc"));
     if (pfOutbound->flowMgr == NULL)
     {
-      SET_ERROR(SnoopError, "can not find fmOutboundProcessFilter", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find fmOutboundProc", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
-    pfInbound->flowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmInboundProcessFilter"));
+    pfInbound->flowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmInboundProc"));
     if (pfInbound->flowMgr == NULL)
     {
-      SET_ERROR(SnoopError, "can not find fmInboundProcessFilter", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find fmInboundProc", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
@@ -312,30 +222,30 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   // fc
   //
   {
-    SnoopFlowChange* fc = dynamic_cast<SnoopFlowChange*>(graph.objectList.findByName("fc"));
-    if (fc == NULL)
+    SnoopFlowChange* fcMain = dynamic_cast<SnoopFlowChange*>(graph.objectList.findByName("fcMain"));
+    if (fcMain == NULL)
     {
-      SET_ERROR(SnoopError, "can not find fc", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find fcMain", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    fc->fromFlowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmOutbound"));
-    if (fc->fromFlowMgr == NULL)
+    fcMain->fromFlowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmOutbound"));
+    if (fcMain->fromFlowMgr == NULL)
     {
       SET_ERROR(SnoopError, "can not find fmOutbound", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
-    fc->toFlowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmInbound"));
-    if (fc->toFlowMgr == NULL)
+    fcMain->toFlowMgr = dynamic_cast<SnoopFlowMgr*>(graph.objectList.findByName("fmInbound"));
+    if (fcMain->toFlowMgr == NULL)
     {
       SET_ERROR(SnoopError, "can not find fmInbound", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    fc->tcpChange = true;
-    fc->udpChange = false;
+    fcMain->tcpChange = true;
+    fcMain->udpChange = false;
 
-    fc->changeItems.clear();
+    fcMain->changeItems.clear();
     foreach (int port, httpPortList)
     {
       SnoopFlowChangeItem item;
@@ -349,7 +259,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       item.dstPort           = port;
       item.dstPortChangeType = SnoopFlowChangeItem::PortFix;
       item.dstPortFixValue   = this->proxyTcpInPort;
-      fc->changeItems.push_back(item);
+      fcMain->changeItems.push_back(item);
     }
 
     foreach (int port, httpsPortList)
@@ -365,7 +275,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       item.dstPort           = port;
       item.dstPortChangeType = SnoopFlowChangeItem::PortFix;
       item.dstPortFixValue   = this->proxySslInPort;
-      fc->changeItems.push_back(item);
+      fcMain->changeItems.push_back(item);
     }
   }
 
@@ -396,11 +306,11 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    hpTcpIn->tcpEnabled          = true;
+    hpTcpIn->httpEnabled         = true;
     hpTcpIn->tcpServer.port      = this->proxyTcpInPort;
     hpTcpIn->tcpServer.localHost = "127.0.0.1";
-    hpTcpIn->sslEnabled          = false;
-    hpTcpIn->outPolicy.method    = VWebProxyOutPolicy::Tcp;
+    hpTcpIn->httpsEnabled        = false;
+    hpTcpIn->outPolicy.method    = VWebProxyOutPolicy::Http;
     hpTcpIn->outPolicy.host      = "127.0.0.1";
     hpTcpIn->outPolicy.port      = this->proxyTcpOutPort;
 
@@ -420,11 +330,11 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    hpTcpOut->tcpEnabled          = true;
+    hpTcpOut->httpEnabled         = true;
     hpTcpOut->tcpServer.port      = this->proxyTcpOutPort;
     hpTcpOut->tcpServer.localHost = "127.0.0.1";
-    hpTcpOut->sslEnabled          = false;
-    hpTcpOut->outPolicy.method    = VWebProxyOutPolicy::Tcp;
+    hpTcpOut->httpsEnabled        = false;
+    hpTcpOut->outPolicy.method    = VWebProxyOutPolicy::Http;
     hpTcpOut->outPolicy.host      = "";
     hpTcpOut->outPolicy.port      = 0;
 
@@ -444,12 +354,12 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    hpSslIn->tcpEnabled          = false;
-    hpSslIn->sslEnabled          = true;
+    hpSslIn->httpEnabled         = false;
+    hpSslIn->httpsEnabled        = true;
     hpSslIn->sslServer.port      = this->proxySslInPort;
     hpSslIn->sslServer.localHost = "127.0.0.1";
     hpSslIn->sslServer.processConnectMessage = false;
-    hpSslIn->outPolicy.method    = VWebProxyOutPolicy::Tcp;
+    hpSslIn->outPolicy.method    = VWebProxyOutPolicy::Http;
     hpSslIn->outPolicy.host      = "127.0.0.1";
     hpSslIn->outPolicy.port      = this->proxySslOutPort;
 
@@ -469,11 +379,11 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    hpSslOut->tcpEnabled          = true;
+    hpSslOut->httpEnabled         = true;
     hpSslOut->tcpServer.port      = this->proxySslOutPort;
     hpSslOut->tcpServer.localHost = "127.0.0.1";
-    hpSslOut->sslEnabled          = false;
-    hpSslOut->outPolicy.method    = VWebProxyOutPolicy::Ssl;
+    hpSslOut->httpsEnabled        = false;
+    hpSslOut->outPolicy.method    = VWebProxyOutPolicy::Https;
     hpSslOut->outPolicy.host      = "";
     hpSslOut->outPolicy.port      = 0;
 
@@ -534,6 +444,30 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
 
 void HttpSniffConfig::load(VXml xml)
 {
+  //
+  // Port
+  //
+  if (!xml.findChild("httpPortList").isNull())
+  {
+    VXml childXml = xml.gotoChild("httpPortList");
+    httpPortList.clear();
+    xml_foreach (portXml, childXml.childs())
+    {
+      int port = portXml.getInt("port");
+      httpPortList.push_back(port);
+    }
+  }
+
+  if (!xml.findChild("httpsPortList").isNull())
+  {
+    VXml childXml = xml.gotoChild("httpsPortList");
+    httpsPortList.clear();
+    xml_foreach (portXml, childXml.childs())
+    {
+      int port = portXml.getInt("port");
+      httpsPortList.push_back(port);
+    }
+  }
 
   //
   // Capture
@@ -564,7 +498,26 @@ void HttpSniffConfig::load(VXml xml)
 
 void HttpSniffConfig::save(VXml xml)
 {
+  //
+  // Port
+  //
+  {
+    VXml childXml = xml.gotoChild("httpPortList");
+    childXml.clearChild();
+    foreach (int port, httpPortList)
+    {
+      childXml.addChild("port").setInt("port", port);
+    }
+  }
 
+  {
+    VXml childXml = xml.gotoChild("httpsPortList");
+    childXml.clearChild();
+    foreach (int port, httpsPortList)
+    {
+      childXml.addChild("port").setInt("port", port);
+    }
+  }
 
   //
   // Capture
