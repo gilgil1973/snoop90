@@ -296,100 +296,100 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   }
 
   //
-  // hpTcpIn
+  // wpTcpIn
   //
   {
-    VWebProxy* hpTcpIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpTcpIn"));
-    if (hpTcpIn == NULL)
+    VWebProxy* wpTcpIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpTcpIn"));
+    if (wpTcpIn == NULL)
     {
-      SET_ERROR(SnoopError, "can not find hpTcpIn", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpTcpIn", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    hpTcpIn->httpEnabled         = true;
-    hpTcpIn->tcpServer.port      = this->proxyTcpInPort;
-    hpTcpIn->tcpServer.localHost = "127.0.0.1";
-    hpTcpIn->httpsEnabled        = false;
-    hpTcpIn->outPolicy.method    = VWebProxyOutPolicy::Http;
-    hpTcpIn->outPolicy.host      = "127.0.0.1";
-    hpTcpIn->outPolicy.port      = this->proxyTcpOutPort;
+    wpTcpIn->httpEnabled         = true;
+    wpTcpIn->tcpServer.port      = this->proxyTcpInPort;
+    wpTcpIn->tcpServer.localHost = "127.0.0.1";
+    wpTcpIn->httpsEnabled        = false;
+    wpTcpIn->outPolicy.method    = VWebProxyOutPolicy::Http;
+    wpTcpIn->outPolicy.host      = "127.0.0.1";
+    wpTcpIn->outPolicy.port      = this->proxyTcpOutPort;
 
-    hpTcpIn->inboundDataChange.clear();
-    this->proxyOutboundDataChange.save(xml); hpTcpIn->outboundDataChange.load(xml);
-    hpTcpIn->disableLoopbackConnection = false;
+    wpTcpIn->inboundDataChange.clear();
+    this->proxyOutboundDataChange.save(xml); wpTcpIn->outboundDataChange.load(xml);
+    wpTcpIn->disableLoopbackConnection = false;
   }
 
   //
-  // hpTcpOut
+  // wpTcpOut
   //
   {
-    VWebProxy* hpTcpOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpTcpOut"));
-    if (hpTcpOut == NULL)
+    VWebProxy* wpTcpOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpTcpOut"));
+    if (wpTcpOut == NULL)
     {
-      SET_ERROR(SnoopError, "can not find hpTcpOut", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpTcpOut", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    hpTcpOut->httpEnabled         = true;
-    hpTcpOut->tcpServer.port      = this->proxyTcpOutPort;
-    hpTcpOut->tcpServer.localHost = "127.0.0.1";
-    hpTcpOut->httpsEnabled        = false;
-    hpTcpOut->outPolicy.method    = VWebProxyOutPolicy::Http;
-    hpTcpOut->outPolicy.host      = "";
-    hpTcpOut->outPolicy.port      = 0;
+    wpTcpOut->httpEnabled         = true;
+    wpTcpOut->tcpServer.port      = this->proxyTcpOutPort;
+    wpTcpOut->tcpServer.localHost = "127.0.0.1";
+    wpTcpOut->httpsEnabled        = false;
+    wpTcpOut->outPolicy.method    = VWebProxyOutPolicy::Http;
+    wpTcpOut->outPolicy.host      = "";
+    wpTcpOut->outPolicy.port      = 0;
 
-    this->proxyInboundDataChange.save(xml); hpTcpOut->inboundDataChange.load(xml);
-    hpTcpOut->outboundDataChange.clear();
-    hpTcpOut->disableLoopbackConnection = true;
+    this->proxyInboundDataChange.save(xml); wpTcpOut->inboundDataChange.load(xml);
+    wpTcpOut->outboundDataChange.clear();
+    wpTcpOut->disableLoopbackConnection = true;
   }
 
   //
-  // hpSslIn
+  // wpSslIn
   //
   {
-    VWebProxy* hpSslIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpSslIn"));
-    if (hpSslIn == NULL)
+    VWebProxy* wpSslIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpSslIn"));
+    if (wpSslIn == NULL)
     {
-      SET_ERROR(SnoopError, "can not find hpSslIn", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpSslIn", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    hpSslIn->httpEnabled         = false;
-    hpSslIn->httpsEnabled        = true;
-    hpSslIn->sslServer.port      = this->proxySslInPort;
-    hpSslIn->sslServer.localHost = "127.0.0.1";
-    hpSslIn->sslServer.processConnectMessage = false;
-    hpSslIn->outPolicy.method    = VWebProxyOutPolicy::Http;
-    hpSslIn->outPolicy.host      = "127.0.0.1";
-    hpSslIn->outPolicy.port      = this->proxySslOutPort;
+    wpSslIn->httpEnabled         = false;
+    wpSslIn->httpsEnabled        = true;
+    wpSslIn->sslServer.port      = this->proxySslInPort;
+    wpSslIn->sslServer.localHost = "127.0.0.1";
+    wpSslIn->sslServer.processConnectMessage = false;
+    wpSslIn->outPolicy.method    = VWebProxyOutPolicy::Http;
+    wpSslIn->outPolicy.host      = "127.0.0.1";
+    wpSslIn->outPolicy.port      = this->proxySslOutPort;
 
-    hpSslIn->inboundDataChange.clear();
-    this->proxyOutboundDataChange.save(xml); hpSslIn->outboundDataChange.load(xml);
-    hpSslIn->disableLoopbackConnection = false;
+    wpSslIn->inboundDataChange.clear();
+    this->proxyOutboundDataChange.save(xml); wpSslIn->outboundDataChange.load(xml);
+    wpSslIn->disableLoopbackConnection = false;
   }
 
   //
-  // hpSslOut
+  // wpSslOut
   //
   {
-    VWebProxy* hpSslOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("hpSslOut"));
-    if (hpSslOut == NULL)
+    VWebProxy* wpSslOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpSslOut"));
+    if (wpSslOut == NULL)
     {
-      SET_ERROR(SnoopError, "can not find hpSslOut", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpSslOut", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    hpSslOut->httpEnabled         = true;
-    hpSslOut->tcpServer.port      = this->proxySslOutPort;
-    hpSslOut->tcpServer.localHost = "127.0.0.1";
-    hpSslOut->httpsEnabled        = false;
-    hpSslOut->outPolicy.method    = VWebProxyOutPolicy::Https;
-    hpSslOut->outPolicy.host      = "";
-    hpSslOut->outPolicy.port      = 0;
+    wpSslOut->httpEnabled         = true;
+    wpSslOut->tcpServer.port      = this->proxySslOutPort;
+    wpSslOut->tcpServer.localHost = "127.0.0.1";
+    wpSslOut->httpsEnabled        = false;
+    wpSslOut->outPolicy.method    = VWebProxyOutPolicy::Https;
+    wpSslOut->outPolicy.host      = "";
+    wpSslOut->outPolicy.port      = 0;
 
-    this->proxyInboundDataChange.save(xml); hpSslOut->inboundDataChange.load(xml);
-    hpSslOut->outboundDataChange.clear();
-    hpSslOut->disableLoopbackConnection = true;
+    this->proxyInboundDataChange.save(xml); wpSslOut->inboundDataChange.load(xml);
+    wpSslOut->outboundDataChange.clear();
+    wpSslOut->disableLoopbackConnection = true;
   }
 
   //
