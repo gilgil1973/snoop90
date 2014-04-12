@@ -219,7 +219,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
   }
 
   //
-  // fc
+  // fcMain
   //
   {
     SnoopFlowChange* fcMain = dynamic_cast<SnoopFlowChange*>(graph.objectList.findByName("fcMain"));
