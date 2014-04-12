@@ -52,6 +52,8 @@ private slots:
 
   void on_pbSave_clicked();
 
+  void on_chkSslStripEnabled_clicked();
+
 private:
   Ui::Dialog *ui;
 };

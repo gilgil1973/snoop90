@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>418</width>
-    <height>529</height>
+    <height>661</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>HTTP Sniff version 3.0</string>
+   <string>WebSniff</string>
   </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>401</width>
-     <height>451</height>
+     <height>581</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -125,6 +125,32 @@
       <string>ARPSpoof</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pbWinDivertOption">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>20</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Option</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pbArpSpoofOption">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>20</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Option</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="gbProxy">
     <property name="geometry">
@@ -132,13 +158,13 @@
       <x>10</x>
       <y>210</y>
       <width>381</width>
-      <height>141</height>
+      <height>181</height>
      </rect>
     </property>
     <property name="title">
      <string>Proxy</string>
     </property>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="HTTP">
      <property name="geometry">
       <rect>
        <x>160</x>
@@ -151,7 +177,7 @@
       <string>TCP</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="leTcpInPort">
+    <widget class="QLineEdit" name="leHttpInPort">
      <property name="geometry">
       <rect>
        <x>200</x>
@@ -161,7 +187,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLineEdit" name="leTcpOutPort">
+    <widget class="QLineEdit" name="leHttpOutPort">
      <property name="geometry">
       <rect>
        <x>300</x>
@@ -171,7 +197,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLineEdit" name="leSslOutPort">
+    <widget class="QLineEdit" name="leHttpsOutPort">
      <property name="geometry">
       <rect>
        <x>300</x>
@@ -181,7 +207,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLabel" name="SSLabel_6">
+    <widget class="QLabel" name="HTTPS">
      <property name="geometry">
       <rect>
        <x>160</x>
@@ -194,7 +220,7 @@
       <string>SSL</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="leSslInPort">
+    <widget class="QLineEdit" name="leHttpsInPort">
      <property name="geometry">
       <rect>
        <x>200</x>
@@ -223,7 +249,7 @@
        <x>10</x>
        <y>40</y>
        <width>141</width>
-       <height>91</height>
+       <height>131</height>
       </rect>
      </property>
     </widget>
@@ -231,9 +257,9 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>100</y>
+       <y>130</y>
        <width>75</width>
-       <height>31</height>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
@@ -270,13 +296,59 @@
      <property name="geometry">
       <rect>
        <x>300</x>
-       <y>100</y>
+       <y>130</y>
        <width>75</width>
-       <height>31</height>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
       <string>Inbound</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leStripOutPort">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>100</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="SSLStrip">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>100</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Strip</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>100</y>
+       <width>16</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leStripInPort">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>100</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
      </property>
     </widget>
    </widget>
@@ -284,7 +356,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>360</y>
+      <y>490</y>
       <width>381</width>
       <height>80</height>
      </rect>
@@ -339,12 +411,84 @@
      </property>
     </widget>
    </widget>
+   <widget class="QGroupBox" name="gbSslStrip">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>400</y>
+      <width>381</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>SSL Strip</string>
+    </property>
+    <widget class="QCheckBox" name="chkSslStripEnabled">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Enabled</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>20</y>
+       <width>56</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Virtual IP</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>50</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Domain Prefix</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leSslStripVirtualIp">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>20</y>
+       <width>171</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leSslStripDomainPrefix">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>50</y>
+       <width>171</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QPushButton" name="pbRun">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>470</y>
+     <y>600</y>
      <width>201</width>
      <height>51</height>
     </rect>
@@ -357,7 +501,7 @@
    <property name="geometry">
     <rect>
      <x>210</x>
-     <y>470</y>
+     <y>600</y>
      <width>201</width>
      <height>51</height>
     </rect>
@@ -369,11 +513,30 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
+  <tabstop>pteHttpPortList</tabstop>
+  <tabstop>pteHttpsPortList</tabstop>
   <tabstop>rbWinDivert</tabstop>
+  <tabstop>pbWinDivertOption</tabstop>
   <tabstop>rbArpSpoof</tabstop>
+  <tabstop>pbArpSpoofOption</tabstop>
+  <tabstop>pteProxyProcessNameList</tabstop>
+  <tabstop>leHttpInPort</tabstop>
+  <tabstop>leHttpOutPort</tabstop>
+  <tabstop>leHttpsInPort</tabstop>
+  <tabstop>leHttpsOutPort</tabstop>
+  <tabstop>leStripInPort</tabstop>
+  <tabstop>leStripOutPort</tabstop>
+  <tabstop>pbOutboundDataChange</tabstop>
+  <tabstop>pbInboundDataChange</tabstop>
+  <tabstop>chkSslStripEnabled</tabstop>
+  <tabstop>leSslStripVirtualIp</tabstop>
+  <tabstop>leSslStripDomainPrefix</tabstop>
   <tabstop>chkDump</tabstop>
+  <tabstop>leDumpFilePath</tabstop>
   <tabstop>chkWriteAdapter</tabstop>
+  <tabstop>cbxAdapterIndex</tabstop>
   <tabstop>pbRun</tabstop>
+  <tabstop>pbSave</tabstop>
  </tabstops>
  <resources/>
  <connections/>

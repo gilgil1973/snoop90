@@ -7,9 +7,9 @@
 #include <SnoopFlowChange>
 #include <SnoopWriteWinDivert>
 #include <VWebProxy>
+#include <SnoopDnsChange>
 #include <SnoopDump>
 #include <SnoopWriteAdapter>
-
 #include <VGraph>
 
 // ----------------------------------------------------------------------------
@@ -22,6 +22,11 @@ public:
     WinDivert, // 0
     ArpSpoof   // 1
   } CaptureType;
+
+public:
+  static const QString HTTP_STRIP_VIRTUAL_IP; // "80.43.80.43"
+  static const QString HTTP_STRIP_DOMAIN_PREFIX; // "ss."
+  static const int     HTTP_STRIP_PORT  = 8043;
 
 public:
   HttpSniffConfig();
@@ -40,19 +45,29 @@ public:
   //
   // Capture
   //
-  CaptureType   captureType;
-  SnoopArpSpoof arpSpoof;
+  CaptureType    captureType;
+  SnoopWinDivert winDivert;
+  SnoopArpSpoof  arpSpoof;
 
   //
   // Proxy
   //
   QStringList proxyProcessNameList;
-  int         proxyTcpInPort;
-  int         proxyTcpOutPort;
-  int         proxySslInPort;
-  int         proxySslOutPort;
+  int         proxyHttpInPort;
+  int         proxyHttpOutPort;
+  int         proxyHttpsInPort;
+  int         proxyHttpsOutPort;
+  int         proxyStripInPort;
+  int         proxyStripOutPort;
   VDataChange proxyInboundDataChange;
   VDataChange proxyOutboundDataChange;
+
+  //
+  // SslStrip
+  //
+  bool    sslStripEnabled;
+  QString sslStripVirtualIp;
+  QString sslStripDomainPrefix;
 
   //
   // Write

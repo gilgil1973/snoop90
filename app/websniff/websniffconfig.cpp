@@ -3,6 +3,9 @@
 // ----------------------------------------------------------------------------
 // HttpSniffConfig
 // ----------------------------------------------------------------------------
+const QString HttpSniffConfig::HTTP_STRIP_VIRTUAL_IP    = "80.43.80.43";
+const QString HttpSniffConfig::HTTP_STRIP_DOMAIN_PREFIX = "ss.";
+
 HttpSniffConfig::HttpSniffConfig()
 {
   //
@@ -28,19 +31,28 @@ HttpSniffConfig::HttpSniffConfig()
   proxyProcessNameList.push_back("snoopspy.exe");
   proxyProcessNameList.push_back("sscon.exe");
 
-  proxyTcpInPort  = VWebProxy::HTTP_PROXY_PORT - 1; // 8079
-  proxyTcpOutPort = VWebProxy::HTTP_PROXY_PORT;     // 8080
-  proxySslInPort  = VWebProxy::SSL_PROXY_PORT  - 1; // 4432
-  proxySslOutPort = VWebProxy::SSL_PROXY_PORT;      // 4433
+  proxyHttpInPort   = VWebProxy::HTTP_PROXY_PORT - 1; // 8079
+  proxyHttpOutPort  = VWebProxy::HTTP_PROXY_PORT;     // 8080
+  proxyHttpsInPort  = VWebProxy::SSL_PROXY_PORT - 1;  // 4432
+  proxyHttpsOutPort = VWebProxy::SSL_PROXY_PORT;      // 4433
+  proxyStripInPort  = HTTP_STRIP_PORT - 1;            // 8042
+  proxyStripOutPort = HTTP_STRIP_PORT;                // 8042
 
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
   VWebProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
 
   //
+  // SslStrip
+  //
+  sslStripEnabled      = true;
+  sslStripVirtualIp    = HTTP_STRIP_VIRTUAL_IP;
+  sslStripDomainPrefix = HTTP_STRIP_DOMAIN_PREFIX;
+
+  //
   // Write
   //
   dumpEnabled         = true;
-  dumpFilePath        = "pcap/httpsniff_%04d%02d%02d.%02d%02d.%02d.%03d.pcap";
+  dumpFilePath        = "pcap/websniff_%04d%02d%02d.%02d%02d.%02d.%03d.pcap";
   writeAdapterEnabled = false;
   writeAdapterIndex = snoop::INVALID_ADAPTER_INDEX;
 }
@@ -89,11 +101,11 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
 {
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
 
+  //
+  // wdOutbound
+  //
+  SnoopWinDivert* wdOutbound = dynamic_cast<SnoopWinDivert*>(graph.objectList.findByName("wdOutbound"));
   {
-    //
-    // wdOutbound
-    //
-    SnoopWinDivert* wdOutbound = dynamic_cast<SnoopWinDivert*>(graph.objectList.findByName("wdOutbound"));
     if (wdOutbound == NULL)
     {
       SET_ERROR(SnoopError, "can not find wdOutbound", VERR_CAN_NOT_FIND_OBJECT);
@@ -120,14 +132,19 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       filter += oneFilter;
     }
 
+    if (sslStripEnabled)
+    {
+      filter += " or udp.DstPort==53";
+    }
+
     wdOutbound->filter = qformat("(ifIdx!=1) and outbound and (%s)", qPrintable(filter));
     LOG_INFO("wdOutbound->filter = \"%s\"", qPrintable(wdOutbound->filter));
   }
 
+  //
+  // wdInbound
+  //
   {
-    //
-    // wdInbound
-    //
     SnoopWinDivert* wdInbound = dynamic_cast<SnoopWinDivert*>(graph.objectList.findByName("wdInbound"));
     if (wdInbound == NULL)
     {
@@ -135,17 +152,25 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
+
     wdInbound->enabled = true;
 
-    wdInbound->filter = qformat("(ifIdx==1) and (tcp.SrcPort=%d or tcp.SrcPort=%d)", proxyTcpInPort, proxySslInPort);
+    QString filter = qformat("tcp.SrcPort=%d or tcp.SrcPort=%d", proxyHttpInPort, proxyHttpsInPort);
+    if (sslStripEnabled)
+    {
+      filter += qformat(" or tcp.SrcPort==%d", proxyStripInPort);
+    }
+    filter = qformat("(ifIdx==1) and (%s)", qPrintable(filter));
+
+    wdInbound->filter = filter;
     LOG_INFO("wdInbound->filter = \"%s\"", qPrintable(wdInbound->filter));
   }
 
   //
   // asOutbound
   //
+  SnoopArpSpoof* asOutbound = dynamic_cast<SnoopArpSpoof*>(graph.objectList.findByName("asOutbound"));
   {
-    SnoopArpSpoof* asOutbound = dynamic_cast<SnoopArpSpoof*>(graph.objectList.findByName("asOutbound"));
     if (asOutbound == NULL)
     {
       SET_ERROR(SnoopError, "can not find asOutbound", VERR_CAN_NOT_FIND_OBJECT);
@@ -170,6 +195,11 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       if (filter != "") filter += " or ";
       QString oneFilter = qformat("tcp dst port %d", httpsPortList.at(i));
       filter += oneFilter;
+    }
+
+    if (sslStripEnabled)
+    {
+      filter += " or udp dst port 53";
     }
 
     asOutbound->filter = filter;
@@ -246,6 +276,27 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     fcMain->udpChange = false;
 
     fcMain->changeItems.clear();
+    if (sslStripEnabled)
+    {
+      foreach (int port, httpPortList)
+      {
+        SnoopFlowChangeItem item;
+        item.log               = false;
+        item.protocol          = SnoopFlowChangeItem::Tcp;
+        item.srcIpChangeType   = SnoopFlowChangeItem::IpFix;
+        item.srcIpFixValue     = Ip("127.0.0.1");
+        item.srcPortChangeType = SnoopFlowChangeItem::PortAutoInc;
+        item.dstIp             = sslStripVirtualIp;
+        item.dstIpMask         = Ip("255.255.255.255");
+        item.dstIpChangeType   = SnoopFlowChangeItem::IpFix;
+        item.dstIpFixValue     = Ip("127.0.0.1");
+        item.dstPort           = port;
+        item.dstPortChangeType = SnoopFlowChangeItem::PortFix;
+        item.dstPortFixValue   = this->proxyStripInPort;
+        fcMain->changeItems.push_back(item);
+      }
+    }
+
     foreach (int port, httpPortList)
     {
       SnoopFlowChangeItem item;
@@ -258,7 +309,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       item.dstIpFixValue     = Ip("127.0.0.1");
       item.dstPort           = port;
       item.dstPortChangeType = SnoopFlowChangeItem::PortFix;
-      item.dstPortFixValue   = this->proxyTcpInPort;
+      item.dstPortFixValue   = this->proxyHttpInPort;
       fcMain->changeItems.push_back(item);
     }
 
@@ -274,7 +325,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       item.dstIpFixValue     = Ip("127.0.0.1");
       item.dstPort           = port;
       item.dstPortChangeType = SnoopFlowChangeItem::PortFix;
-      item.dstPortFixValue   = this->proxySslInPort;
+      item.dstPortFixValue   = this->proxyHttpsInPort;
       fcMain->changeItems.push_back(item);
     }
   }
@@ -290,120 +341,238 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    wwdOutbound->autoRead = false;
+    wwdOutbound->enabled          = captureType == WinDivert;
+    wwdOutbound->autoRead         = false;
     wwdOutbound->changeDivertAddr = true;
     wwdOutbound->divertAddr.IfIdx = 1;
   }
 
   //
-  // wpTcpIn
+  // wpHttpIn
   //
   {
-    VWebProxy* wpTcpIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpTcpIn"));
-    if (wpTcpIn == NULL)
+    VWebProxy* wpHttpIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpHttpIn"));
+    if (wpHttpIn == NULL)
     {
-      SET_ERROR(SnoopError, "can not find wpTcpIn", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpHttpIn", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    wpTcpIn->httpEnabled         = true;
-    wpTcpIn->tcpServer.port      = this->proxyTcpInPort;
-    wpTcpIn->tcpServer.localHost = "127.0.0.1";
-    wpTcpIn->httpsEnabled        = false;
-    wpTcpIn->outPolicy.method    = VWebProxyOutPolicy::Http;
-    wpTcpIn->outPolicy.host      = "127.0.0.1";
-    wpTcpIn->outPolicy.port      = this->proxyTcpOutPort;
+    wpHttpIn->httpEnabled         = true;
+    wpHttpIn->tcpServer.port      = this->proxyHttpInPort;
+    wpHttpIn->tcpServer.localHost = "127.0.0.1";
+    wpHttpIn->httpsEnabled        = false;
+    wpHttpIn->outPolicy.method    = VWebProxyOutPolicy::Http;
+    wpHttpIn->outPolicy.host      = "127.0.0.1";
+    wpHttpIn->outPolicy.port      = this->proxyHttpOutPort;
 
-    wpTcpIn->inboundDataChange.clear();
-    this->proxyOutboundDataChange.save(xml); wpTcpIn->outboundDataChange.load(xml);
-    wpTcpIn->disableLoopbackConnection = false;
+    wpHttpIn->inboundDataChange.clear();
+    this->proxyOutboundDataChange.save(xml); wpHttpIn->outboundDataChange.load(xml);
+    wpHttpIn->disableLoopbackConnection = false;
   }
 
   //
-  // wpTcpOut
+  // wpHttpOut
   //
   {
-    VWebProxy* wpTcpOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpTcpOut"));
-    if (wpTcpOut == NULL)
+    VWebProxy* wpHttpOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpHttpOut"));
+    if (wpHttpOut == NULL)
     {
-      SET_ERROR(SnoopError, "can not find wpTcpOut", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpHttpOut", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    wpTcpOut->httpEnabled         = true;
-    wpTcpOut->tcpServer.port      = this->proxyTcpOutPort;
-    wpTcpOut->tcpServer.localHost = "127.0.0.1";
-    wpTcpOut->httpsEnabled        = false;
-    wpTcpOut->outPolicy.method    = VWebProxyOutPolicy::Http;
-    wpTcpOut->outPolicy.host      = "";
-    wpTcpOut->outPolicy.port      = 0;
+    wpHttpOut->httpEnabled         = true;
+    wpHttpOut->tcpServer.port      = this->proxyHttpOutPort;
+    wpHttpOut->tcpServer.localHost = "127.0.0.1";
+    wpHttpOut->httpsEnabled        = false;
+    wpHttpOut->outPolicy.method    = VWebProxyOutPolicy::Http;
+    wpHttpOut->outPolicy.host      = "";
+    wpHttpOut->outPolicy.port      = 0;
 
-    this->proxyInboundDataChange.save(xml); wpTcpOut->inboundDataChange.load(xml);
-    wpTcpOut->outboundDataChange.clear();
-    wpTcpOut->disableLoopbackConnection = true;
+    this->proxyInboundDataChange.save(xml); wpHttpOut->inboundDataChange.load(xml);
+    if (sslStripEnabled)
+    {
+      VDataChangeItem item;
+      item.pattern = "https://";
+      item.enabled = true;
+      item.log     = true;
+      item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
+      wpHttpOut->inboundDataChange.push_back(item);
+    }
+    wpHttpOut->outboundDataChange.clear();
+    wpHttpOut->disableLoopbackConnection = true;
   }
 
   //
-  // wpSslIn
+  // wpHttpsIn
   //
   {
-    VWebProxy* wpSslIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpSslIn"));
-    if (wpSslIn == NULL)
+    VWebProxy* wpHttpsIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpHttpsIn"));
+    if (wpHttpsIn == NULL)
     {
-      SET_ERROR(SnoopError, "can not find wpSslIn", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpHttpsIn", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    wpSslIn->httpEnabled         = false;
-    wpSslIn->httpsEnabled        = true;
-    wpSslIn->sslServer.port      = this->proxySslInPort;
-    wpSslIn->sslServer.localHost = "127.0.0.1";
-    wpSslIn->sslServer.processConnectMessage = false;
-    wpSslIn->outPolicy.method    = VWebProxyOutPolicy::Http;
-    wpSslIn->outPolicy.host      = "127.0.0.1";
-    wpSslIn->outPolicy.port      = this->proxySslOutPort;
+    wpHttpsIn->httpEnabled         = false;
+    wpHttpsIn->httpsEnabled        = true;
+    wpHttpsIn->sslServer.port      = this->proxyHttpsInPort;
+    wpHttpsIn->sslServer.localHost = "127.0.0.1";
+    wpHttpsIn->sslServer.processConnectMessage = false;
+    wpHttpsIn->outPolicy.method    = VWebProxyOutPolicy::Http;
+    wpHttpsIn->outPolicy.host      = "127.0.0.1";
+    wpHttpsIn->outPolicy.port      = this->proxyHttpsOutPort;
 
-    wpSslIn->inboundDataChange.clear();
-    this->proxyOutboundDataChange.save(xml); wpSslIn->outboundDataChange.load(xml);
-    wpSslIn->disableLoopbackConnection = false;
+    wpHttpsIn->inboundDataChange.clear();
+    this->proxyOutboundDataChange.save(xml); wpHttpsIn->outboundDataChange.load(xml);
+    wpHttpsIn->disableLoopbackConnection = false;
   }
 
   //
-  // wpSslOut
+  // wpHttpsOut
   //
   {
-    VWebProxy* wpSslOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpSslOut"));
-    if (wpSslOut == NULL)
+    VWebProxy* wpHttpsOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpHttpsOut"));
+    if (wpHttpsOut == NULL)
     {
-      SET_ERROR(SnoopError, "can not find wpSslOut", VERR_CAN_NOT_FIND_OBJECT);
+      SET_ERROR(SnoopError, "can not find wpHttpsOut", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
 
-    wpSslOut->httpEnabled         = true;
-    wpSslOut->tcpServer.port      = this->proxySslOutPort;
-    wpSslOut->tcpServer.localHost = "127.0.0.1";
-    wpSslOut->httpsEnabled        = false;
-    wpSslOut->outPolicy.method    = VWebProxyOutPolicy::Https;
-    wpSslOut->outPolicy.host      = "";
-    wpSslOut->outPolicy.port      = 0;
+    wpHttpsOut->httpEnabled         = true;
+    wpHttpsOut->tcpServer.port      = this->proxyHttpsOutPort;
+    wpHttpsOut->tcpServer.localHost = "127.0.0.1";
+    wpHttpsOut->httpsEnabled        = false;
+    wpHttpsOut->outPolicy.method    = VWebProxyOutPolicy::Https;
+    wpHttpsOut->outPolicy.host      = "";
+    wpHttpsOut->outPolicy.port      = 0;
 
-    this->proxyInboundDataChange.save(xml); wpSslOut->inboundDataChange.load(xml);
-    wpSslOut->outboundDataChange.clear();
-    wpSslOut->disableLoopbackConnection = true;
+    this->proxyInboundDataChange.save(xml); wpHttpsOut->inboundDataChange.load(xml);
+    wpHttpsOut->outboundDataChange.clear();
+    wpHttpsOut->disableLoopbackConnection = true;
+  }
+
+  //
+  // wpStripIn
+  //
+  {
+    VWebProxy* wpStripIn = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpStripIn"));
+    if (wpStripIn == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find wpStripIn", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
+
+    wpStripIn->enabled             = sslStripEnabled;
+    wpStripIn->httpEnabled         = true;
+    wpStripIn->tcpServer.port      = this->proxyStripInPort;
+    wpStripIn->tcpServer.localHost = "127.0.0.1";
+    wpStripIn->httpsEnabled        = false;
+    wpStripIn->outPolicy.method    = VWebProxyOutPolicy::Http;
+    wpStripIn->outPolicy.host      = "127.0.0.1";
+    wpStripIn->outPolicy.port      = this->proxyStripOutPort;
+
+    wpStripIn->inboundDataChange.clear();
+    this->proxyOutboundDataChange.save(xml); wpStripIn->outboundDataChange.load(xml);
+    {
+      VDataChangeItem item;
+      item.pattern = "\r\nHost: " + this->sslStripDomainPrefix; // gilgil temp 2014.04.13
+      item.syntax = QRegExp::FixedString;
+      item.enabled = true;
+      item.log = true;
+      item.replace = "\r\nHost: ";
+      wpStripIn->outboundDataChange.push_back(item);
+    }
+    wpStripIn->disableLoopbackConnection = false;
+  }
+
+  //
+  // wpStripOut
+  //
+  {
+    VWebProxy* wpStripOut = dynamic_cast<VWebProxy*>(graph.objectList.findByName("wpStripOut"));
+    if (wpStripOut == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find wpStripOut", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
+
+    wpStripOut->enabled =           sslStripEnabled;
+    wpStripOut->httpEnabled         = true;
+    wpStripOut->tcpServer.port      = this->proxyStripOutPort;
+    wpStripOut->tcpServer.localHost = "127.0.0.1";
+    wpStripOut->httpsEnabled        = false;
+    wpStripOut->outPolicy.method    = VWebProxyOutPolicy::Https;
+    wpStripOut->outPolicy.host      = "";
+    wpStripOut->outPolicy.port      = 0;
+
+    this->proxyInboundDataChange.save(xml); wpStripOut->inboundDataChange.load(xml);
+    {
+      VDataChangeItem item;
+      item.pattern = "https://";
+      item.syntax = QRegExp::FixedString;
+      item.enabled = true;
+      item.log = true;
+      item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
+      wpStripOut->inboundDataChange.push_back(item);
+    }
+    wpStripOut->outboundDataChange.clear();
+    wpStripOut->disableLoopbackConnection = true;
+  }
+
+  //
+  // dnscStrip
+  //
+  {
+    SnoopDnsChange* dnscStrip = dynamic_cast<SnoopDnsChange*>(graph.objectList.findByName("dnscStrip"));
+    if (dnscStrip == NULL)
+    {
+      SET_ERROR(SnoopError, "can not find dnscStrip", VERR_CAN_NOT_FIND_OBJECT);
+      return false;
+    }
+
+    if (captureType == WinDivert)     dnscStrip->writer = wdOutbound;
+    else if (captureType == ArpSpoof) dnscStrip->writer = asOutbound;
+
+    dnscStrip->changeItems.clear();
+    SnoopDnsChangeItem item;
+    item.pattern = sslStripDomainPrefix + "*";
+    item.syntax  = QRegExp::Wildcard;
+    item.enabled = true;
+    item.log     = true;
+    item.ip      = sslStripVirtualIp;
+    dnscStrip->changeItems.push_back(item);
+
+    if (!sslStripEnabled)
+    {
+      VObject::disconnect(wdOutbound, SIGNAL(captured(SnoopPacket*)), dnscStrip, SLOT(check(SnoopPacket*)));
+      VObject::disconnect(asOutbound, SIGNAL(captured(SnoopPacket*)), dnscStrip, SLOT(check(SnoopPacket*)));
+    }
   }
 
   //
   // wdProxy
   //
+  SnoopWinDivert* wdProxy = dynamic_cast<SnoopWinDivert*>(graph.objectList.findByName("wdProxy"));
   {
-    SnoopWinDivert* wdProxy = dynamic_cast<SnoopWinDivert*>(graph.objectList.findByName("wdProxy"));
     if (wdProxy == NULL)
     {
       SET_ERROR(SnoopError, "can not find wdProxy", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
-    wdProxy->filter = qformat("ifIdx==1 and outbound and (tcp.SrcPort==%d or tcp.DstPort==%d or tcp.SrcPort==%d or tcp.DstPort==%d)",
-      this->proxyTcpOutPort, this->proxyTcpOutPort, this->proxySslOutPort, this->proxySslOutPort);
+
+    QString filter = qformat("tcp.SrcPort==%d or tcp.DstPort==%d or tcp.SrcPort==%d or tcp.DstPort==%d",
+      this->proxyHttpOutPort, this->proxyHttpOutPort, this->proxyHttpsOutPort, this->proxyHttpsOutPort);
+
+    if (sslStripEnabled)
+    {
+      filter += qformat(" or tcp.SrcPort==%d or tcp.DstPort==%d",
+       this->proxyStripOutPort, this->proxyStripOutPort);
+    }
+    filter = qformat("(ifIdx==1) and outbound and (%s)", qPrintable(filter));
+
+    wdProxy->filter = filter;
     LOG_INFO("wdProxy->filter = \"%s\"", qPrintable(wdProxy->filter));
 
     wdProxy->flags = WINDIVERT_FLAG_SNIFF;
@@ -420,8 +589,11 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
+    if (!dumpEnabled)
+    {
+      VObject::disconnect(wdProxy, SIGNAL(captured(SnoopPacket*)), dProxy, SLOT(dump(SnoopPacket*)));
+    }
     dProxy->filePath = this->dumpFilePath;
-    // if (!this->dumpEnabled) // gilgil temp 2014.04.08
   }
 
   //
@@ -480,12 +652,21 @@ void HttpSniffConfig::load(VXml xml)
   //
   QString s = xml.getStr("proxyProcessNameList");
   if (s != "") proxyProcessNameList = s.split(",");
-  proxyTcpInPort = xml.getInt("proxyTcpInPort", proxyTcpInPort);
-  proxyTcpOutPort = xml.getInt("proxyTcpOutPort", proxyTcpOutPort);
-  proxySslInPort = xml.getInt("proxySslInPort", proxySslInPort);
-  proxySslOutPort = xml.getInt("proxySslOutPort", proxySslOutPort);
+  proxyHttpInPort   = xml.getInt("proxyHttpInPort",   proxyHttpInPort);
+  proxyHttpOutPort  = xml.getInt("proxyHttpOutPort",  proxyHttpOutPort);
+  proxyHttpsInPort  = xml.getInt("proxyHttpsInPort",  proxyHttpsInPort);
+  proxyHttpsOutPort = xml.getInt("proxyHttpsOutPort", proxyHttpsOutPort);
+  proxyStripInPort  = xml.getInt("proxyStripInPort",  proxyStripInPort);
+  proxyStripOutPort = xml.getInt("proxyStripOutPort", proxyStripOutPort);
   if (!xml.findChild("proxyInboundDataChange").isNull()) proxyInboundDataChange.load(xml.gotoChild("proxyInboundDataChange"));
   if (!xml.findChild("proxyOutboundDataChange").isNull()) proxyOutboundDataChange.load(xml.gotoChild("proxyOutboundDataChange"));
+
+  //
+  // SslStrip
+  //
+  sslStripEnabled      = xml.getBool("sslStripEnabled",     sslStripEnabled);
+  sslStripVirtualIp    = xml.getStr("sslStripVirtualIp",    sslStripVirtualIp);
+  sslStripDomainPrefix = xml.getStr("sslStripDomainPrefix", sslStripDomainPrefix);
 
   //
   // Write
@@ -529,12 +710,21 @@ void HttpSniffConfig::save(VXml xml)
   // Proxy
   //
   xml.setStr("proxyProcessNameList", proxyProcessNameList.join(","));
-  xml.setInt("proxyTcpInPort", proxyTcpInPort);
-  xml.setInt("proxyTcpOutPort", proxyTcpOutPort);
-  xml.setInt("proxySslInPort", proxySslInPort);
-  xml.setInt("proxySslOutPort", proxySslOutPort);
+  xml.setInt("proxyHttpInPort",   proxyHttpInPort);
+  xml.setInt("proxyHttpOutPort",  proxyHttpOutPort);
+  xml.setInt("proxyHttpsInPort",  proxyHttpsInPort);
+  xml.setInt("proxyHttpsOutPort", proxyHttpsOutPort);
+  xml.setInt("proxyStripInPort",  proxyStripInPort);
+  xml.setInt("proxyStripOutPort", proxyStripOutPort);
   proxyInboundDataChange.save(xml.gotoChild("proxyInboundDataChange"));
   proxyOutboundDataChange.save(xml.gotoChild("proxyOutboundDataChange"));
+
+  //
+  // SslStrip
+  //
+  xml.setBool("sslStripEnabled",     sslStripEnabled);
+  xml.setStr("sslStripVirtualIp",    sslStripVirtualIp);
+  xml.setStr("sslStripDomainPrefix", sslStripDomainPrefix);
 
   //
   // Write

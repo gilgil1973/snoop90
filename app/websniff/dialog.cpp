@@ -81,10 +81,19 @@ void Dialog::loadControl()
   {
     ui->pteProxyProcessNameList->insertPlainText(processName + "\n");
   }
-  ui->leTcpInPort->setText(QString::number(config.proxyTcpInPort));
-  ui->leTcpOutPort->setText(QString::number(config.proxyTcpOutPort));
-  ui->leSslInPort->setText(QString::number(config.proxySslInPort));
-  ui->leSslOutPort->setText(QString::number(config.proxySslOutPort));
+  ui->leHttpInPort->setText(QString::number(config.proxyHttpInPort));
+  ui->leHttpOutPort->setText(QString::number(config.proxyHttpOutPort));
+  ui->leHttpsInPort->setText(QString::number(config.proxyHttpsInPort));
+  ui->leHttpsOutPort->setText(QString::number(config.proxyHttpsOutPort));
+  ui->leStripInPort->setText(QString::number(config.proxyStripInPort));
+  ui->leStripOutPort->setText(QString::number(config.proxyStripOutPort));
+
+  //
+  // SslStrip
+  //
+  ui->chkSslStripEnabled->setChecked(config.sslStripEnabled);
+  ui->leSslStripVirtualIp->setText(config.sslStripVirtualIp);
+  ui->leSslStripDomainPrefix->setText(config.sslStripDomainPrefix);
 
   //
   // Write
@@ -132,10 +141,19 @@ void Dialog::saveControl()
     if (processName == "") continue;
     config.proxyProcessNameList.push_back(processName);
   }
-  config.proxyTcpInPort = ui->leTcpInPort->text().toInt();
-  config.proxyTcpOutPort = ui->leTcpOutPort->text().toInt();
-  config.proxySslInPort = ui->leSslInPort->text().toInt();
-  config.proxySslOutPort = ui->leSslOutPort->text().toInt();
+  config.proxyHttpInPort = ui->leHttpInPort->text().toInt();
+  config.proxyHttpOutPort = ui->leHttpOutPort->text().toInt();
+  config.proxyHttpsInPort = ui->leHttpsInPort->text().toInt();
+  config.proxyHttpsOutPort = ui->leHttpsOutPort->text().toInt();
+  config.proxyStripInPort = ui->leStripInPort->text().toInt();
+  config.proxyStripOutPort = ui->leStripOutPort->text().toInt();
+
+  //
+  // SslStrip
+  //
+  config.sslStripEnabled = ui->chkSslStripEnabled->isChecked();
+  config.sslStripVirtualIp = ui->leSslStripVirtualIp->text();
+  config.sslStripDomainPrefix = ui->leSslStripDomainPrefix->text();
 
   //
   // Write
@@ -150,8 +168,14 @@ void Dialog::saveControl()
 
 void Dialog::setControl()
 {
-  ui->leDumpFilePath->setEnabled(ui->chkDump->checkState() == Qt::Checked);
-  ui->cbxAdapterIndex->setEnabled(ui->chkWriteAdapter->checkState() == Qt::Checked);
+  bool sslStrip = ui->chkSslStripEnabled->isChecked();
+  ui->leStripInPort->setEnabled(sslStrip);
+  ui->leStripOutPort->setEnabled(sslStrip);
+  ui->leSslStripVirtualIp->setEnabled(sslStrip);
+  ui->leSslStripDomainPrefix->setEnabled(sslStrip);
+
+  ui->leDumpFilePath->setEnabled(ui->chkDump->isChecked());
+  ui->cbxAdapterIndex->setEnabled(ui->chkWriteAdapter->isChecked());
 }
 
 void Dialog::load(VXml xml)
@@ -219,7 +243,7 @@ void Dialog::on_pbRun_clicked()
   UINT res = WinExec(qPrintable(command), SW_SHOW);
   if (res < 31)
   {
-    LOG_ERROR("WinExecu return %u (%s) retu", res, qPrintable(command));
+    LOG_ERROR("WinExec return %u (%s) retu", res, qPrintable(command));
   }
 }
 
@@ -238,4 +262,9 @@ void Dialog::on_pbSave_clicked()
       return;
     }
   }
+}
+
+void Dialog::on_chkSslStripEnabled_clicked()
+{
+  setControl();
 }
