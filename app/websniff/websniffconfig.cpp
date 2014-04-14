@@ -112,6 +112,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
+    winDivert.save(xml); wdOutbound->load(xml);
     wdOutbound->enabled = captureType == WinDivert;
 
     QString filter;
@@ -152,9 +153,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    winDivert.save(xml); wdInbound->load(xml);
-
-    wdInbound->enabled = captureType == WinDivert;
+    wdInbound->enabled = true;
 
     QString filter = qformat("tcp.SrcPort==%d or tcp.SrcPort==%d", proxyHttpInPort, proxyHttpsInPort);
     if (sslStripEnabled)
@@ -348,7 +347,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     wwdOutbound->autoRead             = false;
     wwdOutbound->changeDivertAddr     = true;
     wwdOutbound->divertAddr.IfIdx     = 1;
-    wwdOutbound->divertAddr.SubIfIdx  = 1;
+    wwdOutbound->divertAddr.SubIfIdx  = 0;
     wwdOutbound->divertAddr.Direction = WINDIVERT_DIRECTION_OUTBOUND;
   }
 
