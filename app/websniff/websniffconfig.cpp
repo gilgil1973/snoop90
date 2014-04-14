@@ -401,7 +401,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       VDataChangeItem item;
       item.pattern = "https://";
       item.enabled = true;
-      item.log     = true;
+      item.log     = false;
       item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
       wpHttpOut->inboundDataChange.push_back(item);
     }
@@ -518,7 +518,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       item.pattern = "https://";
       item.syntax = QRegExp::FixedString;
       item.enabled = true;
-      item.log = true;
+      item.log = false;
       item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
       wpStripOut->inboundDataChange.push_back(item);
     }
