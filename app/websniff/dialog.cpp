@@ -268,3 +268,13 @@ void Dialog::on_chkSslStripEnabled_clicked()
 {
   setControl();
 }
+
+void Dialog::on_pbWinDivertOption_clicked()
+{
+  config.winDivert.optionDoAll(this);
+}
+
+void Dialog::on_pbArpSpoofOption_clicked()
+{
+  config.arpSpoof.optionDoAll(this);
+}

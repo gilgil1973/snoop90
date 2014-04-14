@@ -54,6 +54,10 @@ private slots:
 
   void on_chkSslStripEnabled_clicked();
 
+  void on_pbWinDivertOption_clicked();
+
+  void on_pbArpSpoofOption_clicked();
+
 private:
   Ui::Dialog *ui;
 };

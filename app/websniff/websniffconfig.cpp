@@ -152,8 +152,9 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
+    winDivert.save(xml); wdInbound->load(xml);
 
-    wdInbound->enabled = true;
+    wdInbound->enabled = captureType == WinDivert;
 
     QString filter = qformat("tcp.SrcPort==%d or tcp.SrcPort==%d", proxyHttpInPort, proxyHttpsInPort);
     if (sslStripEnabled)
@@ -176,6 +177,8 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       SET_ERROR(SnoopError, "can not find asOutbound", VERR_CAN_NOT_FIND_OBJECT);
       return false;
     }
+
+    arpSpoof.save(xml); asOutbound->load(xml);
 
     asOutbound->enabled = captureType == ArpSpoof;
 
