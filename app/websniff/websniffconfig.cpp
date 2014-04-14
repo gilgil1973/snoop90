@@ -341,10 +341,12 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       return false;
     }
 
-    wwdOutbound->enabled          = captureType != WinDivert;
-    wwdOutbound->autoRead         = false;
-    wwdOutbound->changeDivertAddr = true;
-    wwdOutbound->divertAddr.IfIdx = 1;
+    wwdOutbound->enabled              = true;
+    wwdOutbound->autoRead             = false;
+    wwdOutbound->changeDivertAddr     = true;
+    wwdOutbound->divertAddr.IfIdx     = 1;
+    wwdOutbound->divertAddr.SubIfIdx  = 1;
+    wwdOutbound->divertAddr.Direction = WINDIVERT_DIRECTION_OUTBOUND;
   }
 
   //
