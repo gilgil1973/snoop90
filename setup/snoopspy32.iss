@@ -38,20 +38,20 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 [Files]
 ; snoop
 Source: "..\bin\snoopspy.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\bin\httpsniff.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\enuminterface.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\rtmrecover.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\sscon.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\websniff.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\bin\ss\*"; DestDir: "{app}\ss"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; vdream
 Source: "..\..\..\vdream\vdream90\bin\getline.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\..\vdream\vdream90\bin\httpproxy.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\logserver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\netc.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\netclient.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\nets.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\netserver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\vdream\vdream90\bin\vlog.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\vdream\vdream90\bin\webproxy.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; certificate
 Source: "..\..\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; openssl
