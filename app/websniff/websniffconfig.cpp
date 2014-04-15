@@ -481,10 +481,10 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     this->proxyOutboundDataChange.save(xml); wpStripIn->outboundDataChange.load(xml);
     {
       VDataChangeItem item;
-      item.pattern = "\r\nHost: " + this->sslStripDomainPrefix; // gilgil temp 2014.04.13
-      item.syntax = QRegExp::FixedString;
+      item.pattern = "\r\nHost: " + this->sslStripDomainPrefix;
+      item.syntax  = QRegExp::FixedString;
       item.enabled = true;
-      item.log = true;
+      item.log     = false;
       item.replace = "\r\nHost: ";
       wpStripIn->outboundDataChange.push_back(item);
     }
