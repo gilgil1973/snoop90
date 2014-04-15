@@ -44,7 +44,7 @@ bool Main::doClose()
 
 void Main::terminate()
 {
-  LOG_DEBUG("terminate application by force");
+  LOG_DEBUG("terminate application");
   QCoreApplication::exit(0); // awaken a.exec()
 }
 
