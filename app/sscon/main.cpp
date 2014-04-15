@@ -1,4 +1,5 @@
 #include <QCoreApplication>
+#include <VApp>
 #include <VFile> // for VERR_INVALID_FILENAME
 #include "explicit_link.h"
 #include "param.h"
@@ -32,31 +33,18 @@ bool Main::doOpen()
     return false;
   }
 
-  runThread().open();
-
   return true;
 }
 
 bool Main::doClose()
 {
   graph.close();
-  runThread().close();
   return true;
 }
 
 void Main::terminate()
 {
-  if (runThread().active())
-  {
-    LOG_DEBUG("terminate application by force");
-    _exit(0);
-  }
-}
-
-void Main::run()
-{
-  printf("press any key to close");
-  std::string s; std::getline(std::cin, s);
+  LOG_DEBUG("terminate application by force");
   QCoreApplication::exit(0); // awaken a.exec()
 }
 
@@ -66,6 +54,7 @@ void Main::run()
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
+  VApp::initialize(false, true);
 
   explicitLink();
 
@@ -86,5 +75,8 @@ int main(int argc, char *argv[])
 
   int res = a.exec();
   main.close();
+
+  VApp::finalize(true);
+
   return res;
 }

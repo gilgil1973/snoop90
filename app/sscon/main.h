@@ -19,7 +19,7 @@
 // ----------------------------------------------------------------------------
 // Main
 // ----------------------------------------------------------------------------
-class Main : public VObject, VRunnable
+class Main : public VObject
 {
   Q_OBJECT
 
@@ -37,9 +37,6 @@ public:
 
 public slots:
   void terminate();
-
-protected:
-  virtual void run();
 };
 
 #endif // __MAIN_H__
