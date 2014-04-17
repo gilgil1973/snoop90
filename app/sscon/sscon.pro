@@ -4,7 +4,8 @@
 #
 #-------------------------------------------------
 
-QT -= gui
+# QT -= gui // gilgil temp 2014.04.18
+QT += core gui widgets
 
 include(../../lib/snoop.pri)
 

@@ -484,8 +484,15 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
       item.pattern = "\r\nHost: " + this->sslStripDomainPrefix;
       item.syntax  = QRegExp::FixedString;
       item.enabled = true;
-      item.log     = false;
+      item.log     = true;
       item.replace = "\r\nHost: ";
+      wpStripIn->outboundDataChange.push_back(item);
+
+      item.pattern = "http://" + this->sslStripDomainPrefix;
+      item.syntax  = QRegExp::FixedString;
+      item.enabled = true;
+      item.log     = true;
+      item.replace = "https://";
       wpStripIn->outboundDataChange.push_back(item);
     }
     wpStripIn->disableLoopbackConnection = false;
