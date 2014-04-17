@@ -44,7 +44,7 @@ HttpSniffConfig::HttpSniffConfig()
   //
   // SslStrip
   //
-  sslStripEnabled      = true;
+  sslStripEnabled      = false;
   sslStripVirtualIp    = HTTP_STRIP_VIRTUAL_IP;
   sslStripDomainPrefix = HTTP_STRIP_DOMAIN_PREFIX;
 
