@@ -144,7 +144,7 @@ void MainWindow::setControl()
   if (fileName != "")
   {
     QFileInfo fi(fileName);
-    title = fi.baseName();
+    title = fi.completeBaseName();
   }
   setWindowTitle(title);
 
