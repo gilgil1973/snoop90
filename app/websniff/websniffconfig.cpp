@@ -64,38 +64,58 @@ HttpSniffConfig::~HttpSniffConfig()
 
 void HttpSniffConfig::addSslStripOutboundDataChange(VDataChange& dataChange)
 {
-  VDataChangeItem item;
+  {
+    VDataChangeItem item;
+    item.pattern = "\r\nHost: " + this->sslStripDomainPrefix;
+    item.syntax  = QRegExp::FixedString;
+    item.enabled = true;
+    item.log     = true;
+    item.replace = "\r\nHost: ";
+    dataChange.push_back(item);
+  }
 
-  item.pattern = "\r\nHost: " + this->sslStripDomainPrefix;
-  item.syntax  = QRegExp::FixedString;
-  item.enabled = true;
-  item.log     = true;
-  item.replace = "\r\nHost: ";
-  dataChange.push_back(item);
-
-  item.pattern = "http://" + this->sslStripDomainPrefix;
-  item.syntax  = QRegExp::FixedString;
-  item.enabled = true;
-  item.log     = true;
-  item.replace = "https://";
-  dataChange.push_back(item);
+  {
+    VDataChangeItem item;
+    item.pattern = "http://" + this->sslStripDomainPrefix;
+    item.syntax  = QRegExp::FixedString;
+    item.enabled = true;
+    item.log     = true;
+    item.replace = "https://";
+    dataChange.push_back(item);
+  }
 }
 
 void HttpSniffConfig::addSslStripInboundDataChange(VDataChange& dataChange)
 {
-  VDataChangeItem item;
+  {
+    VDataChangeItem item;
+    item.pattern = "https://";
+    item.syntax  = QRegExp::FixedString;
+    item.enabled = true;
+    item.log     = true;
+    item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
+    dataChange.push_back(item);
+  }
 
-  item.pattern = "https://";
-  item.enabled = true;
-  item.log     = true;
-  item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
-  dataChange.push_back(item);
+  {
+    VDataChangeItem item;
+    item.pattern = "\r\nLast-Modified:[^\r\n]*";
+    item.syntax  = QRegExp::RegExp;
+    item.enabled = true;
+    item.log     = true;
+    item.replace = "\r\nLast-Modified-SS:";
+    dataChange.push_back(item);
+  }
 
-  item.pattern = "; secure";
-  item.enabled = true;
-  item.log     = true;
-  item.replace = "";
-  dataChange.push_back(item);
+  {
+    VDataChangeItem item;
+    item.pattern = "; secure";
+    item.syntax  = QRegExp::FixedString;
+    item.enabled = true;
+    item.log     = true;
+    item.replace = "";
+    dataChange.push_back(item);
+  }
 }
 
 bool HttpSniffConfig::saveToFile(QString fileName)
