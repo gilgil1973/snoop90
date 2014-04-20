@@ -77,6 +77,10 @@ public:
   bool              writeAdapterEnabled;
   SnoopAdapterIndex writeAdapterIndex;
 
+protected:
+  void addSslStripOutboundDataChange(VDataChange& dataChange);
+  void addSslStripInboundDataChange(VDataChange& dataChange);
+
 public:
   bool saveToFile(QString fileName);
   bool saveToGraph(VGraph& graph);

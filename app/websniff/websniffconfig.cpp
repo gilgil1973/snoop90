@@ -62,6 +62,42 @@ HttpSniffConfig::~HttpSniffConfig()
 
 }
 
+void HttpSniffConfig::addSslStripOutboundDataChange(VDataChange& dataChange)
+{
+  VDataChangeItem item;
+
+  item.pattern = "\r\nHost: " + this->sslStripDomainPrefix;
+  item.syntax  = QRegExp::FixedString;
+  item.enabled = true;
+  item.log     = true;
+  item.replace = "\r\nHost: ";
+  dataChange.push_back(item);
+
+  item.pattern = "http://" + this->sslStripDomainPrefix;
+  item.syntax  = QRegExp::FixedString;
+  item.enabled = true;
+  item.log     = true;
+  item.replace = "https://";
+  dataChange.push_back(item);
+}
+
+void HttpSniffConfig::addSslStripInboundDataChange(VDataChange& dataChange)
+{
+  VDataChangeItem item;
+
+  item.pattern = "https://";
+  item.enabled = true;
+  item.log     = true;
+  item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
+  dataChange.push_back(item);
+
+  item.pattern = "; secure";
+  item.enabled = true;
+  item.log     = true;
+  item.replace = "";
+  dataChange.push_back(item);
+}
+
 bool HttpSniffConfig::saveToFile(QString fileName)
 {
   QString srcFileName = "ss/websniff_work.ss"; // gilgil temp 2014.04.12
@@ -397,12 +433,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     this->proxyInboundDataChange.save(xml); wpHttpOut->inboundDataChange.load(xml);
     if (sslStripEnabled)
     {
-      VDataChangeItem item;
-      item.pattern = "https://";
-      item.enabled = true;
-      item.log     = false;
-      item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
-      wpHttpOut->inboundDataChange.push_back(item);
+      addSslStripInboundDataChange(wpHttpOut->inboundDataChange);
     }
     wpHttpOut->outboundDataChange.clear();
     wpHttpOut->disableLoopbackConnection = true;
@@ -480,20 +511,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
     wpStripIn->inboundDataChange.clear();
     this->proxyOutboundDataChange.save(xml); wpStripIn->outboundDataChange.load(xml);
     {
-      VDataChangeItem item;
-      item.pattern = "\r\nHost: " + this->sslStripDomainPrefix;
-      item.syntax  = QRegExp::FixedString;
-      item.enabled = true;
-      item.log     = true;
-      item.replace = "\r\nHost: ";
-      wpStripIn->outboundDataChange.push_back(item);
-
-      item.pattern = "http://" + this->sslStripDomainPrefix;
-      item.syntax  = QRegExp::FixedString;
-      item.enabled = true;
-      item.log     = true;
-      item.replace = "https://";
-      wpStripIn->outboundDataChange.push_back(item);
+      addSslStripOutboundDataChange(wpStripIn->outboundDataChange);
     }
     wpStripIn->disableLoopbackConnection = false;
   }
@@ -520,13 +538,7 @@ bool HttpSniffConfig::saveToGraph(VGraph& graph)
 
     this->proxyInboundDataChange.save(xml); wpStripOut->inboundDataChange.load(xml);
     {
-      VDataChangeItem item;
-      item.pattern = "https://";
-      item.syntax = QRegExp::FixedString;
-      item.enabled = true;
-      item.log = false;
-      item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
-      wpStripOut->inboundDataChange.push_back(item);
+      addSslStripInboundDataChange(wpStripOut->inboundDataChange);
     }
     wpStripOut->outboundDataChange.clear();
     wpStripOut->disableLoopbackConnection = true;
