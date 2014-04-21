@@ -69,7 +69,7 @@ void HttpSniffConfig::addSslStripOutboundDataChange(VDataChange& dataChange)
     item.pattern = "\r\nHost: " + this->sslStripDomainPrefix;
     item.syntax  = QRegExp::FixedString;
     item.enabled = true;
-    item.log     = true;
+    item.log     = false;
     item.replace = "\r\nHost: ";
     dataChange.push_back(item);
   }
@@ -79,7 +79,7 @@ void HttpSniffConfig::addSslStripOutboundDataChange(VDataChange& dataChange)
     item.pattern = "http://" + this->sslStripDomainPrefix;
     item.syntax  = QRegExp::FixedString;
     item.enabled = true;
-    item.log     = true;
+    item.log     = false;
     item.replace = "https://";
     dataChange.push_back(item);
   }
@@ -92,7 +92,7 @@ void HttpSniffConfig::addSslStripInboundDataChange(VDataChange& dataChange)
     item.pattern = "https://";
     item.syntax  = QRegExp::FixedString;
     item.enabled = true;
-    item.log     = true;
+    item.log     = false;
     item.replace = qPrintable(QString("http://") + sslStripDomainPrefix);
     dataChange.push_back(item);
   }
@@ -102,7 +102,7 @@ void HttpSniffConfig::addSslStripInboundDataChange(VDataChange& dataChange)
     item.pattern = "\r\nLast-Modified:[^\r\n]*";
     item.syntax  = QRegExp::RegExp;
     item.enabled = true;
-    item.log     = true;
+    item.log     = false;
     item.replace = "\r\nLast-Modified-SS:";
     dataChange.push_back(item);
   }
@@ -112,7 +112,7 @@ void HttpSniffConfig::addSslStripInboundDataChange(VDataChange& dataChange)
     item.pattern = "; secure";
     item.syntax  = QRegExp::FixedString;
     item.enabled = true;
-    item.log     = true;
+    item.log     = false;
     item.replace = "";
     dataChange.push_back(item);
   }
