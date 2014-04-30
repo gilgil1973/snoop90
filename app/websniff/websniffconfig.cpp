@@ -31,12 +31,12 @@ HttpSniffConfig::HttpSniffConfig()
   proxyProcessNameList.push_back("snoopspy.exe");
   proxyProcessNameList.push_back("sscon.exe");
 
-  proxyHttpInPort   = VWebProxy::HTTP_PROXY_PORT - 1; // 8079
-  proxyHttpOutPort  = VWebProxy::HTTP_PROXY_PORT;     // 8080
-  proxyHttpsInPort  = VWebProxy::SSL_PROXY_PORT - 1;  // 4432
-  proxyHttpsOutPort = VWebProxy::SSL_PROXY_PORT;      // 4433
-  proxyStripInPort  = HTTP_STRIP_PORT - 1;            // 8042
-  proxyStripOutPort = HTTP_STRIP_PORT;                // 8042
+  proxyHttpInPort   = VWebProxy::HTTP_PROXY_PORT;     // 8080
+  proxyHttpOutPort  = VWebProxy::HTTP_PROXY_PORT + 1; // 8081
+  proxyHttpsInPort  = VWebProxy::SSL_PROXY_PORT;      // 4433
+  proxyHttpsOutPort = VWebProxy::SSL_PROXY_PORT + 1;  // 4434
+  proxyStripInPort  = HTTP_STRIP_PORT;                // 8043
+  proxyStripOutPort = HTTP_STRIP_PORT + 1;            // 8044
 
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
   VWebProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
