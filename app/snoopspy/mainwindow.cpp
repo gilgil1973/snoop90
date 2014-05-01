@@ -127,6 +127,7 @@ void MainWindow::loadControl()
         ui->actionStart->trigger();
     } else
     {
+      this->fileName = "";
       QMessageBox::information(this, "error", errStr);
     }
     setControl();
