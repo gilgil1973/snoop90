@@ -41,6 +41,51 @@ HttpSniffConfig::HttpSniffConfig()
   VXmlDoc doc; VXml xml = doc.createRoot("temp");
   VWebProxy proxy; proxy.outboundDataChange.save(xml); proxyOutboundDataChange.load(xml);
 
+  VDataChangeItem changeItem;
+  //
+  // Accept-Encoding
+  //
+  changeItem.pattern = "\r\nAccept-Encoding: ";
+  changeItem.syntax  = QRegExp::FixedString;
+  changeItem.cs      = Qt::CaseSensitive;
+  changeItem.enabled = true;
+  changeItem.log     = false;
+  changeItem.replace = "\r\nAccept-Encoding-SS: ";
+  proxyOutboundDataChange.push_back(changeItem);
+
+  //
+  // If-Modified-Since
+  //
+  changeItem.pattern = "\r\nIf-Modified-Since:[^\r\n]*";
+  changeItem.syntax  = QRegExp::RegExp;
+  changeItem.cs      = Qt::CaseSensitive;
+  changeItem.enabled = true;
+  changeItem.log     = false;
+  changeItem.replace = "\r\nIf-Modified-Since-SS: ";
+  proxyOutboundDataChange.push_back(changeItem);
+
+  //
+  // If-None-Match
+  //
+  changeItem.pattern = "\r\nIf-None-Match:[^\r\n]*";
+  changeItem.syntax  = QRegExp::RegExp;
+  changeItem.cs      = Qt::CaseSensitive;
+  changeItem.enabled = true;
+  changeItem.log     = false;
+  changeItem.replace = "\r\nIf-None-Match-SS: ";
+  proxyOutboundDataChange.push_back(changeItem);
+
+  //
+  // Last-Modified
+  //
+  changeItem.pattern = "\r\nLast-Modified:[^\r\n]*";
+  changeItem.syntax  = QRegExp::RegExp;
+  changeItem.cs      = Qt::CaseSensitive;
+  changeItem.enabled = true;
+  changeItem.log     = false;
+  changeItem.replace = "\r\nLast-Modified-SS:";
+  proxyInboundDataChange.push_back(changeItem);
+
   //
   // SslStrip
   //
