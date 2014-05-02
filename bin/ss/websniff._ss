@@ -1,0 +1,66 @@
+<websniff>
+  <graph>
+    <objectList>
+      <object _class="SnoopWinDivert"      name="wdOutbound"/>
+      <object _class="SnoopArpSpoof"       name="asOutbound"/>
+      <object _class="SnoopFlowMgr"        name="fmOutboundProc"/>
+      <object _class="SnoopProcessFilter"  name="pfOutbound"/>
+      <object _class="SnoopFlowMgr"        name="fmOutbound"/>
+      <object _class="SnoopWinDivert"      name="wdInbound"/>
+      <object _class="SnoopFlowMgr"        name="fmInboundProc"/>
+      <object _class="SnoopProcessFilter"  name="pfInbound"/>
+      <object _class="SnoopFlowMgr"        name="fmInbound"/>
+      <object _class="SnoopFlowChange"     name="fcMain"/>
+      <object _class="SnoopWriteWinDivert" name="wwdOutbound"/>
+      <object _class="VWebProxy"           name="wpHttpIn"/>
+      <object _class="VWebProxy"           name="wpHttpOut"/>
+      <object _class="VWebProxy"           name="wpHttpsIn"/>
+      <object _class="VWebProxy"           name="wpHttpsOut"/>
+      <object _class="SnoopWinDivert"      name="wdProxy"/>
+      <object _class="SnoopDump"           name="dProxy"/>
+      <object _class="SnoopWriteAdapter"   name="waProxy"/>
+      <object _class="SnoopDnsChange"      name="dnscStrip"/>
+      <object _class="VWebProxy"           name="wpStripIn"/>
+      <object _class="VWebProxy"           name="wpStripOut"/>
+    </objectList>
+    <connectList>
+      <connect sender="wdOutbound" receiver="fmOutboundProc" slot="process(SnoopPacket*)" signal="captured(SnoopPacket*)"/>
+      <connect sender="asOutbound" receiver="fmOutbound" slot="process(SnoopPacket*)" signal="captured(SnoopPacket*)"/>
+      <connect sender="fmOutboundProc" receiver="pfOutbound" slot="check(SnoopPacket*)" signal="processed(SnoopPacket*)"/>
+      <connect sender="pfOutbound" receiver="fmOutbound" slot="process(SnoopPacket*)" signal="nak(SnoopPacket*)"/>
+      <connect sender="wdInbound" receiver="fmInboundProc" slot="process(SnoopPacket*)" signal="captured(SnoopPacket*)"/>
+      <connect sender="fmInboundProc" receiver="pfInbound" slot="check(SnoopPacket*)" signal="processed(SnoopPacket*)"/>
+      <connect sender="pfInbound" receiver="fmInbound" slot="process(SnoopPacket*)" signal="ack(SnoopPacket*)"/>
+      <connect sender="wdProxy" receiver="dProxy" slot="dump(SnoopPacket*)" signal="captured(SnoopPacket*)"/>
+      <connect sender="wdProxy" receiver="waProxy" slot="copy(SnoopPacket*)" signal="captured(SnoopPacket*)"/>
+      <connect sender="asOutbound" receiver="dnscStrip" slot="check(SnoopPacket*)" signal="captured(SnoopPacket*)"/>
+      <connect sender="wdOutbound" receiver="dnscStrip" slot="check(SnoopPacket*)" signal="captured(SnoopPacket*)"/>
+      <connect sender="fmOutbound" receiver="fcMain" slot="processFromTo(SnoopPacket*)" signal="processed(SnoopPacket*)"/>
+      <connect sender="fmInbound" receiver="fcMain" slot="processToFrom(SnoopPacket*)" signal="processed(SnoopPacket*)"/>
+      <connect sender="fcMain" receiver="wwdOutbound" slot="move(SnoopPacket*)" signal="changedFromTo(SnoopPacket*)"/>
+    </connectList>
+  </graph>
+  <coord>
+    <object name="wdOutbound" x="-141" y="-114"/>
+    <object name="asOutbound" x="-236" y="-114"/>
+    <object name="fmOutboundProc" x="-153" y="-75"/>
+    <object name="pfOutbound" x="-138" y="-38"/>
+    <object name="fmOutbound" x="-139" y="1"/>
+    <object name="wdInbound" x="-32" y="-114"/>
+    <object name="fmInboundProc" x="-43" y="-75"/>
+    <object name="pfInbound" x="-28" y="-37"/>
+    <object name="fmInbound" x="-30" y="0"/>
+    <object name="fcMain" x="-68" y="39"/>
+    <object name="wwdOutbound" x="-145" y="74"/>
+    <object name="wpHttpIn" x="-151" y="119"/>
+    <object name="wpHttpOut" x="-156" y="148"/>
+    <object name="wpHttpsIn" x="-75" y="119"/>
+    <object name="wpHttpsOut" x="-79" y="148"/>
+    <object name="wdProxy" x="-72" y="181"/>
+    <object name="dProxy" x="-35" y="217"/>
+    <object name="waProxy" x="-102" y="218"/>
+    <object name="dnscStrip" x="-229" y="-75"/>
+    <object name="wpStripIn" x="8" y="119"/>
+    <object name="wpStripOut" x="5" y="148"/>
+  </coord>
+</websniff>

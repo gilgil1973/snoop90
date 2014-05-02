@@ -120,7 +120,7 @@ void HttpSniffConfig::addSslStripInboundDataChange(VDataChange& dataChange)
 
 bool HttpSniffConfig::saveToFile(QString fileName)
 {
-  QString srcFileName = "ss/websniff_work.ss"; // gilgil temp 2014.04.12
+  QString srcFileName = "ss/websniff._ss";
   if (QFile::exists(fileName))
   {
     if (!QFile::remove(fileName))
