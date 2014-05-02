@@ -81,10 +81,11 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionHttpProxy"/>
     <addaction name="actionLogServer"/>
     <addaction name="actionNetClient"/>
     <addaction name="actionNetServer"/>
+    <addaction name="actionWebProxy"/>
+    <addaction name="actionWebSniff"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAction"/>
@@ -331,15 +332,6 @@
     <string>WinDivert Filter</string>
    </property>
   </action>
-  <action name="actionHttpProxy">
-   <property name="icon">
-    <iconset resource="snoopspy.qrc">
-     <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
-   </property>
-   <property name="text">
-    <string>HttpProxy</string>
-   </property>
-  </action>
   <action name="actionLogServer">
    <property name="icon">
     <iconset resource="snoopspy.qrc">
@@ -365,6 +357,24 @@
    </property>
    <property name="text">
     <string>NetServer</string>
+   </property>
+  </action>
+  <action name="actionWebProxy">
+   <property name="icon">
+    <iconset resource="snoopspy.qrc">
+     <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
+   </property>
+   <property name="text">
+    <string>WebProxy</string>
+   </property>
+  </action>
+  <action name="actionWebSniff">
+   <property name="icon">
+    <iconset resource="snoopspy.qrc">
+     <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
+   </property>
+   <property name="text">
+    <string>WebSniff</string>
    </property>
   </action>
  </widget>

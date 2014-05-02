@@ -491,15 +491,6 @@ void MainWindow::on_actionShowOption_triggered()
   if (optionable->optionDoAll(this)) selectionChanged();
 }
 
-void MainWindow::on_actionHttpProxy_triggered()
-{
-  QString url = "httpproxy.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
-}
-
 void MainWindow::on_actionLogServer_triggered()
 {
   QString url = "logserver.exe";
@@ -552,4 +543,24 @@ void MainWindow::on_actionWinDivert_Filter_triggered()
   {
     LOG_ERROR("can not open url(%s)", qPrintable(url));
   }
+}
+
+void MainWindow::on_actionWebProxy_triggered()
+{
+  QString url = "webproxy.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+
+}
+
+void MainWindow::on_actionWebSniff_triggered()
+{
+  QString url = "websniff.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+
 }

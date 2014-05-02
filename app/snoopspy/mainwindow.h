@@ -127,8 +127,6 @@ private slots:
 
   void on_actionShowOption_triggered();
 
-  void on_actionHttpProxy_triggered();
-
   void on_actionLogServer_triggered();
 
   void on_actionNetClient_triggered();
@@ -140,6 +138,10 @@ private slots:
   void on_actionDisplay_Filter_triggered();
 
   void on_actionWinDivert_Filter_triggered();
+
+  void on_actionWebProxy_triggered();
+
+  void on_actionWebSniff_triggered();
 
 private:
   Ui::MainWindow *ui;
