@@ -133,15 +133,15 @@ private slots:
 
   void on_actionNetServer_triggered();
 
+  void on_actionWebProxy_triggered();
+
+  void on_actionWebSniff_triggered();
+
   void on_actionCapture_Filter_triggered();
 
   void on_actionDisplay_Filter_triggered();
 
   void on_actionWinDivert_Filter_triggered();
-
-  void on_actionWebProxy_triggered();
-
-  void on_actionWebSniff_triggered();
 
 private:
   Ui::MainWindow *ui;

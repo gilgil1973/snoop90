@@ -493,7 +493,7 @@ void MainWindow::on_actionShowOption_triggered()
 
 void MainWindow::on_actionLogServer_triggered()
 {
-  QString url = "logserver.exe";
+  QString url = VApp::_filePath() + "logserver.exe";
   if (!QDesktopServices::openUrl(QUrl(url)))
   {
     LOG_ERROR("can not open url(%s)", qPrintable(url));
@@ -502,7 +502,7 @@ void MainWindow::on_actionLogServer_triggered()
 
 void MainWindow::on_actionNetClient_triggered()
 {
-  QString url = "netclient.exe";
+  QString url = VApp::_filePath() + "netclient.exe";
   if (!QDesktopServices::openUrl(QUrl(url)))
   {
     LOG_ERROR("can not open url(%s)", qPrintable(url));
@@ -511,12 +511,31 @@ void MainWindow::on_actionNetClient_triggered()
 
 void MainWindow::on_actionNetServer_triggered()
 {
-  QString url = "netserver.exe";
+  QString url = VApp::_filePath() + "netserver.exe";
   if (!QDesktopServices::openUrl(QUrl(url)))
   {
     LOG_ERROR("can not open url(%s)", qPrintable(url));
   }
 }
+
+void MainWindow::on_actionWebProxy_triggered()
+{
+  QString url = VApp::_filePath() + "webproxy.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
+void MainWindow::on_actionWebSniff_triggered()
+{
+  QString url = VApp::_filePath() + "websniff.exe";
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
 
 void MainWindow::on_actionCapture_Filter_triggered()
 {
@@ -543,24 +562,4 @@ void MainWindow::on_actionWinDivert_Filter_triggered()
   {
     LOG_ERROR("can not open url(%s)", qPrintable(url));
   }
-}
-
-void MainWindow::on_actionWebProxy_triggered()
-{
-  QString url = "webproxy.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
-
-}
-
-void MainWindow::on_actionWebSniff_triggered()
-{
-  QString url = "websniff.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
-
 }
