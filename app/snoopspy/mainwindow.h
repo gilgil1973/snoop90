@@ -66,6 +66,7 @@ public:
   void loadControl();
   void saveControl();
   void setControl();
+  void runProcess(QString processName);
 
 public:
   AboutDlg*  aboutDlg;

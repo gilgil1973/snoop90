@@ -185,6 +185,15 @@ void MainWindow::setControl()
   ui->actionShowOption->setEnabled(showOptionEnabled);
 }
 
+void MainWindow::runProcess(QString processName)
+{
+  QString url = "file:///" + VApp::_filePath() + processName;
+  if (!QDesktopServices::openUrl(QUrl(url)))
+  {
+    LOG_ERROR("can not open url(%s)", qPrintable(url));
+  }
+}
+
 void MainWindow::changed(QList<QRectF> region)
 {
   //LOG_DEBUG("changed %d", region.count()); // gilgil temp 2012.07.30
@@ -493,47 +502,27 @@ void MainWindow::on_actionShowOption_triggered()
 
 void MainWindow::on_actionLogServer_triggered()
 {
-  QString url = "file:///" + VApp::_filePath() + "logserver.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
+  runProcess("logserver.exe");
 }
 
 void MainWindow::on_actionNetClient_triggered()
 {
-  QString url = "file:///" + VApp::_filePath() + "netclient.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
+  runProcess("netclient.exe");
 }
 
 void MainWindow::on_actionNetServer_triggered()
 {
-  QString url = "file:///" + VApp::_filePath() + "netserver.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
+  runProcess("netserver.exe");
 }
 
 void MainWindow::on_actionWebProxy_triggered()
 {
-  QString url = "file:///" + VApp::_filePath() + "webproxy.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
+  runProcess("webproxy.exe");
 }
 
 void MainWindow::on_actionWebSniff_triggered()
 {
-  QString url = "file:///" + VApp::_filePath() + "websniff.exe";
-  if (!QDesktopServices::openUrl(QUrl(url)))
-  {
-    LOG_ERROR("can not open url(%s)", qPrintable(url));
-  }
+  runProcess("websniff.exe");
 }
 
 void MainWindow::on_actionCapture_Filter_triggered()
