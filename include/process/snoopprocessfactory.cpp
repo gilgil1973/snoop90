@@ -12,6 +12,8 @@
 #include <SnoopFlowMgrTest>
 #include <SnoopDump>
 #include <SnoopTcpBlock>
+#include <SnoopUdpReceiver>
+#include <SnoopUdpSender>
 #include <SnoopWriteAdapter>
 #include <SnoopWriteWinDivert>
 #include <VDebugNew>
@@ -21,19 +23,21 @@
 // ----------------------------------------------------------------------------
 void SnoopProcessFactory::explicitLink()
 {
-  SnoopBlock        block;
-  SnoopChecksum     checksum;
-  SnoopCommand      command;
-  SnoopDataChange   dataChange;
-  SnoopDataFind     dataFind;
-  SnoopDelay        delay;
-  SnoopDnsChange    dnsChange;
-  SnoopDump         dump;
-  SnoopFlowChange   flowChange;
-  SnoopFlowMgr      flowMgr;
-  SnoopFlowMgrTest  flowMgrTest;
-  SnoopTcpBlock     tcpBlock;
-  SnoopWriteAdapter writeAdapter;
+  SnoopBlock          block;
+  SnoopChecksum       checksum;
+  SnoopCommand        command;
+  SnoopDataChange     dataChange;
+  SnoopDataFind       dataFind;
+  SnoopDelay          delay;
+  SnoopDnsChange      dnsChange;
+  SnoopDump           dump;
+  SnoopFlowChange     flowChange;
+  SnoopFlowMgr        flowMgr;
+  SnoopFlowMgrTest    flowMgrTest;
+  SnoopTcpBlock       tcpBlock;
+  SnoopUdpReceiver    udpReceiver;
+  SnoopUdpSender      udpSender;
+  SnoopWriteAdapter   writeAdapter;
   SnoopWriteWinDivert writeWinDivert;
 }
 
