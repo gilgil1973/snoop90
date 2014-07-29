@@ -57,12 +57,12 @@ int SnoopTcpBlock::sendForwardBlock(SnoopCapture* capture, SnoopPacket* packet, 
     return -1;
   }
 
-	int bufSize = sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length();
-	QByteArray ba; ba.resize(bufSize); BYTE* buf = (BYTE*)ba.data();
+  int bufSize = sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length();
+  QByteArray ba; ba.resize(bufSize); BYTE* buf = (BYTE*)ba.data();
 
-	ETH_HDR* ethHdr = (ETH_HDR*) &buf[0];
-	IP_HDR*  ipHdr  = (IP_HDR*)  &buf[sizeof(ETH_HDR)];
-	TCP_HDR* tcpHdr = (TCP_HDR*) &buf[sizeof(ETH_HDR) + sizeof(IP_HDR)];
+  ETH_HDR* ethHdr = (ETH_HDR*) &buf[0];
+  IP_HDR*  ipHdr  = (IP_HDR*)  &buf[sizeof(ETH_HDR)];
+  TCP_HDR* tcpHdr = (TCP_HDR*) &buf[sizeof(ETH_HDR) + sizeof(IP_HDR)];
   BYTE*    data   = (BYTE*)    &buf[sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR)];
 
   //
@@ -70,49 +70,49 @@ int SnoopTcpBlock::sendForwardBlock(SnoopCapture* capture, SnoopPacket* packet, 
   //
   memcpy(ethHdr, packet->ethHdr, sizeof(ETH_HDR));
 
-	//
-	// IP Header
-	//
-	memcpy(ipHdr, packet->ipHdr, sizeof(IP_HDR));
-	ipHdr->ip_tos = TCP_BLOCK_TOS_NO; // value of 44 means tag identifier of Snoop Component RST sending.
-	ipHdr->ip_len = htons(sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length());
-	ipHdr->ip_ttl = 255;
+  //
+  // IP Header
+  //
+  memcpy(ipHdr, packet->ipHdr, sizeof(IP_HDR));
+  ipHdr->ip_tos = TCP_BLOCK_TOS_NO; // value of 44 means tag identifier of Snoop Component RST sending.
+  ipHdr->ip_len = htons(sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length());
+  ipHdr->ip_ttl = 255;
 
-	//
-	// TCP Header
-	//
-	int tcpDataLen;
-	if (!SnoopTcp::isData(packet->ipHdr, packet->tcpHdr, NULL, &tcpDataLen)) tcpDataLen = 0;
-	int flagAddLen = ((packet->tcpHdr->th_flags & (TH_SYN | TH_FIN))) ? 1 : 0;
-	UINT32 newSeq = ntohl(packet->tcpHdr->th_seq) + tcpDataLen + flagAddLen;
+  //
+  // TCP Header
+  //
+  int tcpDataLen;
+  if (!SnoopTcp::isData(packet->ipHdr, packet->tcpHdr, NULL, &tcpDataLen)) tcpDataLen = 0;
+  int flagAddLen = ((packet->tcpHdr->th_flags & (TH_SYN | TH_FIN))) ? 1 : 0;
+  UINT32 newSeq = ntohl(packet->tcpHdr->th_seq) + tcpDataLen + flagAddLen;
 
-	memcpy(tcpHdr, packet->tcpHdr, sizeof(TCP_HDR));
-	tcpHdr->th_seq   = htonl(newSeq);
-	tcpHdr->th_off   = sizeof(TCP_HDR) / sizeof(UINT32);
-	tcpHdr->th_flags = flag | TH_ACK;
-	tcpHdr->th_win   = 0;
+  memcpy(tcpHdr, packet->tcpHdr, sizeof(TCP_HDR));
+  tcpHdr->th_seq   = htonl(newSeq);
+  tcpHdr->th_off   = sizeof(TCP_HDR) / sizeof(UINT32);
+  tcpHdr->th_flags = flag | TH_ACK;
+  tcpHdr->th_win   = 0;
 
-	//
-	// Data
-	//
-	memcpy(data, msg.data(), msg.length());
+  //
+  // Data
+  //
+  memcpy(data, msg.data(), msg.length());
 
-	//
-	// Checksum
-	//
-	tcpHdr->th_sum = htons(SnoopTcp::checksum(ipHdr, tcpHdr));
-	ipHdr->ip_sum  = htons(SnoopIp::checksum(ipHdr));
+  //
+  // Checksum
+  //
+  tcpHdr->th_sum = htons(SnoopTcp::checksum(ipHdr, tcpHdr));
+  ipHdr->ip_sum  = htons(SnoopIp::checksum(ipHdr));
 
 
-	//
-	// Write
-	//
-	int res = capture->write(buf, bufSize, &packet->divertAddr);
-	if (res == VERR_FAIL)
-	{
-		LOG_ERROR("capture->write return %d", res);
-	}
-	return res;
+  //
+  // Write
+  //
+  int res = capture->write(buf, bufSize, &packet->divertAddr);
+  if (res == VERR_FAIL)
+  {
+    LOG_ERROR("capture->write return %d", res);
+  }
+  return res;
 }
 
 int SnoopTcpBlock::sendBackwardBlock(SnoopCapture* capture, SnoopPacket* packet, UINT8 flag, QByteArray msg)
@@ -123,13 +123,13 @@ int SnoopTcpBlock::sendBackwardBlock(SnoopCapture* capture, SnoopPacket* packet,
     return -1;
   }
 
-	int bufSize = sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length();
-	QByteArray ba; ba.resize(bufSize); BYTE* buf = (BYTE*)ba.data();
+  int bufSize = sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length();
+  QByteArray ba; ba.resize(bufSize); BYTE* buf = (BYTE*)ba.data();
 
-	ETH_HDR* ethHdr = (ETH_HDR*) &buf[0];
-	IP_HDR*  ipHdr  = (IP_HDR*)  &buf[sizeof(ETH_HDR)];
-	TCP_HDR* tcpHdr = (TCP_HDR*) &buf[sizeof(ETH_HDR) + sizeof(IP_HDR)];
-	char*    data   = (char*)    &buf[sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR)];
+  ETH_HDR* ethHdr = (ETH_HDR*) &buf[0];
+  IP_HDR*  ipHdr  = (IP_HDR*)  &buf[sizeof(ETH_HDR)];
+  TCP_HDR* tcpHdr = (TCP_HDR*) &buf[sizeof(ETH_HDR) + sizeof(IP_HDR)];
+  char*    data   = (char*)    &buf[sizeof(ETH_HDR) + sizeof(IP_HDR) + sizeof(TCP_HDR)];
 
   //
   // Ethernet Header
@@ -138,53 +138,53 @@ int SnoopTcpBlock::sendBackwardBlock(SnoopCapture* capture, SnoopPacket* packet,
   ethHdr->ether_shost = packet->ethHdr->ether_dhost;
   ethHdr->ether_type  = packet->ethHdr->ether_type;
 
-	//
-	// IP Header
-	//
-	memcpy(ipHdr, packet->ipHdr, sizeof(IP_HDR));
-	ipHdr->ip_tos = TCP_BLOCK_TOS_NO; // value of 44 means tag identifier of Snoop Component RST sending.
-	ipHdr->ip_len = htons(sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length());
-	ipHdr->ip_ttl = 255;
-	ipHdr->ip_src = packet->ipHdr->ip_dst;
-	ipHdr->ip_dst = packet->ipHdr->ip_src;
+  //
+  // IP Header
+  //
+  memcpy(ipHdr, packet->ipHdr, sizeof(IP_HDR));
+  ipHdr->ip_tos = TCP_BLOCK_TOS_NO; // value of 44 means tag identifier of Snoop Component RST sending.
+  ipHdr->ip_len = htons(sizeof(IP_HDR) + sizeof(TCP_HDR) + msg.length());
+  ipHdr->ip_ttl = 255;
+  ipHdr->ip_src = packet->ipHdr->ip_dst;
+  ipHdr->ip_dst = packet->ipHdr->ip_src;
 
-	//
-	// TCP Header
-	//
-	int tcpDataLen;
-	if (!SnoopTcp::isData(packet->ipHdr, packet->tcpHdr, NULL, &tcpDataLen)) tcpDataLen = 0;
-	int flagAddLen = ((packet->tcpHdr->th_flags & (TH_SYN | TH_FIN))) ? 1 : 0;
-	UINT32 newSeq = ntohl(packet->tcpHdr->th_seq) + tcpDataLen + flagAddLen;
+  //
+  // TCP Header
+  //
+  int tcpDataLen;
+  if (!SnoopTcp::isData(packet->ipHdr, packet->tcpHdr, NULL, &tcpDataLen)) tcpDataLen = 0;
+  int flagAddLen = ((packet->tcpHdr->th_flags & (TH_SYN | TH_FIN))) ? 1 : 0;
+  UINT32 newSeq = ntohl(packet->tcpHdr->th_seq) + tcpDataLen + flagAddLen;
 
-	memcpy(tcpHdr, packet->tcpHdr, sizeof(TCP_HDR));
-	tcpHdr->th_sport = packet->tcpHdr->th_dport;
-	tcpHdr->th_dport = packet->tcpHdr->th_sport;
-	tcpHdr->th_seq   = packet->tcpHdr->th_ack;
-	tcpHdr->th_ack   = htonl(newSeq);
-	tcpHdr->th_off   = sizeof(TCP_HDR) / sizeof(UINT32);
-	tcpHdr->th_flags = flag | TH_ACK;
-	tcpHdr->th_win   = 0;
+  memcpy(tcpHdr, packet->tcpHdr, sizeof(TCP_HDR));
+  tcpHdr->th_sport = packet->tcpHdr->th_dport;
+  tcpHdr->th_dport = packet->tcpHdr->th_sport;
+  tcpHdr->th_seq   = packet->tcpHdr->th_ack;
+  tcpHdr->th_ack   = htonl(newSeq);
+  tcpHdr->th_off   = sizeof(TCP_HDR) / sizeof(UINT32);
+  tcpHdr->th_flags = flag | TH_ACK;
+  tcpHdr->th_win   = 0;
 
-	//
-	// Data
-	//
-	memcpy(data, msg.data(), msg.length());
+  //
+  // Data
+  //
+  memcpy(data, msg.data(), msg.length());
 
-	//
-	// Checksum
-	//
-	tcpHdr->th_sum = htons(SnoopTcp::checksum(ipHdr, tcpHdr));
-	ipHdr->ip_sum  = htons(SnoopIp::checksum(ipHdr));
+  //
+  // Checksum
+  //
+  tcpHdr->th_sum = htons(SnoopTcp::checksum(ipHdr, tcpHdr));
+  ipHdr->ip_sum  = htons(SnoopIp::checksum(ipHdr));
 
-	//
-	// Write
-	//
-	int res = capture->write(buf, bufSize, &packet->divertAddr);
-	if (res == VERR_FAIL)
-	{
-		LOG_ERROR("capture->write return %d", res);
-	}
-	return res;
+  //
+  // Write
+  //
+  int res = capture->write(buf, bufSize, &packet->divertAddr);
+  if (res == VERR_FAIL)
+  {
+    LOG_ERROR("capture->write return %d", res);
+  }
+  return res;
 }
 
 void SnoopTcpBlock::tcpBlock(SnoopPacket* packet)

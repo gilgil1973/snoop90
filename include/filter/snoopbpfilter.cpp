@@ -52,7 +52,7 @@ bool SnoopBpFilter::doClose()
   if (m_code != NULL)
   {
     pcap_freecode(m_code);
-    free(m_code);		
+    free(m_code);
     m_code = NULL;
   }
 
