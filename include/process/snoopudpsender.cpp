@@ -116,12 +116,37 @@ void SnoopUdpSender::merge(SnoopPacket* packet)
 
     for (int i = 0; i < count; i++)
     {
-     SnoopUdpChunk& chunk = (SnoopUdpChunk)flowItem->chunks.at(i);
-     chunk.encode(udpData);
+      SnoopUdpChunk& chunk = (SnoopUdpChunk)flowItem->chunks.at(i);
+      int udpDataSize = udpData.size() +
+        chunk.payload.header.size()    + chunk.payload.body.size() +
+        newChunk.payload.header.size() + chunk.payload.body.size();
+      if (udpDataSize > 1472) // 1472 = MTU_SIZE(1500) - IP_HEADER_SIZE(20) - UDP_HEADER_SIZE(8)
+        continue;
+      chunk.encode(udpData);
     }
 
     newChunk.encode(udpData);
-    char* p = udpData.data(); LOG_DEBUG("%s", p); // gilgil temp 2014.07.30
+
+    int newDataLen = udpData.length();
+
+    // Packet Header
+    packet->pktHdr->caplen = packet->pktHdr->caplen + (newDataLen - dataLen);
+
+    // IP header
+    packet->ipHdr->ip_len = htons((u_int16_t)(sizeof(IP_HDR) + sizeof(UDP_HDR) + newDataLen));
+
+    // UDP Header
+    packet->udpHdr->uh_ulen = htons((u_int16_t)(sizeof(UDP_HDR) + newDataLen));
+
+    // UDP Data
+    BYTE* p = (BYTE*)udpData.data();
+    memcpy(packet->data, p, udpData.length());
+
+    // Checksum
+    packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
+    packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
+
+    LOG_DEBUG("udpDataLen=%d", udpData.length()); // gilgil temp 2014.07.30
   }
   flowItem->chunks.append(newChunk);
   while (flowItem->chunks.count() > addChunkCount)
