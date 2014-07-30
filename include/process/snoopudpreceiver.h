@@ -8,11 +8,27 @@
 //
 // ----------------------------------------------------------------------------
 
-#ifndef __SNOOP_UDP_SENDER_H__
-#define __SNOOP_UDP_SENDER_H__
+#ifndef __SNOOP_UDP_RECEIVER_H__
+#define __SNOOP_UDP_RECEIVER_H__
 
 #include <SnoopProcess>
+#include <SnoopFlowMgr>
 #include <SnoopCapture>
+#include <SnoopUdp>
+#include <SnoopUdpChunk>
+
+// ----------------------------------------------------------------------------
+// SnoopUdpReceiverFlowItem
+// ----------------------------------------------------------------------------
+class SnoopUdpReceiverFlowItem
+{
+public:
+  bool    first;
+  quint16 lastId;
+
+public:
+  void clear();
+};
 
 // ----------------------------------------------------------------------------
 // SnoopUdpReceiver
@@ -25,13 +41,30 @@ public:
   SnoopUdpReceiver(void* owner = NULL);
   virtual ~SnoopUdpReceiver();
 
-public:
-  SnoopCapture* writer;
-  QString       discriminator;
 
 protected:
   virtual bool doOpen();
   virtual bool doClose();
+
+public:
+  SnoopFlowMgr* flowMgr;
+  SnoopCapture* writer;
+  QByteArray    dscr;
+  int           headerSize;
+  bool          autoBlockOnSplit;
+
+protected:
+  size_t udpFlowOffset;
+
+protected slots:
+  void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+
+protected:
+  void doSplit(SnoopUdpChunk& chunk, SnoopPacket* packet);
+
+signals:
+  void splitted(SnoopPacket* packet);
 
 public slots:
   void split(SnoopPacket* packet);
@@ -47,4 +80,4 @@ public: // for VOptionable
 #endif // QT_GUI_LIB
 };
 
-#endif // __SNOOP_UDP_SENDER_H__
+#endif // __SNOOP_UDP_RECEIVER_H__

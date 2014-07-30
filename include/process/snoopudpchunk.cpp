@@ -20,7 +20,7 @@ int SnoopUdpChunk::encode(QByteArray& ba)
 int SnoopUdpChunk::decode(int headerSize, QByteArray& ba)
 {
   int size = ba.size();
-  if (size < headerSize + sizeof(SnoopUdpChunkInfo)) return -1;
+  if (size < headerSize + SnoopUdpChunkInfo::INFO_SIZE) return -1;
 
   payload.header = ba.left(headerSize);                   ba.remove(0, headerSize);
   info.dscr      = ba.left(SnoopUdpChunkInfo::DSCR_SIZE); ba.remove(0, SnoopUdpChunkInfo::DSCR_SIZE);

@@ -20,11 +20,12 @@ class SnoopUdpChunkInfo
 {
 public:
   static const int DSCR_SIZE = 4;
+  static const int INFO_SIZE = 8;
 
 public:
-  QByteArray dscr;
-  quint16    id;
-  quint16    len;
+  QByteArray dscr; // 4 BYTE
+  quint16    id;   // 2 BYTE
+  quint16    len;  // 2 BYTE
 };
 
 // ----------------------------------------------------------------------------
@@ -50,5 +51,10 @@ public:
   int encode(QByteArray& ba); // into ba
   int decode(int headerSize, QByteArray& ba); // from ba
 };
+
+// ----------------------------------------------------------------------------
+// SnoopUdpChunks
+// ----------------------------------------------------------------------------
+typedef QList<SnoopUdpChunk> SnoopUdpChunks;
 
 #endif // __SNOOP_UDP_CHUNK_H__
