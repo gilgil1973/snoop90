@@ -126,7 +126,6 @@ void SnoopUdpSender::merge(SnoopPacket* packet)
     }
 
     newChunk.encode(udpData);
-
     int newDataLen = udpData.length();
 
     // Packet Header
