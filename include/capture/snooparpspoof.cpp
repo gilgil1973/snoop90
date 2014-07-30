@@ -581,6 +581,7 @@ bool SnoopArpSpoof::sendArpInfectAll()
     {
       return false;
     }
+    msleep(50); // gilgil temp 2014.07.31
   }
   return true;
 }
@@ -634,6 +635,7 @@ bool SnoopArpSpoof::sendArpRecoverAll()
     {
       return false;
     }
+    msleep(50); // gilgil temp 2014.07.31
   }
   return true;
 }
