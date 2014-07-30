@@ -58,7 +58,7 @@ bool SnoopUdpSender::doClose()
   if (flowMgr == NULL)
   {
     SET_ERROR(SnoopError, "flowMgr is null", VERR_OBJECT_IS_NULL);
-    return true;
+    return false;
   }
 
   flowMgr->disconnect(SIGNAL(__udpFlowCreated(SnoopUdpFlowKey*,SnoopFlowValue*)), this, SLOT(__udpFlowCreate(SnoopUdpFlowKey*,SnoopFlowValue*)));
@@ -97,7 +97,6 @@ void SnoopUdpSender::merge(SnoopPacket* packet)
     LOG_ERROR("packet->flowValue is null");
     return;
   }
-
   SnoopUdpSenderFlowItem** p = (SnoopUdpSenderFlowItem**)(packet->flowValue->totalMem + udpFlowOffset);
   SnoopUdpSenderFlowItem* flowItem = *p;
 
@@ -112,21 +111,21 @@ void SnoopUdpSender::merge(SnoopPacket* packet)
   int count = flowItem->chunks.count(); // for abbr
   if (count > 0)
   {
-    QByteArray udpData;
+    QByteArray newUdpData;
 
     for (int i = 0; i < count; i++)
     {
       SnoopUdpChunk& chunk = (SnoopUdpChunk)flowItem->chunks.at(i);
-      int udpDataSize = udpData.size() +
+      int udpDataSize = newUdpData.size() +
         chunk.payload.header.size()    + chunk.payload.body.size() +
         newChunk.payload.header.size() + chunk.payload.body.size();
       if (udpDataSize > 1472) // 1472 = MTU_SIZE(1500) - IP_HEADER_SIZE(20) - UDP_HEADER_SIZE(8)
         continue;
-      chunk.encode(udpData);
+      chunk.encode(newUdpData);
     }
 
-    newChunk.encode(udpData);
-    int newDataLen = udpData.length();
+    newChunk.encode(newUdpData);
+    int newDataLen = newUdpData.length();
 
     // Packet Header
     packet->pktHdr->caplen = packet->pktHdr->caplen + (newDataLen - dataLen);
@@ -138,15 +137,17 @@ void SnoopUdpSender::merge(SnoopPacket* packet)
     packet->udpHdr->uh_ulen = htons((u_int16_t)(sizeof(UDP_HDR) + newDataLen));
 
     // UDP Data
-    BYTE* p = (BYTE*)udpData.data();
-    memcpy(packet->data, p, udpData.length());
+    BYTE* p = (BYTE*)newUdpData.data();
+    memcpy(packet->data, p, newUdpData.length());
 
     // Checksum
     packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
     packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
 
-    LOG_DEBUG("udpDataLen=%d", udpData.length()); // gilgil temp 2014.07.30
+    LOG_DEBUG("newUdpDataLen=%d", newUdpData.length()); // gilgil temp 2014.07.30
+    emit merged(packet);
   }
+
   flowItem->chunks.append(newChunk);
   while (flowItem->chunks.count() > addChunkCount)
   {

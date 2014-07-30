@@ -8,8 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
-#ifndef __SNOOP_UDP_RECEIVER_H__
-#define __SNOOP_UDP_RECEIVER_H__
+#ifndef __SNOOP_UDP_SENDER_H__
+#define __SNOOP_UDP_SENDER_H__
 
 #include <SnoopProcess>
 #include <SnoopFlowMgr>
@@ -23,8 +23,8 @@
 class SnoopUdpSenderFlowItem
 {
 public:
-  int lastId;
-  QList<SnoopUdpChunk> chunks;
+  quint16 lastId;
+  SnoopUdpChunks chunks;
 
 public:
   SnoopUdpSenderFlowItem();
@@ -63,6 +63,9 @@ protected slots:
   void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
   void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
 
+signals:
+  void merged(SnoopPacket* packet);
+
 public slots:
   void merge(SnoopPacket* packet);
 
@@ -77,4 +80,4 @@ public: // for VOptionable
 #endif // QT_GUI_LIB
 };
 
-#endif // __SNOOP_UDP_RECEIVER_H__
+#endif // __SNOOP_UDP_SENDER_H__
