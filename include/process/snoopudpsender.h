@@ -12,7 +12,26 @@
 #define __SNOOP_UDP_RECEIVER_H__
 
 #include <SnoopProcess>
+#include <SnoopFlowMgr>
 #include <SnoopCapture>
+#include <SnoopUdp>
+
+// ----------------------------------------------------------------------------
+// SnoopUdpSenderFlowItem
+// ----------------------------------------------------------------------------
+class SnoopUdpSenderFlowItem
+{
+public:
+  int count;
+  QList<QByteArray> bufferList;
+
+public:
+  SnoopUdpSenderFlowItem();
+  virtual ~SnoopUdpSenderFlowItem();
+
+public:
+  void clear();
+};
 
 // ----------------------------------------------------------------------------
 // SnoopUdpSender
@@ -25,12 +44,22 @@ public:
   SnoopUdpSender(void* owner = NULL);
   virtual ~SnoopUdpSender();
 
-public:
-  SnoopCapture* writer;
-
 protected:
   virtual bool doOpen();
   virtual bool doClose();
+
+public:
+  SnoopFlowMgr* flowMgr;
+  SnoopCapture* writer;
+  QString       discriminator;
+  int           maxBufferCount;
+
+protected:
+  size_t udpFlowOffset;
+
+protected slots:
+  void __udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value);
+  void __udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value);
 
 public slots:
   void merge(SnoopPacket* packet);

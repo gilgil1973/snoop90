@@ -27,6 +27,7 @@ public:
 
 public:
   SnoopCapture* writer;
+  QString       discriminator;
 
 protected:
   virtual bool doOpen();
