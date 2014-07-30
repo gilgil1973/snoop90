@@ -19,7 +19,13 @@ void SnoopBlock::block(SnoopPacket* packet)
 {
   int r = rand() % 100; // 0 <= r <= 99
   if (r < dropRate)
+  {
     packet->drop = true;
+    emit blocked(packet);
+  } else
+  {
+    emit unblocked(packet);
+  }
 }
 
 void SnoopBlock::load(VXml xml)

@@ -27,6 +27,10 @@ public:
 public:
   int dropRate; // 0%(all allow) ~ 100%(all drop)
 
+signals:
+  void blocked(SnoopPacket* packet);
+  void unblocked(SnoopPacket* packet);
+
 public slots:
   void block(SnoopPacket* packet);
 
