@@ -144,7 +144,7 @@ void SnoopUdpSender::merge(SnoopPacket* packet)
     packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
     packet->ipHdr->ip_sum  = htons(SnoopIp::checksum(packet->ipHdr));
 
-    LOG_DEBUG("newUdpDataLen=%d", newUdpData.length()); // gilgil temp 2014.07.30
+    // LOG_DEBUG("newUdpDataLen=%d", newUdpData.length()); // gilgil temp 2014.07.30
     emit merged(packet);
   }
 

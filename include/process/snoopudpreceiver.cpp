@@ -124,11 +124,11 @@ void SnoopUdpReceiver::split(SnoopPacket* packet)
     return;
   }
   SnoopUdpReceiverFlowItem* flowItem = (SnoopUdpReceiverFlowItem*)(packet->flowValue->totalMem + udpFlowOffset);
-  LOG_DEBUG("flowItem->lastId=%d", flowItem->lastId); // gilgil temp 2014.07.31
+  // LOG_DEBUG("flowItem->lastId=%d", flowItem->lastId); // gilgil temp 2014.07.31
 
   QByteArray udpData;
   udpData.append((const char*)packet->data, packet->dataLen);
-  LOG_DEBUG("udpDataLen=%d", udpData.length()); // gilgil temp 2014.07.31
+  // LOG_DEBUG("udpDataLen=%d", udpData.length()); // gilgil temp 2014.07.31
 
   QList<SnoopUdpChunk> chunks;
   while (true)
