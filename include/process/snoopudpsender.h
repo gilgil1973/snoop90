@@ -15,6 +15,7 @@
 #include <SnoopFlowMgr>
 #include <SnoopCapture>
 #include <SnoopUdp>
+#include <SnoopUdpChunk>
 
 // ----------------------------------------------------------------------------
 // SnoopUdpSenderFlowItem
@@ -22,8 +23,8 @@
 class SnoopUdpSenderFlowItem
 {
 public:
-  int count;
-  QList<QByteArray> bufferList;
+  int lastId;
+  QList<SnoopUdpChunk> chunks;
 
 public:
   SnoopUdpSenderFlowItem();
@@ -50,9 +51,10 @@ protected:
 
 public:
   SnoopFlowMgr* flowMgr;
-  SnoopCapture* writer;
-  QString       discriminator;
-  int           maxBufferCount;
+  SnoopCapture* writer; // gilgil temp 2014.07.30
+  QByteArray    dscr;
+  int           headerSize;
+  int           addChunkCount;
 
 protected:
   size_t udpFlowOffset;

@@ -65,6 +65,7 @@ SOURCES += \
     ../include/process/snoopprocess.cpp \
     ../include/process/snoopprocessfactory.cpp \
     ../include/process/snooptcpblock.cpp \
+    ../include/process/snoopudpchunk.cpp \
     ../include/process/snoopudpreceiver.cpp \
     ../include/process/snoopudpsender.cpp \
     ../include/process/snoopwriteadapter.cpp \
@@ -129,6 +130,7 @@ HEADERS += \
     ../include/process/snoopprocess.h \
     ../include/process/snoopprocessfactory.h \
     ../include/process/snooptcpblock.h \
+    ../include/process/snoopudpchunk.h \
     ../include/process/snoopudpreceiver.h \
     ../include/process/snoopudpsender.h \
     ../include/process/snoopwriteadapter.h \

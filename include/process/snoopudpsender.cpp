@@ -17,8 +17,8 @@ SnoopUdpSenderFlowItem::~SnoopUdpSenderFlowItem()
 
 void SnoopUdpSenderFlowItem::clear()
 {
-  count = 0;
-  bufferList.clear();
+  lastId = 0;
+  chunks.clear();
 }
 
 // ----------------------------------------------------------------------------
@@ -26,10 +26,11 @@ void SnoopUdpSenderFlowItem::clear()
 // ----------------------------------------------------------------------------
 SnoopUdpSender::SnoopUdpSender(void* owner) : SnoopProcess(owner)
 {
-  flowMgr        = NULL;
-  writer         = NULL;
-  discriminator  = "GGGG";
-  maxBufferCount = 10;
+  flowMgr       = NULL;
+  writer        = NULL;
+  dscr          = "GGGG";
+  headerSize    = 0;
+  addChunkCount = 1;
 }
 
 SnoopUdpSender::~SnoopUdpSender()
@@ -68,6 +69,8 @@ bool SnoopUdpSender::doClose()
 
 void SnoopUdpSender::__udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(key)
+
   SnoopUdpSenderFlowItem* item = new SnoopUdpSenderFlowItem;
   SnoopUdpSenderFlowItem** p = (SnoopUdpSenderFlowItem**)(value->totalMem + udpFlowOffset);
   *p = item;
@@ -75,6 +78,8 @@ void SnoopUdpSender::__udpFlowCreate(SnoopUdpFlowKey* key, SnoopFlowValue* value
 
 void SnoopUdpSender::__udpFlowDelete(SnoopUdpFlowKey* key, SnoopFlowValue* value)
 {
+  Q_UNUSED(key)
+
   SnoopUdpSenderFlowItem** p = (SnoopUdpSenderFlowItem**)(value->totalMem + udpFlowOffset);
   SnoopUdpSenderFlowItem* item = *p;
   delete item;
@@ -84,23 +89,44 @@ void SnoopUdpSender::merge(SnoopPacket* packet)
 {
   if (packet->ipHdr == NULL) return;
   if (packet->udpHdr == NULL) return;
-  if (packet->dataLen < 2) return;
+  int dataLen = packet->dataLen; // for abbr
+  if (dataLen < headerSize) return;
 
   if (packet->flowValue == NULL)
   {
     LOG_ERROR("packet->flowValue is null");
     return;
   }
+
   SnoopUdpSenderFlowItem** p = (SnoopUdpSenderFlowItem**)(packet->flowValue->totalMem + udpFlowOffset);
   SnoopUdpSenderFlowItem* flowItem = *p;
-  if (flowItem->count++ % 2 == 0)
+
+  SnoopUdpChunk newChunk;
+
+  newChunk.info.dscr = this->dscr;
+  newChunk.info.id   = flowItem->lastId++;
+  newChunk.info.len  = dataLen - headerSize;
+  newChunk.payload.header.append((const char*)packet->data, headerSize);
+  newChunk.payload.body.append((const char*)packet->data + headerSize, dataLen - headerSize);
+
+  int count = flowItem->chunks.count(); // for abbr
+  if (count > 0)
   {
-    for (int i = 20; i < packet->dataLen; i++)
+    QByteArray udpData;
+
+    for (int i = 0; i < count; i++)
     {
-      packet->data[i] = 'G';
+     SnoopUdpChunk& chunk = (SnoopUdpChunk)flowItem->chunks.at(i);
+     chunk.encode(udpData);
     }
-    packet->udpHdr->uh_sum = htons(SnoopUdp::checksum(packet->ipHdr, packet->udpHdr));
-    LOG_DEBUG("merge"); // gilgil temp
+
+    newChunk.encode(udpData);
+    char* p = udpData.data(); LOG_DEBUG("%s", p); // gilgil temp 2014.07.30
+  }
+  flowItem->chunks.append(newChunk);
+  while (flowItem->chunks.count() > addChunkCount)
+  {
+    flowItem->chunks.removeAt(0);
   }
 }
 
@@ -112,8 +138,9 @@ void SnoopUdpSender::load(VXml xml)
   if (flowMgrName != "") flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(flowMgrName));
   QString writerName = xml.getStr("writer", "");
   if (writerName != "") writer = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(writerName));
-  discriminator  = xml.getStr("discriminator", discriminator);
-  maxBufferCount = xml.getInt("maxBufferCount", maxBufferCount);
+  dscr          = xml.getArr("dscr",          dscr);
+  headerSize    = xml.getInt("headerSize",    headerSize);
+  addChunkCount = xml.getInt("addChunkCount", addChunkCount);
 }
 
 void SnoopUdpSender::save(VXml xml)
@@ -124,8 +151,9 @@ void SnoopUdpSender::save(VXml xml)
   xml.setStr("flowMgr", flowMgrName);
   QString writerName = writer == NULL ? "" : writer->name;
   xml.setStr("writer", writerName);
-  xml.setStr("discriminator", discriminator);
-  xml.setInt("maxBufferCount", maxBufferCount);
+  xml.setArr("dscr",          dscr);
+  xml.setInt("headerSize",    headerSize);
+  xml.setInt("addChunkCount", addChunkCount);
 }
 
 #ifdef QT_GUI_LIB
@@ -139,8 +167,9 @@ void SnoopUdpSender::optionAddWidget(QLayout* layout)
   QStringList writerList = ((VGraph*)owner)->objectList.findNamesByCategoryName("SnoopCapture");
   VOptionable::addComboBox(layout, "cbxWriter", "Writer", writerList, -1, writer == NULL ? "" : writer->name);
 
-  VOptionable::addLineEdit(layout, "leDiscriminator", "Discriminator", discriminator);
-  VOptionable::addLineEdit(layout, "leMaxBufferCount", "Max Buffer Count", QString::number(maxBufferCount));
+  VOptionable::addLineEdit(layout, "leDscr", "Discriminator", dscr);
+  VOptionable::addLineEdit(layout, "leHeaderSize",    "Header Size", QString::number(headerSize));
+  VOptionable::addLineEdit(layout, "leAddChunkCount", "Add Chunk Count", QString::number(addChunkCount));
 }
 
 void SnoopUdpSender::optionSaveDlg(QDialog* dialog)
@@ -150,7 +179,8 @@ void SnoopUdpSender::optionSaveDlg(QDialog* dialog)
   flowMgr = (SnoopFlowMgr*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxFlowMgr")->currentText()));
   writer = (SnoopCapture*)(((VGraph*)owner)->objectList.findByName(dialog->findChild<QComboBox*>("cbxWriter")->currentText()));
 
-  discriminator = dialog->findChild<QLineEdit*>("leDiscriminator")->text();
-  maxBufferCount = dialog->findChild<QLineEdit*>("leDiscriminator")->text().toInt();
+  dscr          = qPrintable(dialog->findChild<QLineEdit*>("leDscr")->text());
+  headerSize    = dialog->findChild<QLineEdit*>("leHeaderSize")->text().toInt();
+  addChunkCount = dialog->findChild<QLineEdit*>("leAddChunkCount")->text().toInt();
 }
 #endif // QT_GUI_LIB
