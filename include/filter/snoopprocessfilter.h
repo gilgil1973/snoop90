@@ -67,8 +67,8 @@ public:
   SnoopProcessPolicyMap policyMap;
 
 protected:
-    size_t tcpFlowOffset;
-    size_t udpFlowOffset;
+  size_t tcpFlowOffset;
+  size_t udpFlowOffset;
 
 protected slots:
   void __tcpFlowCreate(SnoopTcpFlowKey* key, SnoopFlowValue* value);
