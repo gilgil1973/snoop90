@@ -7,7 +7,7 @@ REGISTER_METACLASS(SnoopBlock, SnoopProcess)
 // ----------------------------------------------------------------------------
 SnoopBlock::SnoopBlock(void* owner) : SnoopProcess(owner)
 {
-  drop = true;
+  dropRate = 100;
 }
 
 SnoopBlock::~SnoopBlock()
@@ -17,7 +17,8 @@ SnoopBlock::~SnoopBlock()
 
 void SnoopBlock::block(SnoopPacket* packet)
 {
-  if (this->drop)
+  int r = rand() % 100; // 0 <= r <= 99
+  if (r < dropRate)
     packet->drop = true;
 }
 
@@ -25,14 +26,14 @@ void SnoopBlock::load(VXml xml)
 {
   SnoopProcess::load(xml);
 
-  drop = xml.getBool("drop", drop);
+  dropRate = xml.getInt("dropRate", dropRate);
 }
 
 void SnoopBlock::save(VXml xml)
 {
   SnoopProcess::save(xml);
 
-  xml.setBool("drop", drop);
+  xml.setInt("dropRate", dropRate);
 }
 
 #ifdef QT_GUI_LIB
@@ -40,13 +41,13 @@ void SnoopBlock::optionAddWidget(QLayout* layout)
 {
   SnoopProcess::optionAddWidget(layout);
 
-  VOptionable::addCheckBox(layout, "chkDrop", "Drop", drop);
+  VOptionable::addLineEdit(layout, "leDropRate", "Drop Rate(%)", QString::number(dropRate));
 }
 
 void SnoopBlock::optionSaveDlg(QDialog* dialog)
 {
   SnoopProcess::optionSaveDlg(dialog);
 
-  drop = dialog->findChild<QCheckBox*>("chkDrop")->checkState() == Qt::Checked;
+  dropRate = dialog->findChild<QLineEdit*>("leDropRate")->text().toInt();
 }
 #endif // QT_GUI_LIB

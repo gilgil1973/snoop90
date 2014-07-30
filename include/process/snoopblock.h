@@ -25,7 +25,7 @@ public:
   virtual ~SnoopBlock();
 
 public:
-  bool drop;
+  int dropRate; // 0%(all allow) ~ 100%(all drop)
 
 public slots:
   void block(SnoopPacket* packet);
