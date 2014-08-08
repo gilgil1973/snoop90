@@ -56,6 +56,7 @@ Source: "..\..\..\vdream\vdream90\bin\webproxy.exe"; DestDir: "{app}"; Flags: ig
 Source: "..\..\certificate\*"; DestDir: "{app}\certificate"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; openssl
 Source: "C:\OpenSSL-Win32\bin\openssl.exe";  DestDir: "{app}\certificate"; Flags: ignoreversion
+Source: "C:\OpenSSL-Win32\bin\openssl.cfg";  DestDir: "{app}\certificate"; Flags: ignoreversion
 Source: "C:\OpenSSL-Win32\bin\libeay32.dll"; DestDir: "{app}\certificate"; Flags: ignoreversion
 Source: "C:\OpenSSL-Win32\bin\ssleay32.dll"; DestDir: "{app}\certificate"; Flags: ignoreversion
 Source: "C:\OpenSSL-Win32\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
